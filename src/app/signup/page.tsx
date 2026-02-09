@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import zxcvbn from 'zxcvbn';
 
 export default function SignupPage() {
   const [fullName, setFullName] = useState('');
@@ -20,6 +21,23 @@ export default function SignupPage() {
 
   const router = useRouter();
 
+  // Password strength calculation using zxcvbn
+  const passwordStrength = useMemo(() => {
+    if (!password) return { score: 0, feedback: { suggestions: [] } };
+    return zxcvbn(password);
+  }, [password]);
+
+  const strengthLevel = ['Muy débil', 'Débil', 'Regular', 'Fuerte', 'Muy fuerte'][passwordStrength.score];
+  const strengthColor = [
+    'bg-red-500',
+    'bg-orange-500',
+    'bg-yellow-500',
+    'bg-green-500',
+    'bg-emerald-500'
+  ][passwordStrength.score];
+
+  const minScore = 3; // Require at least "Fuerte"
+
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -29,8 +47,15 @@ export default function SignupPage() {
       return;
     }
 
-    if (password.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres');
+    // Enforce password strength (minimum score 3 = "Fuerte")
+    if (passwordStrength.score < minScore) {
+      setError('La contraseña es demasiado débil. Por favor, usa una contraseña más segura.');
+      return;
+    }
+
+    // Additional explicit requirements
+    if (password.length < 12) {
+      setError('La contraseña debe tener al menos 12 caracteres');
       return;
     }
 
@@ -151,11 +176,63 @@ export default function SignupPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                minLength={6}
+                minLength={12}
                 placeholder="••••••••"
                 autoComplete="new-password"
               />
-              <p className="text-xs text-neutral-500">Mínimo 6 caracteres</p>
+              <p className="text-xs text-neutral-500">Mínimo 12 caracteres</p>
+
+              {/* Password Strength Meter */}
+              {password && (
+                <div className="mt-3 space-y-2">
+                  {/* Strength Bar */}
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 bg-neutral-200 rounded-full h-2 overflow-hidden">
+                      <div
+                        className={`h-full ${strengthColor} transition-all duration-300`}
+                        style={{ width: `${(passwordStrength.score + 1) * 20}%` }}
+                      />
+                    </div>
+                    <span className={`text-xs font-medium ${
+                      passwordStrength.score >= 3 ? 'text-green-600' :
+                      passwordStrength.score >= 2 ? 'text-yellow-600' : 'text-red-600'
+                    }`}>
+                      {strengthLevel}
+                    </span>
+                  </div>
+
+                  {/* Requirements Checklist */}
+                  <div className="space-y-1 text-xs">
+                    <div className={`flex items-center gap-2 ${password.length >= 12 ? 'text-green-600' : 'text-neutral-500'}`}>
+                      {password.length >= 12 ? '✓' : '○'} Al menos 12 caracteres
+                    </div>
+                    <div className={`flex items-center gap-2 ${/[A-Z]/.test(password) ? 'text-green-600' : 'text-neutral-500'}`}>
+                      {/[A-Z]/.test(password) ? '✓' : '○'} Al menos una mayúscula
+                    </div>
+                    <div className={`flex items-center gap-2 ${/[a-z]/.test(password) ? 'text-green-600' : 'text-neutral-500'}`}>
+                      {/[a-z]/.test(password) ? '✓' : '○'} Al menos una minúscula
+                    </div>
+                    <div className={`flex items-center gap-2 ${/[0-9]/.test(password) ? 'text-green-600' : 'text-neutral-500'}`}>
+                      {/[0-9]/.test(password) ? '✓' : '○'} Al menos un número
+                    </div>
+                    <div className={`flex items-center gap-2 ${/[^A-Za-z0-9]/.test(password) ? 'text-green-600' : 'text-neutral-500'}`}>
+                      {/[^A-Za-z0-9]/.test(password) ? '✓' : '○'} Al menos un carácter especial
+                    </div>
+                  </div>
+
+                  {/* Feedback from zxcvbn */}
+                  {passwordStrength.feedback?.suggestions && passwordStrength.feedback.suggestions.length > 0 && (
+                    <p className="text-xs text-neutral-500 italic">
+                      {passwordStrength.feedback.suggestions[0]}
+                    </p>
+                  )}
+                  {passwordStrength.feedback?.warning && (
+                    <p className="text-xs text-yellow-600 italic">
+                      {passwordStrength.feedback.warning}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">

@@ -85,15 +85,15 @@
 ### 🔴 **TIER 1: LAUNCH BLOCKERS** (3-4 days)
 
 **Day 1: Cost Confidentiality (2-3h)**
-- [ ] Task #20: Hide cost column in orders list
-- [ ] Task #21: Hide cost breakdown modal
-- [ ] Task #22: Hide cost KPI in dashboard
-- [ ] Task #23: Hide cost column in recent orders table
-- [ ] Task #24: Verify charts don't leak cost data
+- [x] Task #20: Hide cost column in orders list
+- [x] Task #21: Hide cost breakdown modal
+- [x] Task #22: Hide cost KPI in dashboard
+- [x] Task #23: Hide cost column in recent orders table
+- [x] Task #24: Verify charts don't leak cost data
 
 **Day 2: Authentication Hardening (4h)**
-- [ ] Task #25: Rate limiting (5 attempts/15min)
-- [ ] Task #26: Account lockout (5 fails → 1h)
+- [x] Task #25: Rate limiting (5 attempts/15min)
+- [x] Task #26: Account lockout (5 fails → 1h)
 - [ ] Task #29: Password strength validation (zxcvbn)
 
 **Day 3: Headers & Configuration (2h)**
@@ -389,13 +389,14 @@ Your architecture:
 | Aspect | Status |
 |--------|--------|
 | Data isolation (RLS) | ✅ Strong foundation |
-| Cost confidentiality | ❌ **Critical breach** (must fix) |
-| Authentication hardening | ❌ **Missing** (rate limit, lockout) |
+| Cost confidentiality | ✅ **Fixed** (tasks #20-24 complete) |
+| Authentication hardening | ✅ **Complete** (rate limit + lockout; #25-26) |
+| Password strength | ⚠️ Pending (#29) |
 | Security headers | ❌ **Missing** (XSS/clickjacking risk) |
 | Audit logging | ❌ **Critical gap** (no detection) |
 | Error handling | ⚠️ Needs sanitization |
 | Dependency scanning | ⚠️ Needs automation |
-| **Overall** | 🟡 **50% OWASP compliant** |
+| **Overall** | 🟢 **~65% OWASP compliant** |
 
 **Launch Readiness:** ❌ **No** - Must complete **Tier 1 security tasks** first (3-4 days of focused work).
 

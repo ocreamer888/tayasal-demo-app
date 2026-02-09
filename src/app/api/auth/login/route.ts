@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { checkRateLimit, generateAuthKey } from '@/lib/rate-limit';
+import { checkRateLimit, generateAuthKey, isAccountLocked, getLockRemaining, recordFailedLogin, resetFailedLogin } from '@/lib/rate-limit';
 
 /**
  * POST /api/auth/login
- * Rate limited: 5 attempts per 15 minutes per email, 20 per IP
+ * Security: Rate limit (5 email/15min, 20 IP/15min) + Account lockout (5 fails → 1h)
  */
 export async function POST(request: NextRequest) {
   try {
@@ -17,16 +17,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Rate limiting
-    const ip = request.headers.get('x-forwarded-for') || request.headers.get('cf-connecting-ip') || 'unknown';
-    const emailLimit = await checkRateLimit(generateAuthKey('login', email), 5, 15 * 60 * 1000);
-    if (!emailLimit.allowed) {
+    // Check account lockout first (before revealing account exists)
+    const locked = await isAccountLocked(email);
+    if (locked) {
+      const remaining = await getLockRemaining(email);
       return NextResponse.json(
-        { error: 'Demasiados intentos. Espere antes de reintentar.', retryAfter: emailLimit.retryAfter || 900 },
-        { status: 429 }
+        {
+          error: 'Cuenta bloqueada temporalmente debido a múltiples intentos fallidos.',
+          locked: true,
+          unlockIn: remaining,
+        },
+        { status: 403, headers: { 'Retry-After': String(remaining || 3600) } }
       );
     }
 
+    // Rate limiting (IP-based only before auth to avoid account enumeration)
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('cf-connecting-ip') || 'unknown';
     const ipLimit = await checkRateLimit(generateAuthKey('login', `ip:${ip}`), 20, 15 * 60 * 1000);
     if (!ipLimit.allowed) {
       return NextResponse.json(
@@ -35,7 +41,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Auth with Supabase (server-side)
+    // Auth with Supabase
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -44,11 +50,32 @@ export async function POST(request: NextRequest) {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
-      console.error(`Login failed for ${email}: ${error.message}`);
-      return NextResponse.json({ error: error.message }, { status: 401 });
+      // Record failed attempt (may trigger lockout)
+      const failResult = await recordFailedLogin(email);
+      console.error(`Login failed for ${email}: ${error.message} (attempts: ${failResult.attempts})`);
+
+      // If account just got locked, return lockout message
+      if (failResult.locked) {
+        return NextResponse.json(
+          {
+            error: 'Cuenta bloqueada por demasiados intentos fallidos.',
+            locked: true,
+            unlockIn: failResult.lockRemaining,
+          },
+          { status: 403 }
+        );
+      }
+
+      return NextResponse.json(
+        { error: 'Credenciales incorrectas', attempts: failResult.attempts },
+        { status: 401 }
+      );
     }
 
-    // Return session data for client to set
+    // Successful login: reset failed counter and any lock
+    await resetFailedLogin(email);
+
+    // Return session data
     return NextResponse.json(
       { user: data.user, session: data.session, message: 'Inicio de sesión exitoso' },
       { status: 200 }
