@@ -166,7 +166,7 @@ Don't memorize vulnerabilities. Use the 10 categories as audit:
 ### Not Required for MVP Launch:
 1. **Middleware** (as you correctly questioned) - no separate engineer routes exist
 2. **MFA** - nice-to-have post-launch, add later for enterprise
-3. **Advanced rate limiting** (distributed Redis) - in-memory is fine for MVP scale
+3. **Distributed rate limiting (Redis)** - ⚠️ **CRITICAL PRODUCTION NOTE:** Current implementation uses in-memory Map which **WILL FAIL** in serverless environments with multiple instances. **Must upgrade to Redis (Upstash) before production deployment.** See `memory/lessons-learned.md` for technical explanation.
 4. **SIEM integration** - log to file/DB first, aggregate later
 5. **Penetration testing** - can do limited internal test, schedule external for v1.0
 6. **WAF configuration** - Vercel provides basic WAF
