@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ConcretePlant } from '@/types/inventory';
-import { createClient } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 import { useAuth } from '@/app/contexts/AuthContext';
 
 function transformPlantFromDB(dbPlant: any): ConcretePlant {
@@ -22,7 +22,7 @@ export function useConcretePlants() {
   const [error, setError] = useState<string | null>(null);
 
   const { user } = useAuth();
-  const supabase = useMemo(() => createClient(), []);
+  const supabaseInstance = supabase;
 
   const fetchPlants = useCallback(async () => {
     if (!user) {
@@ -90,7 +90,7 @@ export function useConcretePlants() {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      supabaseInstance.removeChannel(channel);
     };
   }, [user, supabase]);
 

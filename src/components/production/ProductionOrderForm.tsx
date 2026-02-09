@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import {
   ProductionOrder,
   ProductionOrderFormData,
@@ -8,10 +8,14 @@ import {
   EquipmentUsage,
   TeamAssignment
 } from '@/types/production-order';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import { Card } from '@/components/ui/Card';
-import { useProductionOrders } from '@/lib/hooks/useProductionOrders';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { toast } from 'sonner';
+import { useAuth } from '@/app/contexts/AuthContext';
 import { useInventoryMaterials } from '@/lib/hooks/useInventoryMaterials';
 import { useConcretePlants } from '@/lib/hooks/useConcretePlants';
 import { useEquipment } from '@/lib/hooks/useEquipment';
@@ -23,6 +27,14 @@ import {
 } from '@/lib/constants/production';
 import { Plus, Trash2, Calculator } from 'lucide-react';
 
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('es-ES', {
+    style: 'currency',
+    currency: 'CLP',
+    minimumFractionDigits: 0,
+  }).format(amount);
+};
+
 interface ProductionOrderFormProps {
   onSubmit: (data: Omit<ProductionOrder, 'id' | 'createdAt' | 'updatedAt' | 'user_id' | 'created_by_name'>) => void;
   onCancel: () => void;
@@ -31,7 +43,7 @@ interface ProductionOrderFormProps {
 
 export function ProductionOrderForm({ onSubmit, onCancel, initialData }: ProductionOrderFormProps) {
   const { user } = useAuth();
-  const { addMaterial } = useInventoryMaterials({ userRole: 'engineer' });
+  const { materials } = useInventoryMaterials({ userRole: 'engineer' });
   const { plants } = useConcretePlants();
   const { equipment: allEquipment } = useEquipment();
   const { members } = useTeamMembers();
@@ -209,12 +221,31 @@ export function ProductionOrderForm({ onSubmit, onCancel, initialData }: Product
     e.preventDefault();
 
     if (!validate()) {
+      toast.error('Por favor corrige los errores en el formulario');
       return;
     }
 
     setIsSaving(true);
 
     try {
+      // Calculate costs
+      const material_cost = formData.materials_used.reduce(
+        (sum, m) => sum + (m.quantity * m.unitCost),
+        0
+      );
+      const labor_cost = formData.team_assigned.reduce(
+        (sum, t) => sum + (t.hoursWorked * t.hourlyRate),
+        0
+      );
+      const equipment_cost = formData.equipment_used.reduce(
+        (sum, e) => sum + (e.hoursUsed * e.hourlyCost),
+        0
+      );
+      // Energy and maintenance costs would need additional inputs; default to 0 for now
+      const energy_cost = 0;
+      const maintenance_cost = 0;
+      const total_cost = material_cost + labor_cost + equipment_cost + energy_cost + maintenance_cost;
+
       // Prepare submission data
       const submissionData: Omit<ProductionOrder, 'id' | 'createdAt' | 'updatedAt' | 'user_id' | 'created_by_name'> = {
         block_type: formData.block_type,
@@ -230,400 +261,506 @@ export function ProductionOrderForm({ onSubmit, onCancel, initialData }: Product
         equipment_used: formData.equipment_used,
         team_assigned: formData.team_assigned,
         notes: formData.notes,
+        status: initialData?.status || 'draft',
+        // Costs
+        material_cost,
+        labor_cost,
+        equipment_cost,
+        energy_cost,
+        maintenance_cost,
+        total_cost,
       };
 
       await onSubmit(submissionData);
+      toast.success(
+        initialData ? 'Orden de producción actualizada exitosamente' : 'Orden de producción creada exitosamente'
+      );
+      onCancel();
     } catch (error) {
       console.error('Error submitting order:', error);
+      toast.error(
+        error instanceof Error ? error.message : 'Error al guardar la orden de producción'
+      );
     } finally {
       setIsSaving(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
+    <form onSubmit={handleSubmit} className="space-y-6">
       {/* Basic Information */}
-      <Card title="Información Básica" className="p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Tipo de Bloque <span className="text-red-500">*</span>
-            </label>
-            <select
-              value={formData.block_type}
-              onChange={(e) => handleChange('block_type', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-lg ${errors.block_type ? 'border-red-500' : 'border-gray-300'}`}
-            >
-              <option value="">Seleccionar...</option>
-              {BLOCK_TYPES.map(type => (
-                <option key={type} value={type}>{type}</option>
-              ))}
-            </select>
-            {errors.block_type && <p className="text-red-500 text-xs mt-1">{errors.block_type}</p>}
-          </div>
+      <Card className="p-6">
+        <CardHeader className="px-0 pt-0">
+          <CardTitle className="text-h3 text-neutral-900">Información Básica</CardTitle>
+        </CardHeader>
+        <CardContent className="px-0 pb-0">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Tipo de Bloque */}
+            <div className="space-y-2">
+              <Label htmlFor="block_type" className="text-sm font-medium text-neutral-700">
+                Tipo de Bloque <span className="text-red-500">*</span>
+              </Label>
+              <Select
+                value={formData.block_type}
+                onValueChange={(value) => handleChange('block_type', value)}
+              >
+                <SelectTrigger id="block_type" className={errors.block_type ? 'border-red-500' : ''}>
+                  <SelectValue placeholder="Seleccionar..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {BLOCK_TYPES.map(type => (
+                    <SelectItem key={type} value={type}>{type}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.block_type && <p className="text-red-500 text-xs mt-1">{errors.block_type}</p>}
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Tamaño <span className="text-red-500">*</span>
-            </label>
-            <select
-              value={formData.block_size}
-              onChange={(e) => handleChange('block_size', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-lg ${errors.block_size ? 'border-red-500' : 'border-gray-300'}`}
-            >
-              <option value="">Seleccionar...</option>
-              {BLOCK_SIZES.map(size => (
-                <option key={size} value={size}>{size}</option>
-              ))}
-            </select>
-            {errors.block_size && <p className="text-red-500 text-xs mt-1">{errors.block_size}</p>}
-          </div>
+            {/* Tamaño */}
+            <div className="space-y-2">
+              <Label htmlFor="block_size" className="text-sm font-medium text-neutral-700">
+                Tamaño <span className="text-red-500">*</span>
+              </Label>
+              <Select
+                value={formData.block_size}
+                onValueChange={(value) => handleChange('block_size', value)}
+              >
+                <SelectTrigger id="block_size" className={errors.block_size ? 'border-red-500' : ''}>
+                  <SelectValue placeholder="Seleccionar..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {BLOCK_SIZES.map(size => (
+                    <SelectItem key={size} value={size}>{size}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.block_size && <p className="text-red-500 text-xs mt-1">{errors.block_size}</p>}
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Cantidad Producida <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="number"
-              min="1"
-              value={formData.quantity_produced}
-              onChange={(e) => handleChange('quantity_produced', parseInt(e.target.value) || 0)}
-              className={`w-full px-3 py-2 border rounded-lg ${errors.quantity_produced ? 'border-red-500' : 'border-gray-300'}`}
-            />
-            {errors.quantity_produced && <p className="text-red-500 text-xs mt-1">{errors.quantity_produced}</p>}
-          </div>
+            {/* Cantidad Producida */}
+            <div className="space-y-2">
+              <Label htmlFor="quantity_produced" className="text-sm font-medium text-neutral-700">
+                Cantidad Producida <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="quantity_produced"
+                type="number"
+                min="1"
+                value={formData.quantity_produced || ''}
+                onChange={(e) => handleChange('quantity_produced', parseInt(e.target.value) || 0)}
+                className={errors.quantity_produced ? 'border-red-500' : ''}
+              />
+              {errors.quantity_produced && <p className="text-red-500 text-xs mt-1">{errors.quantity_produced}</p>}
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Fecha de Producción <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="date"
-              value={formData.production_date}
-              onChange={(e) => handleChange('production_date', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-lg ${errors.production_date ? 'border-red-500' : 'border-gray-300'}`}
-            />
-            {errors.production_date && <p className="text-red-500 text-xs mt-1">{errors.production_date}</p>}
-          </div>
+            {/* Fecha de Producción */}
+            <div className="space-y-2">
+              <Label htmlFor="production_date" className="text-sm font-medium text-neutral-700">
+                Fecha de Producción <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="production_date"
+                type="date"
+                value={formData.production_date}
+                onChange={(e) => handleChange('production_date', e.target.value)}
+                className={errors.production_date ? 'border-red-500' : ''}
+              />
+              {errors.production_date && <p className="text-red-500 text-xs mt-1">{errors.production_date}</p>}
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Turno <span className="text-red-500">*</span>
-            </label>
-            <select
-              value={formData.production_shift}
-              onChange={(e) => handleChange('production_shift', e.target.value as any)}
-              className={`w-full px-3 py-2 border rounded-lg ${errors.production_shift ? 'border-red-500' : 'border-gray-300'}`}
-            >
-              {SHIFT_OPTIONS.map(shift => (
-                <option key={shift.value} value={shift.value}>{shift.label}</option>
-              ))}
-            </select>
-            {errors.production_shift && <p className="text-red-500 text-xs mt-1">{errors.production_shift}</p>}
-          </div>
+            {/* Turno */}
+            <div className="space-y-2">
+              <Label htmlFor="production_shift" className="text-sm font-medium text-neutral-700">
+                Turno <span className="text-red-500">*</span>
+              </Label>
+              <Select
+                value={formData.production_shift}
+                onValueChange={(value) => handleChange('production_shift', value as any)}
+              >
+                <SelectTrigger id="production_shift" className={errors.production_shift ? 'border-red-500' : ''}>
+                  <SelectValue placeholder="Seleccionar turno..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {SHIFT_OPTIONS.map(shift => (
+                    <SelectItem key={shift.value} value={shift.value}>{shift.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.production_shift && <p className="text-red-500 text-xs mt-1">{errors.production_shift}</p>}
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Planta de Concreto <span className="text-red-500">*</span>
-            </label>
-            <select
-              value={formData.concrete_plant_id}
-              onChange={(e) => handleChange('concrete_plant_id', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-lg ${errors.concrete_plant_id ? 'border-red-500' : 'border-gray-300'}`}
-            >
-              <option value="">Seleccionar planta...</option>
-              {plants.map(plant => (
-                <option key={plant.id} value={plant.id}>{plant.name} - {plant.location}</option>
-              ))}
-            </select>
-            {errors.concrete_plant_id && <p className="text-red-500 text-xs mt-1">{errors.concrete_plant_id}</p>}
-            {plants.length === 0 && (
-              <p className="text-xs text-amber-600 mt-1">⚠️ Debes crear al menos una planta de concreto primero</p>
-            )}
+            {/* Planta de Concreto */}
+            <div className="space-y-2">
+              <Label htmlFor="concrete_plant_id" className="text-sm font-medium text-neutral-700">
+                Planta de Concreto <span className="text-red-500">*</span>
+              </Label>
+              <Select
+                value={formData.concrete_plant_id}
+                onValueChange={(value) => handleChange('concrete_plant_id', value)}
+              >
+                <SelectTrigger id="concrete_plant_id" className={errors.concrete_plant_id ? 'border-red-500' : ''}>
+                  <SelectValue placeholder="Seleccionar planta..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {plants.map(plant => (
+                    <SelectItem key={plant.id} value={plant.id}>{plant.name} - {plant.location}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.concrete_plant_id && <p className="text-red-500 text-xs mt-1">{errors.concrete_plant_id}</p>}
+              {plants.length === 0 && (
+                <p className="text-xs text-amber-600 mt-1">⚠️ Debes crear al menos una planta de concreto primero</p>
+              )}
+            </div>
           </div>
-        </div>
+        </CardContent>
       </Card>
 
       {/* Production Times */}
-      <Card title="Tiempos de Producción" className="p-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Hora Inicio
-            </label>
-            <input
-              type="time"
-              value={formData.start_time}
-              onChange={(e) => handleChange('start_time', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Hora Fin
-            </label>
-            <input
-              type="time"
-              value={formData.end_time}
-              onChange={(e) => handleChange('end_time', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Duración (minutos)
-            </label>
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                value={formData.duration_minutes}
-                readOnly
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+      <Card className="p-6">
+        <CardHeader className="px-0 pt-0">
+          <CardTitle className="text-h3 text-neutral-900">Tiempos de Producción</CardTitle>
+        </CardHeader>
+        <CardContent className="px-0 pb-0">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Hora Inicio */}
+            <div className="space-y-2">
+              <Label htmlFor="start_time" className="text-sm font-medium text-neutral-700">
+                Hora Inicio
+              </Label>
+              <Input
+                id="start_time"
+                type="time"
+                value={formData.start_time}
+                onChange={(e) => handleChange('start_time', e.target.value)}
               />
-              <Calculator size={20} className="text-gray-400" />
             </div>
-            <p className="text-xs text-gray-500 mt-1">Calculado automáticamente</p>
+
+            {/* Hora Fin */}
+            <div className="space-y-2">
+              <Label htmlFor="end_time" className="text-sm font-medium text-neutral-700">
+                Hora Fin
+              </Label>
+              <Input
+                id="end_time"
+                type="time"
+                value={formData.end_time}
+                onChange={(e) => handleChange('end_time', e.target.value)}
+              />
+            </div>
+
+            {/* Duración */}
+            <div className="space-y-2">
+              <Label htmlFor="duration_minutes" className="text-sm font-medium text-neutral-700">
+                Duración (minutos)
+              </Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  id="duration_minutes"
+                  type="number"
+                  value={formData.duration_minutes}
+                  readOnly
+                  className="bg-neutral-50"
+                />
+                <Calculator size={20} className="text-neutral-400" />
+              </div>
+              <p className="text-xs text-neutral-500 mt-1">Calculado automáticamente</p>
+            </div>
           </div>
-        </div>
+        </CardContent>
       </Card>
 
       {/* Materials Used */}
-      <Card title="Materiales Utilizados" className="p-6">
-        <div className="space-y-4">
-          {formData.materials_used.map((material, index) => (
-            <div key={index} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-              <div className="flex-1">
-                <label className="block text-xs font-medium text-gray-600 mb-1">
-                  Material
-                </label>
-                <select
-                  value={material.materialId}
-                  onChange={(e) => {
-                    const selectedMaterial = allEquipment.find(m => m.id === e.target.value); // TODO: use inventory materials
-                    updateMaterialUsage(index, {
-                      materialId: e.target.value,
-                      materialName: selectedMaterial?.name || '',
-                      unit: 'unidades',
-                      unitCost: 0
-                    });
-                  }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+      <Card className="p-6">
+        <CardHeader className="px-0 pt-0">
+          <CardTitle className="text-h3 text-neutral-900">Materiales Utilizados</CardTitle>
+        </CardHeader>
+        <CardContent className="px-0 pb-0">
+          <div className="space-y-4">
+            {formData.materials_used.map((material, index) => (
+              <div key={index} className="flex items-center gap-4 p-4 bg-neutral-50 rounded-lg">
+                {/* Material Select */}
+                <div className="flex-1 space-y-2">
+                  <Label htmlFor={`material-${index}`} className="text-xs font-medium text-neutral-600">
+                    Material
+                  </Label>
+                  <Select
+                    value={material.materialId}
+                    onValueChange={(value) => {
+                      const selectedMaterial = materials.find(m => m.id === value);
+                      updateMaterialUsage(index, {
+                        materialId: value,
+                        materialName: selectedMaterial?.material_name || '',
+                        unit: selectedMaterial?.unit || 'unidades',
+                        unitCost: selectedMaterial?.unit_cost || 0
+                      });
+                    }}
+                  >
+                    <SelectTrigger id={`material-${index}`}>
+                      <SelectValue placeholder="Seleccionar material..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {materials.map(m => (
+                        <SelectItem key={m.id} value={m.id}>
+                          {m.material_name} ({m.unit} - {formatCurrency(m.unit_cost)}/unidad)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Cantidad */}
+                <div className="w-24 space-y-2">
+                  <Label htmlFor={`material-qty-${index}`} className="text-xs font-medium text-neutral-600">
+                    Cantidad
+                  </Label>
+                  <Input
+                    id={`material-qty-${index}`}
+                    type="number"
+                    min="0"
+                    value={material.quantity || ''}
+                    onChange={(e) => updateMaterialUsage(index, { quantity: parseFloat(e.target.value) || 0 })}
+                  />
+                </div>
+
+                {/* Unidad (readonly) */}
+                <div className="w-20 space-y-2">
+                  <Label htmlFor={`material-unit-${index}`} className="text-xs font-medium text-neutral-600">
+                    Unidad
+                  </Label>
+                  <Input
+                    id={`material-unit-${index}`}
+                    type="text"
+                    value={material.unit}
+                    readOnly
+                    className="bg-neutral-50"
+                  />
+                </div>
+
+                {/* Remove Button */}
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => removeMaterialUsage(index)}
+                  className="mt-6"
                 >
-                  <option value="">Seleccionar material...</option>
-                  {/* TODO: Populate from inventory_materials */}
-                </select>
+                  <Trash2 size={16} />
+                </Button>
               </div>
+            ))}
+          </div>
 
-              <div className="w-24">
-                <label className="block text-xs font-medium text-gray-600 mb-1">
-                  Cantidad
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  value={material.quantity}
-                  onChange={(e) => updateMaterialUsage(index, { quantity: parseFloat(e.target.value) || 0 })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                />
-              </div>
+          {/* Add Material Button */}
+          <div className="mt-4">
+            <Button type="button" variant="secondary" onClick={addMaterialUsage} className="w-full">
+              <Plus size={16} className="mr-2" />
+              Agregar Material
+            </Button>
+          </div>
 
-              <div className="w-20">
-                <label className="block text-xs font-medium text-gray-600 mb-1">
-                  Unidad
-                </label>
-                <input
-                  type="text"
-                  value={material.unit}
-                  readOnly
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
-                />
-              </div>
-
-              <Button
-                type="button"
-                variant="danger"
-                size="sm"
-                onClick={() => removeMaterialUsage(index)}
-              >
-                <Trash2 size={16} />
-              </Button>
-            </div>
-          ))}
-
-          <Button type="button" variant="secondary" onClick={addMaterialUsage} className="w-full">
-            <Plus size={16} className="mr-2" />
-            Agregar Material
-          </Button>
-
+          {/* Error Message */}
           {errors.materials_used && (
-            <p className="text-red-500 text-sm">{errors.materials_used}</p>
+            <p className="text-red-500 text-sm mt-2">{errors.materials_used}</p>
           )}
-        </div>
+        </CardContent>
       </Card>
 
       {/* Equipment Used */}
-      <Card title="Equipos Utilizados" className="p-6">
-        <div className="space-y-4">
-          {formData.equipment_used.map((equip, index) => (
-            <div key={index} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-              <div className="flex-1">
-                <label className="block text-xs font-medium text-gray-600 mb-1">
-                  Equipo
-                </label>
-                <select
-                  value={equip.equipmentId}
-                  onChange={(e) => {
-                    const selectedEquipment = allEquipment.find(eq => eq.id === e.target.value);
-                    updateEquipmentUsage(index, {
-                      equipmentId: e.target.value,
-                      equipmentName: selectedEquipment?.name || '',
-                      hourlyCost: selectedEquipment?.hourly_cost || 0
-                    });
-                  }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+      <Card className="p-6">
+        <CardHeader className="px-0 pt-0">
+          <CardTitle className="text-h3 text-neutral-900">Equipos Utilizados</CardTitle>
+        </CardHeader>
+        <CardContent className="px-0 pb-0">
+          <div className="space-y-4">
+            {formData.equipment_used.map((equip, index) => (
+              <div key={index} className="flex items-center gap-4 p-4 bg-neutral-50 rounded-lg">
+                {/* Equipo Select */}
+                <div className="flex-1 space-y-2">
+                  <Label htmlFor={`equip-${index}`} className="text-xs font-medium text-neutral-600">
+                    Equipo
+                  </Label>
+                  <Select
+                    value={equip.equipmentId}
+                    onValueChange={(value) => {
+                      const selectedEquipment = allEquipment.find(eq => eq.id === value);
+                      updateEquipmentUsage(index, {
+                        equipmentId: value,
+                        equipmentName: selectedEquipment?.name || '',
+                        hourlyCost: selectedEquipment?.hourly_cost || 0
+                      });
+                    }}
+                  >
+                    <SelectTrigger id={`equip-${index}`}>
+                      <SelectValue placeholder="Seleccionar equipo..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {allEquipment.map(eq => (
+                        <SelectItem key={eq.id} value={eq.id}>{eq.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Horas */}
+                <div className="w-24 space-y-2">
+                  <Label htmlFor={`equip-hours-${index}`} className="text-xs font-medium text-neutral-600">
+                    Horas
+                  </Label>
+                  <Input
+                    id={`equip-hours-${index}`}
+                    type="number"
+                    min="0"
+                    step="0.5"
+                    value={equip.hoursUsed || ''}
+                    onChange={(e) => updateEquipmentUsage(index, { hoursUsed: parseFloat(e.target.value) || 0 })}
+                  />
+                </div>
+
+                {/* Combustible */}
+                <div className="w-32 space-y-2">
+                  <Label htmlFor={`equip-fuel-${index}`} className="text-xs font-medium text-neutral-600">
+                    Combustible (L)
+                  </Label>
+                  <Input
+                    id={`equip-fuel-${index}`}
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    value={equip.fuelConsumed || ''}
+                    onChange={(e) => updateEquipmentUsage(index, { fuelConsumed: parseFloat(e.target.value) || 0 })}
+                  />
+                </div>
+
+                {/* Remove Button */}
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => removeEquipmentUsage(index)}
+                  className="mt-6"
                 >
-                  <option value="">Seleccionar equipo...</option>
-                  {allEquipment.map(eq => (
-                    <option key={eq.id} value={eq.id}>{eq.name}</option>
-                  ))}
-                </select>
+                  <Trash2 size={16} />
+                </Button>
               </div>
+            ))}
+          </div>
 
-              <div className="w-24">
-                <label className="block text-xs font-medium text-gray-600 mb-1">
-                  Horas
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.5"
-                  value={equip.hoursUsed}
-                  onChange={(e) => updateEquipmentUsage(index, { hoursUsed: parseFloat(e.target.value) || 0 })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                />
-              </div>
-
-              <div className="w-32">
-                <label className="block text-xs font-medium text-gray-600 mb-1">
-                  Combustible (L)
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.1"
-                  value={equip.fuelConsumed || 0}
-                  onChange={(e) => updateEquipmentUsage(index, { fuelConsumed: parseFloat(e.target.value) || 0 })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                />
-              </div>
-
-              <Button
-                type="button"
-                variant="danger"
-                size="sm"
-                onClick={() => removeEquipmentUsage(index)}
-              >
-                <Trash2 size={16} />
-              </Button>
-            </div>
-          ))}
-
-          <Button type="button" variant="secondary" onClick={addEquipmentUsage} className="w-full">
-            <Plus size={16} className="mr-2" />
-            Agregar Equipo
-          </Button>
-        </div>
+          <div className="mt-4">
+            <Button type="button" variant="secondary" onClick={addEquipmentUsage} className="w-full">
+              <Plus size={16} className="mr-2" />
+              Agregar Equipo
+            </Button>
+          </div>
+        </CardContent>
       </Card>
 
       {/* Team Assigned */}
-      <Card title="Equipo Asignado" className="p-6">
-        <div className="space-y-4">
-          {formData.team_assigned.map((member, index) => (
-            <div key={index} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-              <div className="flex-1">
-                <label className="block text-xs font-medium text-gray-600 mb-1">
-                  Miembro
-                </label>
-                <select
-                  value={member.memberId}
-                  onChange={(e) => {
-                    const selectedMember = members.find(m => m.id === e.target.value);
-                    updateTeamAssignment(index, {
-                      memberId: e.target.value,
-                      memberName: selectedMember?.name || '',
-                      role: selectedMember?.role || '',
-                      hourlyRate: selectedMember?.hourly_rate || 0
-                    });
-                  }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                >
-                  <option value="">Seleccionar miembro...</option>
-                  {members.map(m => (
-                    <option key={m.id} value={m.id}>{m.name} ({m.role})</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="w-24">
-                <label className="block text-xs font-medium text-gray-600 mb-1">
-                  Horas
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.5"
-                  value={member.hoursWorked}
-                  onChange={(e) => updateTeamAssignment(index, { hoursWorked: parseFloat(e.target.value) || 0 })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                />
-              </div>
-
-              <div className="w-32">
-                <label className="block text-xs font-medium text-gray-600 mb-1">
-                  Tarifa/hora
-                </label>
-                <div className="px-3 py-2 bg-gray-100 rounded-lg text-sm">
-                  ${member.hourlyRate.toFixed(2)}
+      <Card className="p-6">
+        <CardHeader className="px-0 pt-0">
+          <CardTitle className="text-h3 text-neutral-900">Equipo Asignado</CardTitle>
+        </CardHeader>
+        <CardContent className="px-0 pb-0">
+          <div className="space-y-4">
+            {formData.team_assigned.map((member, index) => (
+              <div key={index} className="flex items-center gap-4 p-4 bg-neutral-50 rounded-lg">
+                {/* Miembro Select */}
+                <div className="flex-1 space-y-2">
+                  <Label htmlFor={`member-${index}`} className="text-xs font-medium text-neutral-600">
+                    Miembro
+                  </Label>
+                  <Select
+                    value={member.memberId}
+                    onValueChange={(value) => {
+                      const selectedMember = members.find(m => m.id === value);
+                      updateTeamAssignment(index, {
+                        memberId: value,
+                        memberName: selectedMember?.name || '',
+                        role: selectedMember?.role || '',
+                        hourlyRate: selectedMember?.hourly_rate || 0
+                      });
+                    }}
+                  >
+                    <SelectTrigger id={`member-${index}`}>
+                      <SelectValue placeholder="Seleccionar miembro..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {members.map(m => (
+                        <SelectItem key={m.id} value={m.id}>{m.name} ({m.role})</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
+
+                {/* Horas */}
+                <div className="w-24 space-y-2">
+                  <Label htmlFor={`member-hours-${index}`} className="text-xs font-medium text-neutral-600">
+                    Horas
+                  </Label>
+                  <Input
+                    id={`member-hours-${index}`}
+                    type="number"
+                    min="0"
+                    step="0.5"
+                    value={member.hoursWorked || ''}
+                    onChange={(e) => updateTeamAssignment(index, { hoursWorked: parseFloat(e.target.value) || 0 })}
+                  />
+                </div>
+
+                {/* Tarifa/hora */}
+                <div className="w-32 space-y-2">
+                  <Label htmlFor={`member-rate-${index}`} className="text-xs font-medium text-neutral-600">
+                    Tarifa/hora
+                  </Label>
+                  <div className="px-3 py-2 bg-neutral-100 rounded-lg text-sm font-medium">
+                    ${member.hourlyRate.toFixed(2)}
+                  </div>
+                </div>
+
+                {/* Remove Button */}
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => removeTeamAssignment(index)}
+                  className="mt-6"
+                >
+                  <Trash2 size={16} />
+                </Button>
               </div>
+            ))}
+          </div>
 
-              <Button
-                type="button"
-                variant="danger"
-                size="sm"
-                onClick={() => removeTeamAssignment(index)}
-              >
-                <Trash2 size={16} />
-              </Button>
-            </div>
-          ))}
-
-          <Button type="button" variant="secondary" onClick={addTeamAssignment} className="w-full">
-            <Plus size={16} className="mr-2" />
-            Agregar Miembro del Equipo
-          </Button>
+          <div className="mt-4">
+            <Button type="button" variant="secondary" onClick={addTeamAssignment} className="w-full">
+              <Plus size={16} className="mr-2" />
+              Agregar Miembro del Equipo
+            </Button>
+          </div>
 
           {errors.team_assigned && (
-            <p className="text-red-500 text-sm">{errors.team_assigned}</p>
+            <p className="text-red-500 text-sm mt-2">{errors.team_assigned}</p>
           )}
-        </div>
+        </CardContent>
       </Card>
 
       {/* Notes */}
-      <Card title="Notas Adicionales" className="p-6">
-        <textarea
-          value={formData.notes}
-          onChange={(e) => handleChange('notes', e.target.value)}
-          rows={4}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-          placeholder="Notas, observaciones, comentarios..."
-        />
+      <Card className="p-6">
+        <CardHeader className="px-0 pt-0">
+          <CardTitle className="text-h3 text-neutral-900">Notas Adicionales</CardTitle>
+        </CardHeader>
+        <CardContent className="px-0 pb-0">
+          <Textarea
+            value={formData.notes}
+            onChange={(e) => handleChange('notes', e.target.value)}
+            rows={4}
+            placeholder="Notas, observaciones, comentarios..."
+          />
+        </CardContent>
       </Card>
 
       {/* Actions */}
-      <div className="flex justify-end gap-4">
+      <div className="flex justify-end gap-4 pt-4">
         <Button type="button" variant="secondary" onClick={onCancel} disabled={isSaving}>
           Cancelar
         </Button>

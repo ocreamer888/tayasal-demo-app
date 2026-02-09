@@ -2,7 +2,18 @@
 
 import { useState } from 'react';
 import { ProductionOrder } from '@/types/production-order';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import {
   Eye,
   Edit,
@@ -12,6 +23,7 @@ import {
   XCircle,
   Clock
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface ProductionOrderListProps {
   orders: ProductionOrder[];
@@ -35,13 +47,14 @@ export function ProductionOrderList({
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
 
   const getStatusBadge = (status: ProductionOrder['status']) => {
-    const styles = {
-      draft: 'bg-gray-100 text-gray-800',
-      submitted: 'bg-yellow-100 text-yellow-800',
-      approved: 'bg-green-100 text-green-800',
-      rejected: 'bg-red-100 text-red-800',
-      archived: 'bg-blue-100 text-blue-800',
-    };
+    const variant =
+      status === 'approved'
+        ? 'success'
+        : status === 'submitted'
+        ? 'warning'
+        : status === 'rejected'
+        ? 'error'
+        : 'secondary';
 
     const labels = {
       draft: 'Borrador',
@@ -51,11 +64,7 @@ export function ProductionOrderList({
       archived: 'Archivada',
     };
 
-    return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${styles[status]}`}>
-        {labels[status]}
-      </span>
-    );
+    return <Badge variant={variant}>{labels[status]}</Badge>;
   };
 
   const getShiftLabel = (shift: string) => {
@@ -98,150 +107,185 @@ export function ProductionOrderList({
 
   if (loading) {
     return (
-      <div className="text-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-        <p className="mt-4 text-gray-600">Cargando órdenes...</p>
-      </div>
+      <Card className="p-0">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>ID</TableHead>
+                <TableHead>Tipo / Tamaño</TableHead>
+                <TableHead>Cantidad</TableHead>
+                <TableHead>Fecha / Turno</TableHead>
+                <TableHead>Estado</TableHead>
+                <TableHead>Costo Total</TableHead>
+                <TableHead>Acciones</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <TableRow key={i}>
+                  <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-32 mb-2" />
+                    <Skeleton className="h-3 w-24" />
+                  </TableCell>
+                  <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-28 mb-2" />
+                    <Skeleton className="h-3 w-20" />
+                  </TableCell>
+                  <TableCell><Skeleton className="h-6 w-16 rounded-full" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-8 w-8 rounded" />
+                      <Skeleton className="h-8 w-8 rounded" />
+                      <Skeleton className="h-8 w-8 rounded" />
+                      <Skeleton className="h-8 w-8 rounded" />
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </Card>
     );
   }
 
   if (orders.length === 0) {
     return (
-      <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
-        <FileText size={64} className="mx-auto text-gray-300 mb-4" />
-        <h3 className="text-lg font-medium text-gray-600 mb-2">
+      <Card className="p-12 text-center">
+        <FileText size={64} className="mx-auto mb-4 text-neutral-300" />
+        <h3 className="mb-2 text-lg font-semibold text-neutral-700">
           {userRole === 'operator' ? 'No tienes órdenes de producción' : 'No hay órdenes registradas'}
         </h3>
-        <p className="text-gray-500 mb-6">
+        <p className="text-neutral-500">
           {userRole === 'operator'
             ? 'Crea tu primera orden para registrar producción de bloques de concreto.'
             : 'Las órdenes de producción aparecerán aquí cuando el personal las cree.'
           }
         </p>
-      </div>
+      </Card>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+    <Card className="overflow-hidden p-0">
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                ID
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Tipo / Tamaño
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Cantidad
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Fecha / Turno
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Estado
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Costo Total
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Acciones
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>ID</TableHead>
+              <TableHead>Tipo / Tamaño</TableHead>
+              <TableHead>Cantidad</TableHead>
+              <TableHead>Fecha / Turno</TableHead>
+              <TableHead>Estado</TableHead>
+              <TableHead>Costo Total</TableHead>
+              <TableHead>Acciones</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {orders.map((order) => (
-              <tr key={order.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+              <TableRow key={order.id}>
+                <TableCell className="font-mono font-medium text-neutral-900">
                   #{order.id.substring(0, 8)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">{order.block_type}</div>
-                  <div className="text-xs text-gray-500">{order.block_size}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                </TableCell>
+                <TableCell>
+                  <div className="font-semibold text-neutral-900">{order.block_type}</div>
+                  <div className="text-xs text-neutral-500">{order.block_size}</div>
+                </TableCell>
+                <TableCell className="tabular-nuns font-semibold text-neutral-700">
                   {order.quantity_produced.toLocaleString()} unidades
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">{formatDate(order.production_date)}</div>
-                  <div className="text-xs text-gray-500">{getShiftLabel(order.production_shift)}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                </TableCell>
+                <TableCell>
+                  <div className="text-sm text-neutral-900">{formatDate(order.production_date)}</div>
+                  <div className="text-xs text-neutral-500">{getShiftLabel(order.production_shift)}</div>
+                </TableCell>
+                <TableCell>
                   {getStatusBadge(order.status)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                </TableCell>
+                <TableCell className="font-semibold tabular-nums text-neutral-900">
                   {formatCurrency(order.total_cost)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                </TableCell>
+                <TableCell>
                   <div className="flex items-center gap-2">
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
                       onClick={() => onView(order)}
-                      className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
-                      title="Ver detalles"
+                      aria-label="Ver detalles de la orden"
                     >
-                      <Eye size={18} />
-                    </button>
+                      <Eye size={16} />
+                    </Button>
 
                     {canEdit(order) && (
-                      <button
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
                         onClick={() => onEdit(order)}
-                        className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
-                        title="Editar"
+                        aria-label="Editar orden"
                       >
-                        <Edit size={18} />
-                      </button>
+                        <Edit size={16} />
+                      </Button>
                     )}
 
                     {userRole === 'engineer' || userRole === 'admin' ? (
                       <>
                         {order.status === 'submitted' && (
                           <>
-                            <button
+                            <Button
+                              variant="ghost"
+                              size="icon-sm"
                               onClick={() => onUpdateStatus(order.id, 'approved')}
-                              className="p-1 text-gray-400 hover:text-green-600 transition-colors"
-                              title="Aprobar"
+                              aria-label="Aprobar orden"
+                              className="text-green-600 hover:text-green-700"
                             >
-                              <CheckCircle size={18} />
-                            </button>
-                            <button
+                              <CheckCircle size={16} />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon-sm"
                               onClick={() => onUpdateStatus(order.id, 'rejected')}
-                              className="p-1 text-gray-400 hover:text-red-600 transition-colors"
-                              title="Rechazar"
+                              aria-label="Rechazar orden"
+                              className="text-red-600 hover:text-red-700"
                             >
-                              <XCircle size={18} />
-                            </button>
+                              <XCircle size={16} />
+                            </Button>
                           </>
                         )}
                         {order.status === 'draft' && (
-                          <button
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
                             onClick={() => onUpdateStatus(order.id, 'submitted')}
-                            className="p-1 text-gray-400 hover:text-yellow-600 transition-colors"
-                            title="Enviar a revisión"
+                            aria-label="Enviar a revisión"
+                            className="text-yellow-600 hover:text-yellow-700"
                           >
-                            <Clock size={18} />
-                          </button>
+                            <Clock size={16} />
+                          </Button>
                         )}
                       </>
                     ) : null}
 
                     {order.status === 'draft' && canEdit(order) && (
-                      <button
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
                         onClick={() => handleDelete(order.id)}
-                        className="p-1 text-gray-400 hover:text-red-600 transition-colors"
-                        title="Eliminar"
+                        aria-label="Eliminar orden"
+                        className="text-red-600 hover:text-red-700"
                       >
-                        <Trash2 size={18} />
-                      </button>
+                        <Trash2 size={16} />
+                      </Button>
                     )}
                   </div>
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
-    </div>
+    </Card>
   );
 }

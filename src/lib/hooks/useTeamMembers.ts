@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { TeamMember } from '@/types/inventory';
-import { createClient } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 import { useAuth } from '@/app/contexts/AuthContext';
 
 function transformTeamMemberFromDB(dbMember: any): TeamMember {
@@ -23,7 +23,7 @@ export function useTeamMembers() {
   const [error, setError] = useState<string | null>(null);
 
   const { user } = useAuth();
-  const supabase = useMemo(() => createClient(), []);
+  const supabaseInstance = supabase;
 
   const fetchMembers = useCallback(async () => {
     if (!user) {
@@ -90,7 +90,7 @@ export function useTeamMembers() {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      supabaseInstance.removeChannel(channel);
     };
   }, [user, supabase]);
 

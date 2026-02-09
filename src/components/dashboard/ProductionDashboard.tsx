@@ -2,15 +2,16 @@
 
 import { useProductionOrders } from '@/lib/hooks/useProductionOrders';
 import { useInventoryMaterials } from '@/lib/hooks/useInventoryMaterials';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
 import {
-  BarChart,
+  Area,
+  AreaChart,
   Bar,
-  PieChart,
+  BarChart,
   Pie,
-  LineChart,
-  Line,
+  PieChart,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -18,17 +19,19 @@ import {
   Legend,
   ResponsiveContainer,
   Cell,
-  AreaChart,
-  Area
 } from 'recharts';
-import { Package, TrendingUp, Clock, CheckCircle, AlertTriangle, Plus } from 'lucide-react';
+import { Package, TrendingUp, Clock, CheckCircle, AlertTriangle } from 'lucide-react';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { MetricCard } from '@/components/ui/MetricCard';
 
-export function ProductionDashboard() {
+interface ProductionDashboardProps {
+  userRole?: 'operator' | 'engineer' | 'admin' | null;
+}
+
+export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboardProps) {
   const { user } = useAuth();
-  const userRole = (user?.user_metadata?.role as 'operator' | 'engineer' | 'admin') || 'operator';
 
   const {
     orders,
@@ -98,219 +101,265 @@ export function ProductionDashboard() {
     }).format(amount);
   };
 
-  const quickStats = [
-    {
-      title: 'Órdenes de Producción',
-      value: totalOrders,
-      subtitle: 'Total registradas',
-      icon: Package,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50',
-    },
-    {
-      title: 'Bloques Producidos',
-      value: totalBlocksProduced.toLocaleString(),
-      subtitle: 'Unidades totales',
-      icon: TrendingUp,
-      color: 'text-green-600',
-      bgColor: 'bg-green-50',
-    },
-    {
-      title: 'Costo Promedio',
-      value: formatCurrency(avgCostPerOrder),
-      subtitle: 'Por orden',
-      icon: Clock,
-      color: 'text-amber-600',
-      bgColor: 'bg-amber-50',
-    },
-    {
-      title: 'Pendientes',
-      value: pendingApprovals,
-      subtitle: 'Aprobación requerida',
-      icon: AlertTriangle,
-      color: 'text-red-600',
-      bgColor: 'bg-red-50',
-    },
-  ];
-
   return (
     <div className="space-y-6">
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {quickStats.map((stat, idx) => (
-          <Card key={idx} className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-500">{stat.title}</p>
-                <p className={`text-2xl font-bold ${stat.color} mt-2`}>{stat.value}</p>
-                <p className="text-xs text-gray-500 mt-1">{stat.subtitle}</p>
-              </div>
-              <div className={`p-3 rounded-full ${stat.bgColor}`}>
-                <stat.icon size={24} className={stat.color} />
-              </div>
-            </div>
-          </Card>
-        ))}
+      {/* Stats Cards - Premium Metric Cards */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <MetricCard
+          title="Órdenes de Producción"
+          value={totalOrders}
+          description="Total registradas"
+        />
+        <MetricCard
+          title="Bloques Producidos"
+          value={totalBlocksProduced}
+          description="Unidades totales"
+        />
+        <MetricCard
+          title="Costo Promedio"
+          value={formatCurrency(avgCostPerOrder)}
+          description="Por orden"
+        />
+        <MetricCard
+          title="Pendientes"
+          value={pendingApprovals}
+          description="Aprobación requerida"
+          trend={{ value: pendingApprovals, isPositive: false }}
+        />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Production Trend */}
-        <Card title="Producción por Mes" className="p-6">
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={productionByMonth}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip
-                formatter={(value: number) => [value.toLocaleString(), 'Cantidad']}
-                locale="es-ES"
-              />
-              <Legend />
-              <Area
-                type="monotone"
-                dataKey="cantidad"
-                stroke="#3B82F6"
-                fill="#93C5FD"
-                strokeWidth={2}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+        <Card className="p-6">
+          <CardHeader className="px-0 pt-0">
+            <CardTitle className="text-h3 text-neutral-900">Producción por Mes</CardTitle>
+          </CardHeader>
+          <CardContent className="px-0 pb-0">
+            <ChartContainer
+              config={{
+                cantidad: {
+                  label: "Cantidad",
+                  color: "hsl(var(--chart-1))",
+                },
+              }}
+            >
+              <ResponsiveContainer width="100%" height={300}>
+                <AreaChart data={productionByMonth}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--neutral-200)" className="stroke-neutral-200" />
+                  <XAxis
+                    dataKey="month"
+                    tick={{ fontSize: 12 }}
+                    tickLine={false}
+                    axisLine={false}
+                    className="text-neutral-500"
+                  />
+                  <YAxis
+                    tick={{ fontSize: 12 }}
+                    tickLine={false}
+                    axisLine={false}
+                    className="text-neutral-500"
+                  />
+                  <Tooltip content={<ChartTooltipContent />} />
+                  <Legend />
+                  <Area
+                    type="monotone"
+                    dataKey="cantidad"
+                    stroke="var(--chart-1)"
+                    fill="var(--chart-1)"
+                    fillOpacity={0.3}
+                    strokeWidth={2}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </CardContent>
         </Card>
 
         {/* Orders by Status */}
-        <Card title="Órdenes por Estado" className="p-6">
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={ordersByStatus}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {ordersByStatus.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
+        <Card className="p-6">
+          <CardHeader className="px-0 pt-0">
+            <CardTitle className="text-h3 text-neutral-900">Órdenes por Estado</CardTitle>
+          </CardHeader>
+          <CardContent className="px-0 pb-0">
+            <ChartContainer
+              config={{
+                value: {
+                  label: "Cantidad",
+                },
+              }}
+            >
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={ordersByStatus}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    outerRadius={80}
+                    dataKey="value"
+                  >
+                    {ordersByStatus.map((entry, index) => {
+                      const colors = ['var(--chart-1)', 'var(--chart-3)', 'var(--destructive)', 'var(--muted-foreground)'];
+                      return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
+                    })}
+                  </Pie>
+                  <Tooltip content={<ChartTooltipContent />} />
+                </PieChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </CardContent>
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Production by Block Type */}
-        <Card title="Producción por Tipo de Bloque" className="p-6">
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={productionByType}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip
-                formatter={(value: number) => [value.toLocaleString(), 'Unidades']}
-                locale="es-ES"
-              />
-              <Bar dataKey="value" fill="#10B981" />
-            </BarChart>
-          </ResponsiveContainer>
+        <Card className="p-6">
+          <CardHeader className="px-0 pt-0">
+            <CardTitle className="text-h3 text-neutral-900">Producción por Tipo de Bloque</CardTitle>
+          </CardHeader>
+          <CardContent className="px-0 pb-0">
+            <ChartContainer
+              config={{
+                value: {
+                  label: "Unidades",
+                  color: "hsl(var(--chart-2))",
+                },
+              }}
+            >
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={productionByType}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--neutral-200)" className="stroke-neutral-200" />
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fontSize: 12 }}
+                    tickLine={false}
+                    axisLine={false}
+                    className="text-neutral-500"
+                  />
+                  <YAxis
+                    tick={{ fontSize: 12 }}
+                    tickLine={false}
+                    axisLine={false}
+                    className="text-neutral-500"
+                  />
+                  <Tooltip content={<ChartTooltipContent />} />
+                  <Bar dataKey="value" fill="var(--chart-2)" radius={4} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </CardContent>
         </Card>
 
         {/* Low Stock Alert */}
-        <Card title="Alertas de Stock Bajo" className="p-6">
-          {lowStockMaterials.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
-              <CheckCircle size={48} className="mx-auto text-green-500 mb-4" />
-              <p>Todos los materiales tienen stock suficiente</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {lowStockMaterials.slice(0, 5).map((material) => (
-                <div key={material.id} className="flex items-center justify-between p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <div>
-                    <p className="font-medium text-gray-900">{material.material_name}</p>
-                    <p className="text-sm text-gray-600">
-                      Stock: {material.current_quantity} / Mín: {material.min_stock_quantity} {material.unit}
-                    </p>
+        <Card className="p-6">
+          <CardHeader className="px-0 pt-0">
+            <CardTitle className="text-h3 text-neutral-900">Alertas de Stock Bajo</CardTitle>
+          </CardHeader>
+          <CardContent className="px-0 pb-0">
+            {lowStockMaterials.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-neutral-500">
+                <CheckCircle size={48} className="text-green-500 mb-4" />
+                <p className="font-medium">Todos los materiales tienen stock suficiente</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {lowStockMaterials.slice(0, 5).map((material) => (
+                  <div
+                    key={material.id}
+                    className="flex items-center justify-between rounded-lg border border-yellow-200 bg-yellow-50 p-4"
+                  >
+                    <div>
+                      <p className="font-medium text-neutral-900">{material.material_name}</p>
+                      <p className="text-sm text-neutral-600">
+                        Stock: {material.current_quantity} / Mín: {material.min_stock_quantity} {material.unit}
+                      </p>
+                    </div>
+                    <AlertTriangle size={24} className="text-yellow-600" />
                   </div>
-                  <AlertTriangle size={24} className="text-yellow-600" />
-                </div>
-              ))}
-              {lowStockMaterials.length > 5 && (
-                <p className="text-center text-sm text-gray-500">
-                  Y {lowStockMaterials.length - 5} más...
-                </p>
-              )}
-            </div>
-          )}
+                ))}
+                {lowStockMaterials.length > 5 && (
+                  <p className="text-center text-sm text-neutral-500">
+                    Y {lowStockMaterials.length - 5} más...
+                  </p>
+                )}
+              </div>
+            )}
+          </CardContent>
         </Card>
       </div>
 
       {/* Recent Orders */}
-      <Card title="Órdenes Recientes" className="p-6">
-        {ordersLoading ? (
-          <div className="text-center py-12">Cargando órdenes...</div>
-        ) : orders.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
-            No hay órdenes registradas
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cantidad</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Costo</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {orders.slice(0, 10).map((order) => (
-                  <tr key={order.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
-                      #{order.id.substring(0, 8)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <p className="font-medium text-gray-900">{order.block_type}</p>
-                      <p className="text-sm text-gray-500">{order.block_size}</p>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {order.quantity_produced.toLocaleString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {format(new Date(order.production_date), 'dd/MM/yyyy')}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        order.status === 'approved'
-                          ? 'bg-green-100 text-green-800'
-                          : order.status === 'submitted'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : order.status === 'rejected'
-                          ? 'bg-red-100 text-red-800'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {order.status === 'draft' && 'Borrador'}
-                        {order.status === 'submitted' && 'Enviada'}
-                        {order.status === 'approved' && 'Aprobada'}
-                        {order.status === 'rejected' && 'Rechazada'}
-                        {order.status === 'archived' && 'Archivada'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {formatCurrency(order.total_cost)}
-                    </td>
+      <Card className="p-6">
+        <CardHeader className="px-0 pt-0">
+          <CardTitle className="text-h3 text-neutral-900">Órdenes Recientes</CardTitle>
+        </CardHeader>
+        <CardContent className="px-0 pb-0">
+          {ordersLoading ? (
+            <div className="py-12 text-center text-neutral-500">Cargando órdenes...</div>
+          ) : orders.length === 0 ? (
+            <div className="py-12 text-center text-neutral-500">
+              No hay órdenes registradas
+            </div>
+          ) : (
+            <div className="rounded-xl border border-neutral-200 overflow-hidden">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-neutral-50 border-b border-neutral-200">
+                    <th className="h-12 px-6 text-left text-xs font-semibold uppercase tracking-wider text-neutral-600">ID</th>
+                    <th className="h-12 px-6 text-left text-xs font-semibold uppercase tracking-wider text-neutral-600">Tipo</th>
+                    <th className="h-12 px-6 text-left text-xs font-semibold uppercase tracking-wider text-neutral-600">Cantidad</th>
+                    <th className="h-12 px-6 text-left text-xs font-semibold uppercase tracking-wider text-neutral-600">Fecha</th>
+                    <th className="h-12 px-6 text-left text-xs font-semibold uppercase tracking-wider text-neutral-600">Estado</th>
+                    <th className="h-12 px-6 text-left text-xs font-semibold uppercase tracking-wider text-neutral-600">Costo</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                </thead>
+                <tbody className="divide-y divide-neutral-100">
+                  {orders.slice(0, 10).map((order) => {
+                    const statusVariant =
+                      order.status === 'approved'
+                        ? 'success'
+                        : order.status === 'submitted'
+                        ? 'warning'
+                        : order.status === 'rejected'
+                        ? 'error'
+                        : 'secondary';
+
+                    return (
+                      <tr key={order.id} className="hover:bg-neutral-50 transition-colors">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-neutral-900">
+                          #{order.id.substring(0, 8)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <p className="font-semibold text-neutral-900">{order.block_type}</p>
+                          <p className="text-sm text-neutral-500">{order.block_size}</p>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-neutral-700 tabular-nums">
+                          {order.quantity_produced.toLocaleString()}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
+                          {format(new Date(order.production_date), 'dd/MM/yyyy')}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <Badge variant={statusVariant}>
+                            {order.status === 'draft' && 'Borrador'}
+                            {order.status === 'submitted' && 'Enviada'}
+                            {order.status === 'approved' && 'Aprobada'}
+                            {order.status === 'rejected' && 'Rechazada'}
+                            {order.status === 'archived' && 'Archivada'}
+                          </Badge>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-neutral-900 tabular-nums">
+                          {formatCurrency(order.total_cost)}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
       </Card>
     </div>
   );

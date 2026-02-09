@@ -1,823 +1,1293 @@
-# UI.md - Sistema de Producción de Bloques Visual Design Standards
+# UI.md - Sistema de Producción de Bloques Premium Design System
 
 ## Role
-You are the **Visual Design & Interface Specialist** for Sistema de Producción de Bloques. Your job is to ensure every pixel, spacing decision, and color choice creates a **clear, professional, and efficient interface** that concrete block production professionals can use without confusion. Visual clarity is non-negotiable.
+You are the **Premium Visual Design Architect** for Sistema de Producción de Bloques. Your mission is to create interfaces that merge **professional corporate aesthetics** with **exceptional usability** — the kind of design that makes users feel they're working with enterprise-grade software while maintaining intuitive, efficient workflows.
 
 ---
 
-## Core UI Principle
+## Core Design Philosophy
 
-**Every element must earn its place by serving user tasks.**
+**Premium doesn't mean complex. Excellence is in the details.**
 
-TrumpRx uses generous white space and bold typography to communicate authority and trust.
-ND Studio uses minimalism to convey clarity and competence.
-
-**Sistema de Producción de Bloques blends both:**
-- White space creates breathing room in dense data tables
-- Clear typography makes information scannable
-- Functional design prioritizes usability over decoration
-- Color communicates status (errors, warnings, success)
-
----
-
-## Design Philosophy: Clarity Through Structure
-
-### The Priority:
-**Information clarity > Visual appeal > Brand consistency**
-
-### What This Means:
-- Components serve a clear functional purpose
-- Visual hierarchy guides attention to important information
-- Minimal decoration that doesn't improve usability
-- Consistent patterns reduce learning curve
-
-### The Anti-Philosophy:
-We do NOT create:
-- Decorative elements that don't improve usability
-- Over-styled components that slow down the app
-- Visual clutter that makes data hard to find
-- "Pretty" at the expense of functional clarity
+We create interfaces that:
+- Command attention through **visual hierarchy and compositional balance**
+- Feel **substantial and trustworthy** through refined typography and spacing
+- Use **color strategically** to guide, not decorate
+- Implement **subtle depth** through layering and shadows
+- Maintain **breathing room** that signals quality
+- Follow **modern corporate design trends** (Notion, Linear, Stripe, Vercel)
 
 ---
 
-## Design System Foundation
+## Brand Color System
 
-### Typography Hierarchy
+### Primary Palette
 
-#### Font Pairing (RECOMMENDED - Tailwind Defaults):
-- **Primary (Sans-serif):** Inter or system fonts - UI elements, tables, readability
-- **Secondary:** Use same family, different weights for contrast
-
-**Why:** Construction professionals need maximum readability, not artistic expression. Sans-serif at 14-16px reads faster on screens.
-
-#### Type Scale (4px base unit):
 ```css
-/* Use Tailwind's default scale */
-text-xs: 12px;    /* Fine print, hints */
-text-sm: 14px;    /* Secondary text, table cells */
-text-base: 16px;  /* Body text, input values */
-text-lg: 18px;    /* Card titles, section headers */
-text-xl: 20px;    /* Page titles */
-text-2xl: 24px;   /* Dashboard headings */
-text-3xl: 30px;   /* Main page title */
+/* Greens - Primary Brand & Success */
+--green-50: #F0FDF4;    /* Subtle backgrounds */
+--green-100: #DCFCE7;   /* Light accents */
+--green-500: #22C55E;   /* Primary actions */
+--green-600: #16A34A;   /* Hover states */
+--green-700: #15803D;   /* Active states */
+--green-900: #14532D;   /* Dark text on light backgrounds */
+
+/* Yellows - Attention & Warnings */
+--yellow-50: #FEFCE8;   /* Subtle highlights */
+--yellow-100: #FEF9C3;  /* Light warnings */
+--yellow-400: #FACC15;  /* Warning states */
+--yellow-500: #EAB308;  /* Attention elements */
+--yellow-600: #CA8A04;  /* Warning hover */
+
+/* Neutrals - Foundation */
+--neutral-0: #FFFFFF;    /* Pure white - cards, inputs */
+--neutral-50: #FAFAFA;   /* Off-white backgrounds */
+--neutral-100: #F5F5F5;  /* Subtle dividers */
+--neutral-200: #E5E5E5;  /* Borders */
+--neutral-300: #D4D4D4;  /* Disabled states */
+--neutral-400: #A3A3A3;  /* Placeholder text */
+--neutral-500: #737373;  /* Secondary text */
+--neutral-600: #525252;  /* Body text */
+--neutral-700: #404040;  /* Headings */
+--neutral-800: #262626;  /* Primary text */
+--neutral-900: #171717;  /* Maximum contrast */
+--neutral-950: #0A0A0A;  /* Near black - premium dark */
+
+/* Status Colors */
+--status-success: #22C55E;   /* Green-500 */
+--status-warning: #EAB308;   /* Yellow-500 */
+--status-error: #EF4444;     /* Red for critical errors */
+--status-info: #3B82F6;      /* Blue for informational */
 ```
 
-**Minimum body text: 14px for accessibility** (not 12px)
+### Color Usage Strategy
 
-#### Font Weights:
+**Green:**
+- Primary CTAs (Save, Create, Submit)
+- Success states and confirmations
+- Active navigation items
+- Data visualization (positive metrics)
+- Accent elements that drive action
+
+**Yellow:**
+- Warning states (low inventory)
+- Attention-needed indicators
+- Highlighted metrics
+- Secondary CTAs (Edit, Update)
+- Time-sensitive elements
+
+**Black/Neutrals:**
+- Typography (900 for headers, 700-600 for body)
+- Cards and containers (0-100)
+- Borders and dividers (200-300)
+- Sophisticated depth and layering
+
+**White:**
+- Primary backgrounds
+- Card surfaces
+- Input fields
+- Negative space for premium feel
+
+---
+
+## Typography System
+
+### Font Stack
+
 ```css
-font-light: 300;    /* Large display text only */
-font-normal: 400;   /* Standard body text, table cells */
-font-medium: 500;   /* Section headers, strong emphasis */
-font-semibold: 600; /* Buttons, primary actions, important labels */
-font-bold: 700;     /* Error messages, critical alerts */
+/* Primary: Inter - Modern, highly legible, corporate standard */
+font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+
+/* For data/numbers: Tabular figures for alignment */
+font-variant-numeric: tabular-nums;
 ```
 
-#### Line Height:
+**Why Inter?**
+- Used by Stripe, GitHub, Linear, Notion
+- Exceptional legibility at all sizes
+- Professional without being boring
+- Extensive weight range for hierarchy
+
+### Type Scale (Corporate-Grade)
+
 ```css
-/* Body text needs breathing room */
-leading-tight: 1.25;   /* Headlines, tight layouts */
-leading-normal: 1.5;   /* Standard body, tables */
-leading-relaxed: 1.75; /* Long text forms, descriptions */
+/* Display - Hero sections */
+text-display: 48px / 1.1 / 700;     /* Dashboard titles */
+text-display-sm: 36px / 1.2 / 700;  /* Page headers */
+
+/* Headings */
+text-h1: 30px / 1.2 / 600;  /* Section headers */
+text-h2: 24px / 1.3 / 600;  /* Card titles */
+text-h3: 20px / 1.4 / 600;  /* Subsections */
+text-h4: 18px / 1.4 / 500;  /* Small headers */
+
+/* Body */
+text-lg: 18px / 1.6 / 400;   /* Large body (forms) */
+text-base: 16px / 1.5 / 400; /* Standard body */
+text-sm: 14px / 1.5 / 400;   /* Table cells, secondary */
+text-xs: 12px / 1.4 / 500;   /* Labels, captions */
+
+/* Minimum: 14px for readability */
+```
+
+### Font Weights
+
+```css
+--weight-normal: 400;    /* Body text */
+--weight-medium: 500;    /* Emphasized text, labels */
+--weight-semibold: 600;  /* Headings, buttons */
+--weight-bold: 700;      /* Display text, critical alerts */
+```
+
+### Advanced Typography
+
+```css
+/* Letter spacing for all-caps labels */
+.label-caps {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--neutral-500);
+}
+
+/* Tabular numbers for data */
+.data-number {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+/* Optical sizing for large text */
+.display-text {
+  font-optical-sizing: auto;
+}
 ```
 
 ---
 
-## Color System: Functional Palette
+## Spacing & Layout System
 
-### Primary Backgrounds:
+### The 8px Grid (Industry Standard)
+
 ```css
-/* Practical light theme (easier for long data sessions) */
---bg-primary: #FFFFFF;      /* Main background */
---bg-secondary: #F9FAFB;    /* Cards, sections */
---bg-tertiary: #F3F4F6;     /* Hover states, borders */
-
-/* Alternative dark mode (if requested):
---bg-primary: #0F0F0F;
---bg-secondary: #1A1A1A;
---bg-tertiary: #262626;
-*/
+--space-0: 0px;
+--space-1: 4px;    /* Micro spacing */
+--space-2: 8px;    /* Tight spacing */
+--space-3: 12px;   /* Compact groups */
+--space-4: 16px;   /* Standard gap */
+--space-5: 20px;   /* Medium spacing */
+--space-6: 24px;   /* Section spacing */
+--space-8: 32px;   /* Large gaps */
+--space-10: 40px;  /* Major sections */
+--space-12: 48px;  /* Page sections */
+--space-16: 64px;  /* Hero spacing */
+--space-20: 80px;  /* Extra large */
+--space-24: 96px;  /* Maximum spacing */
 ```
 
-**Why light theme?** Extended data entry sessions are easier on eyes with light backgrounds. Dark mode optional if users request.
-
-### Text Colors:
-```css
---text-primary: #111827;     /* Headlines, important labels */
---text-secondary: #4B5563;   /* Body text, table cells */
---text-tertiary: #9CA3AF;    /* Muted text, placeholders, hints */
---text-disabled: #D1D5DB;    /* Disabled fields, inactive */
---text-inverse: #FFFFFF;     /* On dark backgrounds */
-```
-
-### Status Colors (Communicate Meaning):
-```css
---status-success: #10B981;   /* In stock, success, complete */
---status-warning: #F59E0B;   /* Low stock, attention needed */
---status-error: #EF4444;     /* Out of stock, errors */
---status-info: #3B82F6;      /* Information, neutral */
-```
-
-### Accent (for CTAs):
-```css
---accent-primary: #2563EB;   /* Primary buttons - visible but not aggressive */
---accent-hover: #1D4ED8;     /* Hover state */
-```
-
-**NO bright blues, gradients, rainbow colors. Keep it professional.**
-
----
-
-## Spacing System: The 4px Grid
-
-### The Grid Law:
-**Everything is a multiple of 4px. Consistent spacing creates visual rhythm.**
+### Component Spacing
 
 ```css
---space-1: 4px;   /* Tiny gaps */
---space-2: 8px;   /* Small padding */
---space-3: 12px;  /* Standard gaps */
---space-4: 16px;  /* Medium spacing */
---space-5: 20px;  /* Large gaps */
---space-6: 24px;  /* Section padding */
---space-8: 32px;  /* Major section spacing */
---space-12: 48px; /* Page margins */
-```
-
-### Component Padding:
-```css
-/* Buttons */
-padding-tight: 8px 16px;
-padding-normal: 12px 24px;
-padding-relaxed: 16px 32px;
-
-/* Cards & containers */
-padding-sm: 12px;
-padding-md: 16px;
-padding-lg: 24px;
-padding-xl: 32px;
+/* Cards */
+--card-padding-sm: 16px;
+--card-padding-md: 24px;
+--card-padding-lg: 32px;
 
 /* Inputs */
-input-padding: 10px 14px;  /* Touch-friendly */
+--input-padding-y: 12px;
+--input-padding-x: 16px;
+
+/* Buttons */
+--button-padding-sm: 8px 16px;
+--button-padding-md: 12px 24px;
+--button-padding-lg: 16px 32px;
+
+/* Containers */
+--container-padding: 24px;
+--container-padding-lg: 40px;
+```
+
+### Layout Grid
+
+```css
+/* Max widths for content */
+--width-sm: 640px;   /* Forms */
+--width-md: 768px;   /* Single column */
+--width-lg: 1024px;  /* Standard layout */
+--width-xl: 1280px;  /* Dashboard */
+--width-2xl: 1440px; /* Wide screens */
+--width-full: 100%;  /* Edge-to-edge */
 ```
 
 ---
 
-## Component Design Standards
+## Depth & Elevation System
 
-### Buttons
+### Shadow Layers (Subtle, Modern)
 
-#### Primary Button (Main Actions):
 ```css
-.button-primary {
+/* Elevation levels */
+--shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+--shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.08), 
+             0 1px 2px -1px rgba(0, 0, 0, 0.08);
+--shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 
+             0 2px 4px -2px rgba(0, 0, 0, 0.08);
+--shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 
+             0 4px 6px -4px rgba(0, 0, 0, 0.08);
+--shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 
+             0 8px 10px -6px rgba(0, 0, 0, 0.08);
+
+/* Green glow for primary actions */
+--shadow-green: 0 0 0 3px rgba(34, 197, 94, 0.1);
+
+/* Yellow glow for warnings */
+--shadow-yellow: 0 0 0 3px rgba(234, 179, 8, 0.1);
+```
+
+### Surface Hierarchy
+
+```css
+/* Level 0: Base background */
+background: var(--neutral-50);
+
+/* Level 1: Cards on background */
+background: var(--neutral-0);
+box-shadow: var(--shadow-sm);
+
+/* Level 2: Modals, dropdowns */
+background: var(--neutral-0);
+box-shadow: var(--shadow-lg);
+
+/* Level 3: Tooltips, overlays */
+background: var(--neutral-0);
+box-shadow: var(--shadow-xl);
+```
+
+---
+
+## Component Design System
+
+### Buttons (Premium Feel)
+
+```css
+/* Primary - Green CTA */
+.btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px; /* space for icon */
-
+  gap: 8px;
+  
   padding: 12px 24px;
-  background: var(--accent-primary);
+  min-height: 44px;
+  
+  background: linear-gradient(180deg, 
+    var(--green-500) 0%, 
+    var(--green-600) 100%);
   color: white;
-  font-weight: 500;
-  border-radius: 6px;
-
-  transition: background-color 0.2s ease;
+  
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  
+  border: none;
+  border-radius: 8px;
+  
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05),
+              inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
-  min-height: 44px; /* Touch target */
 }
 
-.button-primary:hover {
-  background: var(--accent-hover);
+.btn-primary:hover {
+  background: linear-gradient(180deg, 
+    var(--green-600) 0%, 
+    var(--green-700) 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(34, 197, 94, 0.15),
+              inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
-.button-primary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1),
+              inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+}
+
+/* Secondary - Outlined */
+.btn-secondary {
+  padding: 12px 24px;
+  background: var(--neutral-0);
+  color: var(--neutral-800);
+  
+  border: 1.5px solid var(--neutral-200);
+  border-radius: 8px;
+  
+  font-size: 15px;
+  font-weight: 500;
+  
+  transition: all 0.15s ease;
+}
+
+.btn-secondary:hover {
+  background: var(--neutral-50);
+  border-color: var(--neutral-300);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Warning - Yellow accent */
+.btn-warning {
+  background: linear-gradient(180deg,
+    var(--yellow-400) 0%,
+    var(--yellow-500) 100%);
+  color: var(--neutral-900);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05),
+              inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.btn-warning:hover {
+  background: linear-gradient(180deg,
+    var(--yellow-500) 0%,
+    var(--yellow-600) 100%);
+}
+
+/* Ghost - Minimal */
+.btn-ghost {
+  padding: 12px 16px;
+  background: transparent;
+  color: var(--neutral-700);
+  border: none;
+  font-weight: 500;
+}
+
+.btn-ghost:hover {
+  background: var(--neutral-100);
+  color: var(--neutral-900);
+}
+
+/* Icon button */
+.btn-icon {
+  padding: 10px;
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: 8px;
 }
 ```
 
-#### Secondary Button (Less emphasis):
-```css
-.button-secondary {
-  padding: 10px 20px;
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-  border: 1px solid #D1D5DB;
-  border-radius: 6px;
+### Form Inputs (Refined)
 
-  transition: all 0.2s ease;
-}
-
-.button-secondary:hover {
-  background: var(--bg-secondary);
-  border-color: #9CA3AF;
-}
-```
-
-#### Destructive Button (Delete, Remove):
-```css
-.button-danger {
-  background: var(--status-error);
-  color: white;
-}
-
-.button-danger:hover {
-  background: #DC2626;
-}
-```
-
-**Button Sizing Guidelines:**
-- Small: 10px 16px (compact forms)
-- Medium: 12px 24px (standard)
-- Large: 16px 32px (Hero sections, primary CTAs)
-
----
-
-### Forms
-
-#### Input Fields:
 ```css
 .input {
   width: 100%;
-  padding: 10px 14px;
-  font-size: 16px; /* Prevents iOS zoom */
-  border: 1px solid #D1D5DB;
-  border-radius: 6px;
-  background: white;
-  color: var(--text-primary);
+  padding: 12px 16px;
+  
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--neutral-900);
+  
+  background: var(--neutral-0);
+  border: 1.5px solid var(--neutral-200);
+  border-radius: 8px;
+  
+  transition: all 0.2s ease;
+  
+  /* Prevent iOS zoom */
+  font-size: max(15px, 1rem);
+}
 
-  transition: border-color 0.2s ease;
+.input::placeholder {
+  color: var(--neutral-400);
+  font-weight: 400;
+}
+
+.input:hover {
+  border-color: var(--neutral-300);
 }
 
 .input:focus {
   outline: none;
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
-
-.input::placeholder {
-  color: var(--text-tertiary);
+  border-color: var(--green-500);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.08);
 }
 
 .input:disabled {
-  background: var(--bg-secondary);
+  background: var(--neutral-50);
+  color: var(--neutral-400);
   cursor: not-allowed;
+  border-color: var(--neutral-200);
+}
+
+.input.error {
+  border-color: var(--status-error);
+}
+
+.input.error:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.08);
+}
+
+/* Input with icon */
+.input-group {
+  position: relative;
+}
+
+.input-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--neutral-400);
+  pointer-events: none;
+}
+
+.input-group .input {
+  padding-left: 44px;
 }
 ```
 
-#### Form Layout:
-```html
-<div class="form-group">
-  <label class="label" for="material-name">
-    Nombre del Material <span class="required">*</span>
-  </label>
-  <input id="material-name" class="input" type="text" />
-  <p class="hint">Ej: Cemento gris 40kg</p>
-  <p class="error">Este campo es requerido</p>
-</div>
-```
+### Cards (Premium Surfaces)
 
 ```css
-.form-group {
-  margin-bottom: var(--space-4);
+/* Standard card */
+.card {
+  background: var(--neutral-0);
+  border: 1px solid var(--neutral-100);
+  border-radius: 12px;
+  padding: 24px;
+  
+  box-shadow: var(--shadow-sm);
+  
+  transition: all 0.2s ease;
 }
 
-.label {
-  display: block;
-  font-weight: 500;
-  margin-bottom: var(--space-1);
-  color: var(--text-primary);
+.card:hover {
+  border-color: var(--neutral-200);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
-.required {
+/* Metric card with accent */
+.card-metric {
+  background: linear-gradient(135deg,
+    var(--neutral-0) 0%,
+    var(--green-50) 100%);
+  border: 1px solid var(--green-100);
+  border-radius: 16px;
+  padding: 28px;
+  
+  position: relative;
+  overflow: hidden;
+}
+
+.card-metric::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg,
+    var(--green-500) 0%,
+    var(--green-600) 100%);
+}
+
+.card-metric .value {
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--neutral-900);
+  margin-bottom: 8px;
+  
+  font-variant-numeric: tabular-nums;
+}
+
+.card-metric .label {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--neutral-500);
+}
+
+.card-metric .trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 12px;
+  
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.card-metric .trend.positive {
+  color: var(--green-600);
+}
+
+.card-metric .trend.negative {
   color: var(--status-error);
 }
 
-.hint {
-  font-size: 12px;
-  color: var(--text-tertiary);
-  margin-top: 4px;
-}
-
-.error {
-  font-size: 12px;
-  color: var(--status-error);
-  margin-top: 4px;
+/* Elevated card (modals, overlays) */
+.card-elevated {
+  background: var(--neutral-0);
+  border: 1px solid var(--neutral-200);
+  border-radius: 16px;
+  padding: 32px;
+  
+  box-shadow: var(--shadow-xl);
 }
 ```
 
----
+### Tables (Data-Dense Professional)
 
-### Tables (Critical for Inventory)
-
-#### Table Structure:
 ```css
-.table-container {
-  overflow-x: auto; /* Horizontal scroll on small screens */
-  border: 1px solid #E5E7EB;
-  border-radius: 8px;
+.table-wrapper {
+  background: var(--neutral-0);
+  border: 1px solid var(--neutral-100);
+  border-radius: 12px;
+  overflow: hidden;
+  
+  box-shadow: var(--shadow-sm);
 }
 
 .table {
   width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.table thead {
+  background: var(--neutral-50);
+  border-bottom: 1px solid var(--neutral-200);
 }
 
 .table th {
+  padding: 14px 20px;
   text-align: left;
-  padding: 12px 16px;
-  background: var(--bg-secondary);
+  
+  font-size: 12px;
   font-weight: 600;
-  color: var(--text-primary);
-  border-bottom: 2px solid #E5E7EB;
-
-  position: sticky; /* Keep headers visible on scroll */
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--neutral-600);
+  
+  white-space: nowrap;
+  
+  position: sticky;
   top: 0;
+  background: var(--neutral-50);
+  z-index: 10;
+}
+
+.table th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.table th.sortable:hover {
+  color: var(--neutral-900);
 }
 
 .table td {
-  padding: 12px 16px;
-  border-bottom: 1px solid #E5E7EB;
-  color: var(--text-secondary);
-}
-
-.table tr:hover {
-  background: var(--bg-secondary);
-}
-
-/* Zebra striping for rows (optional, helps scanning) */
-.table tbody tr:nth-child(even) {
-  background: var(--bg-primary);
-}
-.table tbody tr:nth-child(odd) {
-  background: var(--bg-secondary);
-}
-```
-
-**Table Best Practices:**
-- Left-align text, right-align numbers
-- Use monospace for numeric values (tabular-nums)
-- Sort indicators (▲/▼) in headers
-- Row hover highlights current line
-- Sticky header for long tables
-- Horizontal scroll on mobile (don't hide columns)
-
----
-
-### Cards (Dashboard, Metrics)
-
-#### Metric Card:
-```css
-.card-metric {
-  background: white;
-  border: 1px solid #E5E7EB;
-  border-radius: 8px;
-  padding: var(--space-4);
-}
-
-.card-metric .value {
-  font-size: 32px;
-  font-weight: 600;
-  color: var(--text-primary);
-  line-height: 1;
-  margin: var(--space-2) 0;
-}
-
-.card-metric .label {
+  padding: 16px 20px;
   font-size: 14px;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  color: var(--neutral-700);
+  border-bottom: 1px solid var(--neutral-100);
 }
 
-.card-metric .change {
-  font-size: 12px;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 4px;
+.table tbody tr {
+  transition: background-color 0.15s ease;
 }
 
-.card-metric .change.positive {
-  color: var(--status-success);
+.table tbody tr:hover {
+  background: var(--neutral-50);
 }
 
-.card-metric .change.negative {
-  color: var(--status-error);
-}
-```
-
-#### Standard Card (Info Panels):
-```css
-.card {
-  background: white;
-  border: 1px solid #E5E7EB;
-  border-radius: 8px;
-  padding: var(--space-5);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+.table tbody tr:last-child td {
+  border-bottom: none;
 }
 
-.card-title {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: var(--space-3);
-  color: var(--text-primary);
-}
-```
-
----
-
-### Alerts & Notifications
-
-#### Status Banner (Dashboard):
-```css
-.alert {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  border-radius: 6px;
-  margin-bottom: var(--space-4);
+/* Numeric columns */
+.table td.numeric {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
 }
 
-.alert-success {
-  background: rgba(16, 185, 129, 0.1);
-  border-left: 4px solid var(--status-success);
-  color: #065F46;
-}
-
-.alert-warning {
-  background: rgba(245, 158, 11, 0.1);
-  border-left: 4px solid var(--status-warning);
-  color: #92400E;
-}
-
-.alert-error {
-  background: rgba(239, 68, 68, 0.1);
-  border-left: 4px solid var(--status-error);
-  color: #991B1B;
-}
-
-.alert-info {
-  background: rgba(59, 130, 246, 0.1);
-  border-left: 4px solid var(--status-info);
-  color: #1E40AF;
-}
-```
-
-#### Toast Notifications:
-```css
-.toast {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  padding: 16px 24px;
-  background: var(--bg-primary);
-  border: 1px solid #E5E7EB;
-  border-radius: 8px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  z-index: 1000;
-  min-width: 320px;
-}
-
-.toast-success { border-left: 4px solid var(--status-success); }
-.toast-error { border-left: 4px solid var(--status-error); }
-.toast-warning { border-left: 4px solid var(--status-warning); }
-```
-
----
-
-### Badges & Tags
-
-#### Status Badges:
-```css
-.badge {
+/* Status badges in tables */
+.table .badge {
   display: inline-flex;
   align-items: center;
-  padding: 4px 12px;
-  border-radius: 9999px;
+  padding: 4px 10px;
+  border-radius: 6px;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .badge-success {
-  background: rgba(16, 185, 129, 0.1);
-  color: #059669;
+  background: var(--green-100);
+  color: var(--green-700);
 }
 
 .badge-warning {
-  background: rgba(245, 158, 11, 0.1);
-  color: #D97706;
+  background: var(--yellow-100);
+  color: var(--yellow-700);
 }
 
 .badge-error {
   background: rgba(239, 68, 68, 0.1);
   color: #DC2626;
 }
+```
 
-.badge-neutral {
-  background: var(--bg-tertiary);
-  color: var(--text-secondary);
+### Navigation (Modern Corporate)
+
+```css
+/* Header */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  
+  border-bottom: 1px solid var(--neutral-100);
+  
+  padding: 0 24px;
+  height: 64px;
+  
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.nav-item {
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--neutral-600);
+  
+  border-radius: 8px;
+  transition: all 0.15s ease;
+  
+  text-decoration: none;
+}
+
+.nav-item:hover {
+  color: var(--neutral-900);
+  background: var(--neutral-100);
+}
+
+.nav-item.active {
+  color: var(--green-700);
+  background: var(--green-50);
+  font-weight: 600;
+}
+
+/* Sidebar (if needed) */
+.sidebar {
+  width: 240px;
+  background: var(--neutral-0);
+  border-right: 1px solid var(--neutral-100);
+  padding: 24px 16px;
+  
+  height: calc(100vh - 64px);
+  overflow-y: auto;
+}
+
+.sidebar-section {
+  margin-bottom: 24px;
+}
+
+.sidebar-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--neutral-500);
+  
+  padding: 0 12px;
+  margin-bottom: 8px;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  
+  padding: 10px 12px;
+  border-radius: 8px;
+  
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--neutral-700);
+  
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.sidebar-item:hover {
+  background: var(--neutral-50);
+  color: var(--neutral-900);
+}
+
+.sidebar-item.active {
+  background: var(--green-50);
+  color: var(--green-700);
+  font-weight: 600;
 }
 ```
 
-Use for: stock status, categories, material types
-
----
-
-## Icons
-
-### Icon Style:
-- **Use:** Lucide React icons (already in package.json)
-- **Style:** Stroke icons (1.5px stroke width)
-- **Size:** 16px, 20px, 24px standard sizes
-- **Color:** Current color (inherit from text), avoid multiple colors
-
-```tsx
-import { Package, AlertTriangle, TrendingUp } from 'lucide-react';
-
-<Package size={20} className="text-gray-600" />
-```
-
-**Icon Usage Guidelines:**
-- Use sparingly - only where they add clarity
-- Don't use icons as decoration
-- Consistent sizing throughout interface
-- Pair with labels (don't rely on icons alone)
-
----
-
-## Layout & Responsive Design
-
-### Container Widths:
-```css
-/* Content max-widths for readability */
-container-sm: 640px;   /* Form columns */
-container-md: 768px;   /* Single column content */
-container-lg: 1024px;  /* Two column layouts */
-container-xl: 1280px;  /* Dashboard full width */
-container-2xl: 1440px; /* Max for ultra-wide */
-```
-
-### Grid System (Tailwind):
-```html
-<!-- Two column layout -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-  <div>Form</div>
-  <div>Preview</div>
-</div>
-
-<!-- Three column layout -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-  <MetricCard />
-  <MetricCard />
-  <MetricCard />
-</div>
-```
-
-### Breakpoints (Tailwind defaults):
-```css
-sm: 640px   /* Mobile landscape */
-md: 768px   /* Tablets */
-lg: 1024px  /* Laptops */
-xl: 1280px  /* Desktops */
-2xl: 1536px /* Large screens */
-```
-
----
-
-## Navigation
-
-### App Layout (Recommended):
-```html
-┌─────────────────────────────────────────────┐
-│  Header (fixed height)                      │
-│  Logo left | Producción Órdenes Inventario Reportes | User right │
-├─────────────────────────────────────────────┤
-│  Main content area                          │
-│  ┌─────────────┬─────────────────────────┐ │
-│  │ Sidebar     │                         │ │
-│  │ (optional)  │   Page Content         │ │
-│  │             │                         │ │
-│  └─────────────┴─────────────────────────┘ │
-└─────────────────────────────────────────────┘
-```
-
-**Header Navigation:**
-- Logo/Brand: Left
-- Primary nav: Producción (Orders), Órdenes (List), Inventario (Materials/Plants/Equipment), Reportes
-- User menu: Far right (Profile, Logout)
-
-**Sidebar Navigation (optional for engineer dashboard):**
-- Collapsible on mobile
-- Active state highlighted
-- Clear section separation (Overview, Orders, Analytics, Settings)
-
----
-
-## Visual Hierarchy
-
-### Guiding Principles:
-
-1. **Size:** Larger = more important
-   - Page title > Section header > Card title > Body text
-
-2. **Weight:** Bolder = higher priority
-   - Primary buttons: font-semibold (600)
-   - Secondary: font-normal (400)
-
-3. **Color:** Darker = more attention
-   - Text-primary > Text-secondary > Text-tertiary
-
-4. **Space:** More space = more important
-   - Hero sections: 48px padding
-   - Card sections: 24px padding
-   - Tight forms: 16px padding
-
-5. **Position:** Top-left (reading start) = primary focus
-
----
-
-## Empty States & Loading
-
-### Loading States (Skeleton):
-```tsx
-{isLoading ? (
-  <div class="animate-pulse">
-    <div class="h-4 bg-gray-200 rounded w-3/4 mb-3"></div>
-    <div class="h-4 bg-gray-200 rounded w-1/2 mb-3"></div>
-    <div class="h-4 bg-gray-200 rounded w-5/6"></div>
-  </div>
-) : (
-  <Content />
-)}
-```
-
-**Skeleton guidelines:**
-- Mimic actual content shape
-- Smooth pulse animation (2s infinite)
-- Don't over-pulse (distracting)
-
-### Empty States:
-- Clear icon or illustration (not decorative)
-- Simple message explaining situation
-- Primary action button (what to do next)
-- No confusion about why content missing
-
----
-
-## Interactive States
-
-### All Interactive Elements Must Have:
-
-**Hover:**
-- Background color change
-- OR border color change
-- OR subtle lift transform (translateY -2px)
-- Within 150ms response
-
-**Focus (for keyboard navigation):**
-```css
-*:focus-visible {
-  outline: 2px solid var(--accent-primary);
-  outline-offset: 2px;
-}
-```
-**Never remove focus outlines entirely.**
-
-**Disabled:**
-- Reduced opacity (0.5)
-- Cursor: not-allowed
-- No hover effects
-
----
-
-## Color Contrast Requirements
-
-**Minimum WCAG AA compliance:**
-- Normal text: 4.5:1
-- Large text (18px+): 3:1
-- UI components: 3:1
-
-**Check with:** Chrome DevTools Lighthouse or contrast-checker.com
-
----
-
-## Dark Mode (Optional)
-
-If implementing dark mode, use CSS custom properties:
+### Alerts & Notifications (Refined)
 
 ```css
-:root {
-  --bg-primary: #FFFFFF;
-  --text-primary: #111827;
+/* Inline alert */
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  
+  padding: 16px 20px;
+  border-radius: 10px;
+  
+  font-size: 14px;
+  line-height: 1.5;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg-primary: #0F0F0F;
-    --text-primary: #F9FAFB;
+.alert-success {
+  background: var(--green-50);
+  border-left: 3px solid var(--green-500);
+  color: var(--green-900);
+}
+
+.alert-warning {
+  background: var(--yellow-50);
+  border-left: 3px solid var(--yellow-500);
+  color: var(--yellow-900);
+}
+
+.alert-error {
+  background: rgba(239, 68, 68, 0.08);
+  border-left: 3px solid var(--status-error);
+  color: #991B1B;
+}
+
+.alert-info {
+  background: rgba(59, 130, 246, 0.08);
+  border-left: 3px solid var(--status-info);
+  color: #1E40AF;
+}
+
+/* Toast notification */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  
+  min-width: 360px;
+  max-width: 420px;
+  
+  background: var(--neutral-0);
+  border: 1px solid var(--neutral-200);
+  border-radius: 12px;
+  
+  padding: 16px 20px;
+  
+  box-shadow: var(--shadow-xl);
+  
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  
+  animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.toast-success { border-left: 3px solid var(--green-500); }
+.toast-warning { border-left: 3px solid var(--yellow-500); }
+.toast-error { border-left: 3px solid var(--status-error); }
+```
+
+---
+
+## Modern Design Patterns
+
+### Glassmorphism (Premium Touch)
+
+```css
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+```
+
+### Gradient Accents
+
+```css
+/* Subtle green gradient */
+.gradient-green {
+  background: linear-gradient(135deg,
+    var(--green-50) 0%,
+    var(--green-100) 100%);
+}
+
+/* Premium card gradient */
+.gradient-card {
+  background: linear-gradient(135deg,
+    var(--neutral-0) 0%,
+    var(--neutral-50) 100%);
+}
+
+/* Text gradient (headings) */
+.text-gradient {
+  background: linear-gradient(135deg,
+    var(--green-600) 0%,
+    var(--green-500) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+```
+
+### Micro-interactions
+
+```css
+/* Smooth transitions */
+* {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Scale on hover (cards, buttons) */
+.interactive:hover {
+  transform: scale(1.02);
+}
+
+/* Ripple effect on click */
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
   }
 }
 ```
 
-**Recommendation:** Start with light theme. Add dark mode only if user feedback requests it.
+---
+
+## Responsive Design Strategy
+
+### Breakpoints
+
+```css
+/* Mobile first approach */
+sm: 640px;   /* Mobile landscape, small tablets */
+md: 768px;   /* Tablets */
+lg: 1024px;  /* Laptops, small desktops */
+xl: 1280px;  /* Desktops */
+2xl: 1536px; /* Large screens */
+```
+
+### Layout Patterns
+
+```html
+<!-- Dashboard Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  <MetricCard />
+  <MetricCard />
+  <MetricCard />
+</div>
+
+<!-- Two-column layout -->
+<div class="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-8">
+  <Sidebar />
+  <MainContent />
+</div>
+
+<!-- Form layout -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+  <FormField />
+  <FormField />
+</div>
+```
 
 ---
 
-## UI Review Checklist
+## Accessibility Standards
 
-Before approving any component or screen:
+### Contrast Requirements
 
-- [ ] Is this immediately understandable?
-- [ ] Is text readable at 14px minimum?
-- [ ] Do interactive elements have clear hover states?
-- [ ] Are focus indicators visible for keyboard users?
-- [ ] Is there sufficient contrast (4.5:1 minimum)?
-- [ ] Is spacing consistent with 4px grid?
-- [ ] Are colors used consistently (status colors only for their purpose)?
-- [ ] Does this scale to mobile (responsive)?
-- [ ] Are touch targets minimum 44x44px?
-- [ ] Is there visual noise or unnecessary decoration?
-- [ ] Would a tired construction worker find this easy to use?
+**WCAG AA Minimum:**
+- Normal text: 4.5:1
+- Large text (18px+): 3:1
+- UI components: 3:1
 
-**If ANY answer is "no" → simplify and clarify.**
+**Our Colors Meet Standards:**
+- ✓ Neutral-900 on White: 14:1
+- ✓ Neutral-700 on White: 8.5:1
+- ✓ Green-700 on White: 4.8:1
+- ✓ Yellow-700 on White: 5.2:1
+
+### Focus Indicators
+
+```css
+*:focus-visible {
+  outline: 2px solid var(--green-500);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Custom focus for inputs */
+.input:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+}
+```
+
+### Keyboard Navigation
+
+- All interactive elements must be keyboard accessible
+- Tab order follows visual hierarchy
+- Skip links for complex navigation
+- Clear focus states on all components
 
 ---
 
-## Red Flags: UI Violations
+## Loading & Empty States
 
-### Immediate Rejection:
-- Text smaller than 14px
-- Low contrast text (gray on white < 4.5:1)
-- No hover/focus states on interactive elements
-- Decorative elements that don't improve usability
-- Inconsistent spacing (not multiples of 4px)
-- Custom fonts that hurt readability
-- All-caps body text
-- Centered paragraphs (research shows this slows reading)
-- Heavy borders or shadows on every card (visual clutter)
-- Auto-playing background videos or animations
-- Popups that interrupt workflow
+### Skeleton Loading (Modern)
 
-### The Usability Test:
-Ask: **"Can someone find what they need in under 5 seconds?"**
+```css
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--neutral-100) 0%,
+    var(--neutral-50) 50%,
+    var(--neutral-100) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
+}
 
-- Is navigation obvious?
-- Can they scan data quickly?
-- Do buttons look clickable?
-- Is error text clearly visible?
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+```
 
-**If no → redesign.**
+### Empty States
+
+```html
+<div class="empty-state">
+  <div class="empty-icon">
+    <!-- Illustration or icon -->
+  </div>
+  <h3 class="empty-title">No hay materiales registrados</h3>
+  <p class="empty-description">
+    Comienza agregando tu primer material al inventario
+  </p>
+  <button class="btn-primary">
+    Agregar Material
+  </button>
+</div>
+```
+
+```css
+.empty-state {
+  text-align: center;
+  padding: 64px 24px;
+}
+
+.empty-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 24px;
+  color: var(--neutral-300);
+}
+
+.empty-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--neutral-900);
+  margin-bottom: 8px;
+}
+
+.empty-description {
+  font-size: 15px;
+  color: var(--neutral-500);
+  margin-bottom: 24px;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+```
+
+---
+
+## Icon System
+
+### Lucide React (Recommended)
+
+```tsx
+import { Package, TrendingUp, AlertTriangle, Check } from 'lucide-react';
+
+// Standard size
+<Package size={20} strokeWidth={2} />
+
+// In buttons
+<button className="btn-primary">
+  <Check size={18} />
+  Guardar
+</button>
+
+// Status icons
+<AlertTriangle size={20} className="text-yellow-500" />
+```
+
+**Icon Guidelines:**
+- Use 20px for standard UI
+- Use 24px for headers
+- Use 16px for inline text
+- Stroke width: 2px standard, 1.5px for lighter feel
+- Always pair with text labels (don't rely on icons alone)
+- Consistent color with surrounding text
+
+---
+
+## Animation Principles
+
+### Timing Functions
+
+```css
+/* Default smooth */
+ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+/* Snappy interactions */
+ease-out: cubic-bezier(0, 0, 0.2, 1);
+
+/* Bouncy (use sparingly) */
+spring: cubic-bezier(0.68, -0.55, 0.27, 1.55);
+```
+
+### Duration Guidelines
+
+```css
+--duration-fast: 150ms;    /* Hover, focus */
+--duration-base: 200ms;    /* Standard transitions */
+--duration-slow: 300ms;    /* Complex animations */
+--duration-slower: 500ms;  /* Page transitions */
+```
+
+### Animation Rules
+
+- **Prefer transforms over position changes** (better performance)
+- **Use opacity for fade effects**
+- **Keep animations under 300ms** (feels responsive)
+- **Reduce motion for accessibility** (prefers-reduced-motion)
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+```
+
+---
+
+## Premium UI Checklist
+
+Before approving any screen:
+
+**Visual Hierarchy**
+- [ ] Clear primary action (green button)
+- [ ] Logical heading structure (h1 → h2 → h3)
+- [ ] Proper text contrast (4.5:1 minimum)
+- [ ] Adequate white space (not cramped)
+
+**Typography**
+- [ ] Consistent font weights
+- [ ] Appropriate font sizes (14px minimum)
+- [ ] Line heights for readability (1.5 body, 1.2 headings)
+- [ ] Tabular numbers for data
+
+**Color**
+- [ ] Green for primary actions only
+- [ ] Yellow for warnings/attention
+- [ ] Neutrals for hierarchy
+- [ ] Status colors used correctly
+
+**Spacing**
+- [ ] 8px grid alignment
+- [ ] Consistent padding (16px, 24px, 32px)
+- [ ] Breathing room around elements
+- [ ] Balanced composition
+
+**Interaction**
+- [ ] Clear hover states
+- [ ] Visible focus indicators
+- [ ] Loading states defined
+- [ ] Error states handled
+
+**Accessibility**
+- [ ] Keyboard navigable
+- [ ] Screen reader friendly
+- [ ] Sufficient contrast
+- [ ] Touch targets 44x44px minimum
+
+**Polish**
+- [ ] Subtle shadows (not heavy)
+- [ ] Smooth transitions (150-200ms)
+- [ ] Rounded corners (8-12px)
+- [ ] Professional feel overall
+
+---
+
+## Implementation with Tailwind
+
+### Custom Theme Extension
+
+```js
+// tailwind.config.js
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        green: {
+          50: '#F0FDF4',
+          100: '#DCFCE7',
+          500: '#22C55E',
+          600: '#16A34A',
+          700: '#15803D',
+          900: '#14532D',
+        },
+        yellow: {
+          50: '#FEFCE8',
+          100: '#FEF9C3',
+          400: '#FACC15',
+          500: '#EAB308',
+          600: '#CA8A04',
+        },
+        neutral: {
+          0: '#FFFFFF',
+          50: '#FAFAFA',
+          100: '#F5F5F5',
+          200: '#E5E5E5',
+          300: '#D4D4D4',
+          400: '#A3A3A3',
+          500: '#737373',
+          600: '#525252',
+          700: '#404040',
+          800: '#262626',
+          900: '#171717',
+          950: '#0A0A0A',
+        },
+      },
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+      },
+      boxShadow: {
+        'xs': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+        'sm': '0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.08)',
+        'md': '0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.08)',
+        'lg': '0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.08)',
+        'xl': '0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.08)',
+      },
+    },
+  },
+};
+```
+
+### Example Component Usage
+
+```tsx
+// Premium button
+<button className="
+  inline-flex items-center justify-center gap-2
+  px-6 py-3
+  bg-gradient-to-b from-green-500 to-green-600
+  text-white font-semibold text-[15px] tracking-tight
+  rounded-lg
+  shadow-sm hover:shadow-md
+  transition-all duration-200
+  hover:-translate-y-0.5
+  focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2
+">
+  <Check size={18} />
+  Guardar Cambios
+</button>
+
+// Metric card
+<div className="
+  bg-gradient-to-br from-white to-green-50
+  border border-green-100
+  rounded-2xl p-7
+  shadow-sm hover:shadow-md
+  transition-all duration-200
+  relative overflow-hidden
+  before:absolute before:top-0 before:left-0
+  before:w-1 before:h-full
+  before:bg-gradient-to-b before:from-green-500 before:to-green-600
+">
+  <div className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
+    Total Producido
+  </div>
+  <div className="text-4xl font-bold text-neutral-900 mt-2 tabular-nums">
+    12,450
+  </div>
+  <div className="flex items-center gap-1 mt-3 text-sm font-semibold text-green-600">
+    <TrendingUp size={16} />
+    +12.5%
+  </div>
+</div>
+```
 
 ---
 
 ## Final Principle
 
-**Clarity over creativity. Function over fashion.**
+**Create interfaces that professionals trust.**
 
-Construction professionals use this app to get work done, not to admire design. Every visual decision should answer: "Does this help users complete their tasks faster and with fewer errors?"
+Every pixel should communicate:
+- **Competence** through refined typography and spacing
+- **Reliability** through consistent patterns and clear hierarchy
+- **Efficiency** through thoughtful information architecture
+- **Quality** through subtle details and smooth interactions
 
----
-
-## Implementation Notes
-
-**Use Tailwind CSS (already installed):**
-- No custom CSS files unless absolutely necessary
-- Leverage Tailwind's utility classes for spacing, colors, typography
-- Create reusable component classes only when patterns repeat
-
-**Component Library:**
-- Use shadcn/ui components as base (already set up)
-- Customize to match these standards
-- Maintain consistency across all pages
-
-**Accessibility:**
-- Semantic HTML (buttons for actions, links for navigation)
-- Proper heading hierarchy (h1 → h2 → h3)
-- Alt text for meaningful images
-- Skip links if complex navigation
+**This is enterprise software for professionals. Design accordingly.**
 
 ---
 
-## Revision Protocol
-
-Update this document when:
-- New component types are added
-- Design trends conflict with usability needs
-- Accessibility standards change
-- User feedback indicates confusion
-- Color palette needs expansion
-- New Breakpoints needed for specific devices
-
-**Last Updated:** [Date]
-**Next Review:** [Quarterly]
-
----
-
-**Sistema de Producción de Bloques UI Standards**
-*Version 1.0*
+**Sistema de Producción de Bloques Premium Design System**
+*Version 2.0 - Corporate Grade*

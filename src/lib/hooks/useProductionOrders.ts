@@ -3,7 +3,7 @@ import {
   ProductionOrder,
   ProductionOrderFormData
 } from '@/types/production-order';
-import { createClient } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 import { useAuth } from '@/app/contexts/AuthContext';
 
 interface UseProductionOrdersProps {
@@ -68,7 +68,7 @@ export function useProductionOrders({ userRole }: UseProductionOrdersProps) {
   const [perPage, setPerPage] = useState(25);
 
   const { user } = useAuth();
-  const supabase = useMemo(() => createClient(), []);
+  const supabaseInstance = supabase;
 
   // Fetch orders from Supabase
   const fetchOrders = useCallback(async () => {
@@ -155,7 +155,7 @@ export function useProductionOrders({ userRole }: UseProductionOrdersProps) {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      supabaseInstance.removeChannel(channel);
     };
   }, [user, userRole, supabase]);
 
@@ -348,8 +348,48 @@ export function useProductionOrders({ userRole }: UseProductionOrdersProps) {
   }, [user, orders, supabase]);
 
   const updateOrderStatus = useCallback(async (id: string, status: ProductionOrder['status']) => {
+    // Get the current order to check materials_used
+    const currentOrder = orders.find(o => o.id === id);
+    if (!currentOrder) {
+      throw new Error('Orden no encontrada');
+    }
+
+    // If status is being changed to 'approved' and it wasn't already approved,
+    // deduct inventory for materials used from the order owner's inventory
+    if (status === 'approved' && currentOrder.status !== 'approved') {
+      const materialsToDeduct = currentOrder.materials_used;
+      const orderUserId = currentOrder.user_id; // The operator who created the order
+
+      if (materialsToDeduct.length > 0) {
+        // Deduct inventory for all materials
+        const deductionPromises = materialsToDeduct.map(async (materialUsage) => {
+          const { error } = await supabase
+            .from('inventory_materials')
+            .update({
+              // Using raw SQL subtraction for atomic update
+              current_quantity: (supabase as any).raw(`current_quantity - ?`, [materialUsage.quantity]),
+              last_updated: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', materialUsage.materialId)
+            .eq('user_id', orderUserId); // Use order owner's user ID
+
+          return { materialUsage, error };
+        });
+
+        const results = await Promise.all(deductionPromises);
+
+        // Check if any deduction failed
+        const failedDeductions = results.filter(r => r.error);
+        if (failedDeductions.length > 0) {
+          const errorMsgs = failedDeductions.map(f => f.error?.message || 'Error desconocido').join('; ');
+          throw new Error(`Error descontando inventario: ${errorMsgs}`);
+        }
+      }
+    }
+
     await updateOrder(id, { status });
-  }, [updateOrder]);
+  }, [updateOrder, orders, supabase]);
 
   return {
     orders,

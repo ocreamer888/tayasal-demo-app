@@ -1,10 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function SignupPage() {
   const [fullName, setFullName] = useState('');
@@ -15,7 +18,6 @@ export default function SignupPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const supabase = createClient();
   const router = useRouter();
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -60,120 +62,119 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="max-w-md w-full p-8">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900">Crear Cuenta</h2>
-          <p className="text-gray-600 mt-2">Regístrate para usar el Sistema de Producción</p>
-        </div>
+    <div className="flex min-h-screen items-center justify-center bg-neutral-50 px-4 py-12 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-bold text-neutral-900">
+            Crear Cuenta
+          </CardTitle>
+          <p className="mt-2 text-sm text-neutral-500">
+            Regístrate para usar el Sistema de Producción
+          </p>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSignup} className="space-y-6">
+            {error && (
+              <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                {error}
+              </div>
+            )}
 
-        <form onSubmit={handleSignup} className="space-y-6">
-          {error && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-              {error}
+            <div className="space-y-2">
+              <Label htmlFor="fullName" className="text-sm font-medium text-neutral-700">
+                Nombre Completo <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="fullName"
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+                placeholder="Juan Pérez González"
+              />
             </div>
-          )}
 
-          <div>
-            <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
-              Nombre Completo <span className="text-red-500">*</span>
-            </label>
-            <input
-              id="fullName"
-              type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Juan Pérez González"
-            />
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-sm font-medium text-neutral-700">
+                Correo electrónico <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                placeholder="tu@correo.com"
+                autoComplete="email"
+              />
+            </div>
 
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-              Correo electrónico <span className="text-red-500">*</span>
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="tu@correo.com"
-            />
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="role" className="text-sm font-medium text-neutral-700">
+                Rol en el Sistema <span className="text-red-500">*</span>
+              </Label>
+              <Select value={role} onValueChange={(value) => setRole(value as 'operator' | 'engineer')}>
+                <SelectTrigger id="role">
+                  <SelectValue placeholder="Seleccionar rol" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="operator">Personal Operativo</SelectItem>
+                  <SelectItem value="engineer">Ingeniero / Administrador</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-neutral-500 mt-1">
+                {role === 'operator'
+                  ? 'Puede crear y ver sus propias órdenes de producción'
+                  : 'Puede ver todas las órdenes, aprobar/rechazar, y acceder a reportes'}
+              </p>
+            </div>
 
-          <div>
-            <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
-              Rol en el Sistema <span className="text-red-500">*</span>
-            </label>
-            <select
-              id="role"
-              value={role}
-              onChange={(e) => setRole(e.target.value as 'operator' | 'engineer')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="operator">Personal Operativo</option>
-              <option value="engineer">Ingeniero / Administrador</option>
-            </select>
-            <p className="text-xs text-gray-500 mt-1">
-              {role === 'operator'
-                ? 'Puede crear y ver sus propias órdenes de producción'
-                : 'Puede ver todas las órdenes, aprobar/rechazar, y acceder a reportes'}
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-sm font-medium text-neutral-700">
+                Contraseña <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+                placeholder="••••••••"
+                autoComplete="new-password"
+              />
+              <p className="text-xs text-neutral-500">Mínimo 6 caracteres</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword" className="text-sm font-medium text-neutral-700">
+                Confirmar Contraseña <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                placeholder="••••••••"
+                autoComplete="new-password"
+              />
+            </div>
+
+            <Button type="submit" loading={loading} className="w-full" size="lg">
+              {loading ? 'Creando cuenta...' : 'Crear Cuenta'}
+            </Button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <p className="text-sm text-neutral-500">
+              ¿Ya tienes cuenta?{' '}
+              <a href="/login" className="font-medium text-green-600 hover:text-green-700">
+                Inicia sesión aquí
+              </a>
             </p>
           </div>
-
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-              Contraseña <span className="text-red-500">*</span>
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="••••••••"
-            />
-            <p className="text-xs text-gray-500 mt-1">Mínimo 6 caracteres</p>
-          </div>
-
-          <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-              Confirmar Contraseña <span className="text-red-500">*</span>
-            </label>
-            <input
-              id="confirmPassword"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="••••••••"
-            />
-          </div>
-
-          <Button
-            type="submit"
-            loading={loading}
-            className="w-full"
-            size="lg"
-          >
-            {loading ? 'Creando cuenta...' : 'Crear Cuenta'}
-          </Button>
-        </form>
-
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600">
-            ¿Ya tienes cuenta?{' '}
-            <a href="/login" className="font-medium text-blue-600 hover:text-blue-500">
-              Inicia sesión aquí
-            </a>
-          </p>
-        </div>
+        </CardContent>
       </Card>
     </div>
   );

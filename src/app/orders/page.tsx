@@ -3,12 +3,18 @@
 import { useState } from 'react';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useProductionOrders } from '@/lib/hooks/useProductionOrders';
+import { toast } from 'sonner';
 import { ProductionOrderList } from '@/components/production/ProductionOrderList';
 import { ProductionOrderForm } from '@/components/production/ProductionOrderForm';
 import { ProductionOrderDetails } from '@/components/production/ProductionOrderDetails';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { Plus, Search, Filter } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Header } from '@/components/layout/Header';
+import { PageHeader } from '@/components/shared/PageHeader';
+import { Plus, Search, ClipboardList } from 'lucide-react';
+import { ProductionOrder } from '@/types/production-order';
 
 export default function OrdersPage() {
   const { user, profile } = useAuth();
@@ -32,14 +38,55 @@ export default function OrdersPage() {
   const [editingOrder, setEditingOrder] = useState<any>(null);
   const [viewingOrder, setViewingOrder] = useState<any>(null);
 
-  const handleSubmit = async (orderData: any) => {
-    if (editingOrder) {
-      await updateOrder(editingOrder.id, orderData);
-    } else {
-      await addOrder(orderData);
+  const handleDelete = async (id: string) => {
+    if (window.confirm('¿Estás seguro de que deseas eliminar esta orden?')) {
+      try {
+        await deleteOrder(id);
+        toast.success('Orden eliminada exitosamente');
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : 'Error al eliminar la orden'
+        );
+      }
     }
-    setShowForm(false);
-    setEditingOrder(null);
+  };
+
+  const handleUpdateStatus = async (id: string, status: ProductionOrder['status']) => {
+    try {
+      await updateOrderStatus(id, status);
+      const statusMessages = {
+        approved: 'Orden aprobada exitosamente',
+        rejected: 'Orden rechazada',
+        submitted: 'Orden enviada a revisión',
+        draft: 'Orden guardada como borrador',
+        archived: 'Orden archivada',
+      };
+      toast.success(statusMessages[status] || `Estado actualizado a ${status}`);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Error al actualizar el estado de la orden'
+      );
+      throw error;
+    }
+  };
+
+  const handleSubmit = async (orderData: any) => {
+    try {
+      if (editingOrder) {
+        await updateOrder(editingOrder.id, orderData);
+      } else {
+        await addOrder(orderData);
+      }
+      toast.success(
+        editingOrder ? 'Orden actualizada exitosamente' : 'Orden creada exitosamente'
+      );
+      setShowForm(false);
+      setEditingOrder(null);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Error al guardar la orden'
+      );
+    }
   };
 
   const handleEdit = (order: any) => {
@@ -64,77 +111,75 @@ export default function OrdersPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Órdenes de Producción</h1>
-              <p className="text-sm text-gray-500">
-                {userRole === 'operator' || userRole === 'engineer' || userRole === 'admin'
-                  ? 'Gestiona tus órdenes de producción'
-                  : 'Administrador - Todas las órdenes'}
-              </p>
-            </div>
-            <Button onClick={() => { setEditingOrder(null); setShowForm(true); }} variant="primary">
+    <div className="min-h-screen bg-neutral-50">
+      <Header />
+      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+        <PageHeader
+          title="Órdenes de Producción"
+          description="Gestiona tus órdenes de producción"
+          icon={ClipboardList}
+          actions={
+            <Button onClick={() => { setEditingOrder(null); setShowForm(true); }}>
               <Plus size={18} className="mr-2" />
               Nueva Orden
             </Button>
-          </div>
-        </div>
-      </header>
+          }
+        />
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Filters */}
         {!showForm && (
-          <Card className="p-6 mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card className="mb-6 p-6">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+              {/* Search */}
               <div className="md:col-span-2">
                 <div className="relative">
-                  <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="text"
+                  <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+                  <Input
                     placeholder="Buscar órdenes por tipo, tamaño..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="pl-10"
                   />
                 </div>
               </div>
 
+              {/* Status Filter */}
               <div>
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  {getStatusOptions().map(option => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Filtrar por estado" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {getStatusOptions().map(option => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
+              {/* Sort */}
               <div>
-                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option value="all">Ordenar por: Fecha</option>
-                  <option value="type">Tipo de Bloque</option>
-                  <option value="quantity">Cantidad</option>
-                  <option value="cost">Costo</option>
-                </select>
+                <Select defaultValue="all">
+                  <SelectTrigger>
+                    <SelectValue placeholder="Ordenar por: Fecha" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Ordenar por: Fecha</SelectItem>
+                    <SelectItem value="type">Tipo de Bloque</SelectItem>
+                    <SelectItem value="quantity">Cantidad</SelectItem>
+                    <SelectItem value="cost">Costo</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </Card>
         )}
 
-        {/* Form or List */}
         {showForm ? (
           <Card className="p-6">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold">
+            <div className="mb-6 flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-neutral-900">
                 {editingOrder ? 'Editar Orden de Producción' : 'Nueva Orden de Producción'}
               </h2>
               <Button variant="ghost" onClick={() => { setShowForm(false); setEditingOrder(null); }}>
@@ -149,7 +194,7 @@ export default function OrdersPage() {
           </Card>
         ) : (
           <>
-            <div className="mb-4 text-sm text-gray-600">
+            <div className="mb-4 text-sm text-neutral-500">
               Mostrando {filteredOrders.length} de {orders.length} órdenes
             </div>
             <ProductionOrderList
@@ -157,23 +202,23 @@ export default function OrdersPage() {
               loading={loading}
               onView={handleView}
               onEdit={handleEdit}
-              onDelete={deleteOrder}
-              onUpdateStatus={updateOrderStatus}
+              onDelete={handleDelete}
+              onUpdateStatus={handleUpdateStatus}
               userRole={userRole}
             />
           </>
         )}
-      </main>
 
-      {/* Order Details Modal */}
-      {viewingOrder && (
-        <ProductionOrderDetails
-          order={viewingOrder}
-          onClose={() => setViewingOrder(null)}
-          onEdit={userRole === 'engineer' ? handleEdit : undefined}
-          onUpdateStatus={userRole === 'engineer' ? updateOrderStatus : undefined}
-        />
-      )}
+        {/* Order Details Modal */}
+        {viewingOrder && (
+          <ProductionOrderDetails
+            order={viewingOrder}
+            onClose={() => setViewingOrder(null)}
+            onEdit={userRole === 'engineer' ? handleEdit : undefined}
+            onUpdateStatus={userRole === 'engineer' ? handleUpdateStatus : undefined}
+          />
+        )}
+      </main>
     </div>
   );
 }

@@ -1,65 +1,107 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/app/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Package, TrendingUp, BarChart3, Shield } from 'lucide-react';
+
+export default function HomePage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  console.log('🔧 HomePage: render. loading=', loading, 'user=', user?.email || 'null');
+
+  useEffect(() => {
+    console.log('🔧 HomePage: useEffect triggered. loading=', loading, 'user=', user?.email || 'null');
+    if (!loading) {
+      console.log('🔧 HomePage: loading=false, performing redirect. user?', !!user);
+      // Small delay to ensure state is settled
+      const timer = setTimeout(() => {
+        if (user) {
+          router.push('/dashboard');
+        } else {
+          router.push('/login');
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [user, loading, router]);
+
+  if (loading) {
+    console.log('🔧 HomePage: RETURNING SPINNER (loading=true)');
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-neutral-50">
+        <div className="text-center">
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-neutral-200 border-t-green-500" />
+          <p className="text-neutral-500">Cargando...</p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </div>
+    );
+  }
+
+  console.log('🔧 HomePage: RETURNING LANDING PAGE (loading=false)');
+
+  // This will briefly show while redirecting
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-neutral-50 to-white">
+      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24">
+        <div className="text-center">
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-b from-green-500 to-green-600 shadow-lg">
+            <Package size={40} className="text-white" />
+          </div>
+          <h1 className="mb-4 text-4xl font-bold text-neutral-900">
+            Sistema de Producción de Bloques
+          </h1>
+          <p className="mx-auto mb-8 max-w-2xl text-lg text-neutral-600">
+            Gestión integral de producción, inventario y órdenes para plantas de bloques de concreto.
+            Diseñado para eficiencia operativa y control total.
+          </p>
+
+          <div className="mb-16 grid grid-cols-1 gap-6 md:grid-cols-3">
+            <Card className="p-6 text-center">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-green-50 text-green-600">
+                <TrendingUp size={24} />
+              </div>
+              <h3 className="mb-2 text-lg font-semibold text-neutral-900"> Producción Optimizada</h3>
+              <p className="text-neutral-600">
+                Control total de órdenes, costos y recursos de producción.
+              </p>
+            </Card>
+
+            <Card className="p-6 text-center">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-green-50 text-green-600">
+                <BarChart3 size={24} />
+              </div>
+              <h3 className="mb-2 text-lg font-semibold text-neutral-900">Reportes en Tiempo Real</h3>
+              <p className="text-neutral-600">
+                Dashboards interactivos con métricas clave de rendimiento.
+              </p>
+            </Card>
+
+            <Card className="p-6 text-center">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-green-50 text-green-600">
+                <Shield size={24} />
+              </div>
+              <h3 className="mb-2 text-lg font-semibold text-neutral-900">Seguridad y Control</h3>
+              <p className="text-neutral-600">
+                Sistema de roles y permisos para acceso seguro.
+              </p>
+            </Card>
+          </div>
+
+          <Button size="lg" className="px-8" onClick={() => router.push('/login')}>
+            Comenzar Ahora
+          </Button>
         </div>
       </main>
+
+      <footer className="border-t border-neutral-200 py-8">
+        <div className="mx-auto max-w-7xl px-4 text-center text-sm text-neutral-500 sm:px-6 lg:px-8">
+          <p>&copy; {new Date().getFullYear()} Sistema de Producción de Bloques Premium. Todos los derechos reservados.</p>
+        </div>
+      </footer>
     </div>
   );
 }

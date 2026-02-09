@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { InventoryMaterial } from '@/types/inventory';
-import { createClient } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 import { useAuth } from '@/app/contexts/AuthContext';
 
 interface UseInventoryMaterialsProps {
@@ -40,7 +40,7 @@ export function useInventoryMaterials({ userRole }: UseInventoryMaterialsProps) 
   const [perPage, setPerPage] = useState(25);
 
   const { user } = useAuth();
-  const supabase = useMemo(() => createClient(), []);
+  const supabaseInstance = supabase;
 
   const fetchMaterials = useCallback(async () => {
     if (!user) {
@@ -53,11 +53,19 @@ export function useInventoryMaterials({ userRole }: UseInventoryMaterialsProps) 
       setLoading(true);
       setError(null);
 
-      const { data, error: fetchError } = await supabase
+      // Build query based on user role
+      let query = supabase
         .from('inventory_materials')
         .select('*')
-        .eq('user_id', user.id)
         .order('material_name', { ascending: true });
+
+      // Filter by user_id if operator (only see their own inventory)
+      if (userRole === 'operator') {
+        query = query.eq('user_id', user.id);
+      }
+      // Engineers and admins see all inventory
+
+      const { data, error: fetchError } = await query;
 
       if (fetchError) throw fetchError;
 
@@ -69,7 +77,7 @@ export function useInventoryMaterials({ userRole }: UseInventoryMaterialsProps) 
     } finally {
       setLoading(false);
     }
-  }, [user, supabase]);
+  }, [user, userRole, supabase]);
 
   useEffect(() => {
     fetchMaterials();
@@ -79,10 +87,11 @@ export function useInventoryMaterials({ userRole }: UseInventoryMaterialsProps) 
   useEffect(() => {
     if (!user) return;
 
-    const filter = `user_id=eq.${user.id}`;
+    // Build filter based on user role
+    const filter = userRole === 'operator' ? `user_id=eq.${user.id}` : undefined;
 
     const channel = supabase
-      .channel(`inventory-${user.id}`)
+      .channel(`inventory-${userRole || 'all'}-${user.id}`)
       .on(
         'postgres_changes',
         {
@@ -116,7 +125,7 @@ export function useInventoryMaterials({ userRole }: UseInventoryMaterialsProps) 
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      supabaseInstance.removeChannel(channel);
     };
   }, [user, supabase]);
 
