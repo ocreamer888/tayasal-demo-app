@@ -313,7 +313,9 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
                     <th className="h-12 px-6 text-left text-xs font-semibold uppercase tracking-wider text-neutral-600">Cantidad</th>
                     <th className="h-12 px-6 text-left text-xs font-semibold uppercase tracking-wider text-neutral-600">Fecha</th>
                     <th className="h-12 px-6 text-left text-xs font-semibold uppercase tracking-wider text-neutral-600">Estado</th>
-                    <th className="h-12 px-6 text-left text-xs font-semibold uppercase tracking-wider text-neutral-600">Costo</th>
+                    {(userRole === 'engineer' || userRole === 'admin') && (
+                      <th className="h-12 px-6 text-left text-xs font-semibold uppercase tracking-wider text-neutral-600">Costo</th>
+                    )}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutral-100">
@@ -351,9 +353,11 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
                             {order.status === 'archived' && 'Archivada'}
                           </Badge>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-neutral-900 tabular-nums">
-                          {formatCurrency(order.total_cost)}
-                        </td>
+                        {(userRole === 'engineer' || userRole === 'admin') && (
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-neutral-900 tabular-nums">
+                            {formatCurrency(order.total_cost)}
+                          </td>
+                        )}
                       </tr>
                     );
                   })}
