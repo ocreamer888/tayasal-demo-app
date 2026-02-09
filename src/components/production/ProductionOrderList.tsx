@@ -181,7 +181,7 @@ export function ProductionOrderList({
               <TableHead>Cantidad</TableHead>
               <TableHead>Fecha / Turno</TableHead>
               <TableHead>Estado</TableHead>
-              <TableHead>Costo Total</TableHead>
+              <TableHead>{userRole === 'operator' ? '•' : 'Costo Total'}</TableHead>
               <TableHead>Acciones</TableHead>
             </TableRow>
           </TableHeader>
@@ -206,7 +206,7 @@ export function ProductionOrderList({
                   {getStatusBadge(order.status)}
                 </TableCell>
                 <TableCell className="font-semibold tabular-nums text-neutral-900">
-                  {formatCurrency(order.total_cost)}
+                  {userRole === 'operator' ? '-' : formatCurrency(order.total_cost)}
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">

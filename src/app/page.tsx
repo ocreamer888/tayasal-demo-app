@@ -11,12 +11,8 @@ export default function HomePage() {
   const { user, loading } = useAuth();
   const router = useRouter();
 
-  console.log('🔧 HomePage: render. loading=', loading, 'user=', user?.email || 'null');
-
   useEffect(() => {
-    console.log('🔧 HomePage: useEffect triggered. loading=', loading, 'user=', user?.email || 'null');
     if (!loading) {
-      console.log('🔧 HomePage: loading=false, performing redirect. user?', !!user);
       // Small delay to ensure state is settled
       const timer = setTimeout(() => {
         if (user) {
@@ -30,7 +26,6 @@ export default function HomePage() {
   }, [user, loading, router]);
 
   if (loading) {
-    console.log('🔧 HomePage: RETURNING SPINNER (loading=true)');
     return (
       <div className="flex min-h-screen items-center justify-center bg-neutral-50">
         <div className="text-center">
@@ -40,8 +35,6 @@ export default function HomePage() {
       </div>
     );
   }
-
-  console.log('🔧 HomePage: RETURNING LANDING PAGE (loading=false)');
 
   // This will briefly show while redirecting
   return (
