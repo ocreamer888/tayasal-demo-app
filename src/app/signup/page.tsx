@@ -37,23 +37,35 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
-      const { error: signUpError, data } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-            role,
-          },
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          email,
+          password,
+          full_name: fullName,
+          role,
+        }),
       });
 
-      if (signUpError) throw signUpError;
+      const data = await response.json();
 
-      // Show success message
-      alert('¡Cuenta creada exitosamente! Por favor verifica tu correo electrónico.');
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al crear la cuenta');
+      }
 
-      router.push('/login');
+      // If immediate login (email confirmation disabled), set session
+      if (data.session) {
+        await supabase.auth.setSession(data.session);
+        router.push('/dashboard');
+        router.refresh();
+      } else {
+        // Email confirmation required
+        alert('¡Cuenta creada exitosamente! Por favor verifica tu correo electrónico.');
+        router.push('/login');
+      }
     } catch (error: any) {
       setError(error.message || 'Error al crear la cuenta');
     } finally {
