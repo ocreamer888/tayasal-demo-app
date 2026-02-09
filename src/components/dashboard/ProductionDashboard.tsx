@@ -115,11 +115,13 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
           value={totalBlocksProduced}
           description="Unidades totales"
         />
-        <MetricCard
-          title="Costo Promedio"
-          value={formatCurrency(avgCostPerOrder)}
-          description="Por orden"
-        />
+        {(userRole === 'engineer' || userRole === 'admin') && (
+          <MetricCard
+            title="Costo Promedio"
+            value={formatCurrency(avgCostPerOrder)}
+            description="Por orden"
+          />
+        )}
         <MetricCard
           title="Pendientes"
           value={pendingApprovals}

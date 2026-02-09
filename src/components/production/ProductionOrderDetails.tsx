@@ -281,39 +281,41 @@ export function ProductionOrderDetails({ order, onClose, onEdit, onUpdateStatus 
           </div>
 
           {/* Cost Breakdown */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-h3 text-neutral-900">Desglose de Costos</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between border-b border-neutral-100 py-2">
-                  <span className="text-neutral-600">Materiales:</span>
-                  <span className="font-medium text-neutral-900">{formatCurrency(order.material_cost)}</span>
+          {(user?.user_metadata?.role === 'engineer' || user?.user_metadata?.role === 'admin') && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-h3 text-neutral-900">Desglose de Costos</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between border-b border-neutral-100 py-2">
+                    <span className="text-neutral-600">Materiales:</span>
+                    <span className="font-medium text-neutral-900">{formatCurrency(order.material_cost)}</span>
+                  </div>
+                  <div className="flex items-center justify-between border-b border-neutral-100 py-2">
+                    <span className="text-neutral-600">Mano de Obra:</span>
+                    <span className="font-medium text-neutral-900">{formatCurrency(order.labor_cost || totalLaborCost)}</span>
+                  </div>
+                  <div className="flex items-center justify-between border-b border-neutral-100 py-2">
+                    <span className="text-neutral-600">Equipos:</span>
+                    <span className="font-medium text-neutral-900">{formatCurrency(order.equipment_cost || totalEquipmentCost)}</span>
+                  </div>
+                  <div className="flex items-center justify-between border-b border-neutral-100 py-2">
+                    <span className="text-neutral-600">Energía:</span>
+                    <span className="font-medium text-neutral-900">{formatCurrency(order.energy_cost || 0)}</span>
+                  </div>
+                  <div className="flex items-center justify-between border-b border-neutral-100 py-2">
+                    <span className="text-neutral-600">Mantenimiento:</span>
+                    <span className="font-medium text-neutral-900">{formatCurrency(order.maintenance_cost || 0)}</span>
+                  </div>
+                  <div className="flex items-center justify-between rounded-lg bg-neutral-50 px-4 py-4 mt-4">
+                    <span className="text-lg font-bold text-neutral-900">Costo Total:</span>
+                    <span className="text-xl font-bold text-green-600">{formatCurrency(order.total_cost)}</span>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between border-b border-neutral-100 py-2">
-                  <span className="text-neutral-600">Mano de Obra:</span>
-                  <span className="font-medium text-neutral-900">{formatCurrency(order.labor_cost || totalLaborCost)}</span>
-                </div>
-                <div className="flex items-center justify-between border-b border-neutral-100 py-2">
-                  <span className="text-neutral-600">Equipos:</span>
-                  <span className="font-medium text-neutral-900">{formatCurrency(order.equipment_cost || totalEquipmentCost)}</span>
-                </div>
-                <div className="flex items-center justify-between border-b border-neutral-100 py-2">
-                  <span className="text-neutral-600">Energía:</span>
-                  <span className="font-medium text-neutral-900">{formatCurrency(order.energy_cost || 0)}</span>
-                </div>
-                <div className="flex items-center justify-between border-b border-neutral-100 py-2">
-                  <span className="text-neutral-600">Mantenimiento:</span>
-                  <span className="font-medium text-neutral-900">{formatCurrency(order.maintenance_cost || 0)}</span>
-                </div>
-                <div className="flex items-center justify-between rounded-lg bg-neutral-50 px-4 py-4 mt-4">
-                  <span className="text-lg font-bold text-neutral-900">Costo Total:</span>
-                  <span className="text-xl font-bold text-green-600">{formatCurrency(order.total_cost)}</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Notes */}
           {order.notes && (

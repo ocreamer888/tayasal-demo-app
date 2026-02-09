@@ -1,5 +1,7 @@
 # Sistema de Producción de Bloques de Concreto
 
+**Estado:** 🟡 75% Completo - En Hardening de Seguridad
+
 Sistema web para automatizar la gestión de órdenes de producción de bloques de concreto. Reemplaza el proceso manual de papel → Excel con una solución digital completa.
 
 ## 🎯 Problema que Resuelve
@@ -8,25 +10,118 @@ Sistema web para automatizar la gestión de órdenes de producción de bloques d
 - Personal escribe órdenes en papel
 - Ingeniero transcribe manualmente a Excel diariamente
 - Proceso lento, propenso a errores, duplicado de trabajo
+- No hay visibilidad en tiempo real
 
 **Solución:**
-- App web con autenticación
+- App web con autenticación (Supabase Auth)
 - Creación/gestión de órdenes de producción digitales
-- Dashboard ingeniero con reportes, gráficos, costos
-- Dashboard personal operativo (solo sus órdenes)
+- Dashboard ingeniero con reportes, gráficos, **costos confidenciales**
+- Dashboard personal operativo (solo sus órdenes, **sin ver costos**)
 - Inventario integrado (materiales, equipos, equipo humano)
-- Automatización de reportes Excel, PDF, gráficos
+- Automatización de reportes (Excel, CSV, JSON)
+- Real-time sync entre dispositivos
+
+## ⚠️ Estado de Implementación
+
+### ✅ Completado (75%)
+- Autenticación completa con roles (operator/engineer/admin)
+- CRUD de órdenes con validación y cálculos automáticos
+- Dashboard con gráficos de producción
+- Gestión de inventario (4 entidades)
+- Real-time subscriptions
+- Optimistic UI con rollback
+- 45+ componentes Shadcn UI
+
+### 🔴 En Progreso - Seguridad Crítica
+**No desplegar a producción sin completar estas tareas:**
+
+1. **Confidencialidad de costos** - Operadores accidentalmente ven costos (debería ser solo ingenieros)
+2. **Auditoría** - No hay logging de acciones críticas (quiénes aprobaron órdenes, cambios de inventario)
+3. **Hardening de autenticación** - Falta rate limiting y bloqueo de cuentas
+4. **Headers de seguridad** - Falta CSP, HSTS, X-Frame-Options
+5. **Verificación RLS** - Confirmar políticas en Supabase Dashboard
+6. **Transacciones atómicas** - Aprobación de orden debe ser transacción única
+
+**Ver:** `memory/SECURITY_FIRST_SUMMARY.md` para análisis completo.
+
+### 🟡 Pendiente (UX/Features)
+- Diálogos "Agregar" en inventario (placeholders actuales)
+- Exportación a Excel/CSV/JSON (código xlsx instalado pero sin usar)
+- Debounce en búsqueda de órdenes
+- Navegación: corregir links rotos en header (`/production` → `/orders`)
+- Formato de moneda CLP (actualmente usa `$`)
+- Paginación a 50 items (actual 25)
+
+### 🔵 Post-MVP
+- Testing automático
+- Optimización de performance
+- MFA (multi-factor authentication)
+- Reportes PDF
 
 ## 🚀 Stack Tecnológico
 
-- **Framework:** Next.js 16 (App Router)
-- **UI:** React 19, Tailwind CSS 4, Shadcn UI
-- **Base de Datos:** Supabase PostgreSQL
-- **Autenticación:** Supabase Auth
+- **Framework:** Next.js 16 (App Router) + React 19
+- **UI/Estilos:** Tailwind CSS 4, Shadcn UI (45+ componentes)
+- **Base de Datos:** Supabase PostgreSQL con RLS (Row Level Security)
+- **Autenticación:** Supabase Auth (email/password, gestión de roles)
 - **Gráficos:** Recharts
 - **Iconos:** Lucide React
-- **Exportación:** xlsx (Excel), CSV, JSON
-- **Despliegue:** Vercel
+- **Exportación:** xlsx (librería instalada, integración pendiente)
+- **Validación:** React Hook Form + Zod
+- **Notificaciones:** Sonner (toasts)
+- **Despliegue:** Vercel (recomendado)
+- **TypeScript:** Strict mode
+
+## 🔒 Arquitectura de Seguridad
+
+### Capas de Defensa
+
+```
+┌─────────────────────────────────────────────┐
+│  UI Layer (userRole checks)                │ ✅ Implementado
+├─────────────────────────────────────────────┤
+│  Hook Layer (filters by userRole)          │ ✅ Implementado
+├─────────────────────────────────────────────┤
+│  Supabase Client (parameterized queries)   │ ✅ Implementado
+├─────────────────────────────────────────────┤
+│  RLS Policies (DB enforcement)             │ ⚠️  Requiere verificación
+├─────────────────────────────────────────────┤
+│  Infraestructura (Vercel + Supabase)       │ ✅ Sólido
+└─────────────────────────────────────────────┘
+```
+
+### Estado de Seguridad (OWASP Top 10)
+
+| Vulnerabilidad | Estado | Notas |
+|----------------|--------|-------|
+| A01: Broken Access Control | 🟡 Parcial | Costos visibles a operarios (deben ocultarse) |
+| A02: Cryptographic Failures | 🟡 Parcial | Falta validación de fuerza de contraseña |
+| A03: Injection | ✅ OK | Queries parametrizadas (Supabase) |
+| A04: Insecure Design | 🔴 Crítico | Sin rate limiting, account lockout, headers |
+| A05: Misconfiguration | 🔴 Crítico | Falta validación de env vars, sanitización de errores |
+| A06: Vulnerable Components | 🟡 Parcial | Dependabot no configurado |
+| A07: Auth Failures | 🟡 Parcial | Sin lockout, passwords débiles permitidos |
+| A08: Integrity Failures | ✅ OK | Sin uploads de archivos |
+| A09: Logging Failures | 🔴 Crítico | Sin logging de auditoría |
+| A10: SSRF | ✅ OK | Sin vectores SSRF |
+
+**Cumplimiento general:** 🟡 50% - Requiere hardening antes de producción.
+
+**Documentación detallada:** `memory/cybersecurity-compliance.md`
+
+---
+
+### Políticas RLS (Row Level Security)
+
+**Objetivo:** Aislamiento total de datos por usuario.
+
+- **Operators:** Ven solo sus propias órdenes (`WHERE user_id = auth.uid()`)
+- **Engineers/Admins:** Ven todas las órdenes (sin filtro)
+- ** Todas las tablas** tienen RLS activado
+
+**⚠️ IMPORTANTE:** Verificar en Supabase Dashboard que las políticas RLS existan y funcionen correctamente antes de despliegue.
+
+## 🎨 Roles de Usuario
 
 ## 📋 Requisitos Previos
 
