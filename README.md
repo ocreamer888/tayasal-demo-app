@@ -349,30 +349,145 @@ src/
 ## 🔄 Patrones Implementados
 
 ### 1. Optimistic UI + Rollback
+**Objetivo:** Percepción de velocidad (<50ms).
+
 - Actualizar UI inmediatamente → Enviar a Supabase
 - Si éxito: mantener cambios
-- Si error: rollback al estado anterior
+- Si error: rollback al estado anterior + mostrar error
 - Se implementa en todos los hooks (useProductionOrders, useInventoryMaterials, etc.)
 
+**Ubicación:** `src/lib/hooks/useProductionOrders.ts:158-261` (patrón referencia)
+
+---
+
 ### 2. Real-time Subscriptions
-- Suscripción a cambios en tablas filtradas por user_id
+**Objetivo:** Sincronización instantánea entre pestañas.
+
+- Suscripción a cambios en tablas filtradas por `user_id`
 - Operarios ven solo sus órdenes
 - Ingenieros ven todas las órdenes
-- Actualizaciones sincronizadas en tiempo real entre pestañas
+- Actualizaciones en <2 segundos
+- Cleanup automático al desmontar componentes
+
+**Ubicación:** `src/lib/hooks/useProductionOrders.ts:88-137`
+
+---
 
 ### 3. Field Mapping (snake_case ↔ camelCase)
+**Objetivo:** TypeScript idiomático, BD estándar.
+
+- BD: `snake_case` (PostgreSQL)
+- App: `camelCase` (TypeScript)
 - Funciones `transform*FromDB()` en cada hook
-- Conversión automática de campos de BD a TypeScript interfaces
+- Transformación automática en fetch/upsert
+
+**Ejemplo:**
+```typescript
+transformOrderFromDB(dbOrder): ProductionOrder {
+  return {
+    id: dbOrder.id,                    // same
+    userId: dbOrder.user_id,           // snake → camel
+    createdAt: dbOrder.created_at,     // snake → camel
+    // ...
+  }
+}
+```
+
+---
 
 ### 4. Two-layer Filtering
-- **Backend:** Supabase filtra por `user_id` y RLS
-- **Frontend:** Búsqueda por texto, filtros por estado, categoría, etc.
+**Objetivo:** Defensa en profundidad + performance.
 
-### 5. Role-based Access Control
+- **Backend (Source of Truth):** Supabase RLS filtra por `user_id` y `role`
+- **Frontend (Conveniencia):** Búsqueda por texto, filtros por estado, fecha, tipo, etc.
+- Ambas capas deben trabajar juntas
+
+**Importante:** RLS es la autoridad final. El frontend puede ser bypasseado.
+
+---
+
+### 5. Role-based Access Control (RBAC)
+**Objetivo:** Separación clara de responsabilidades.
+
 - Campo `role` en `profiles` (operator, engineer, admin)
-- Middleware protege rutas
-- Hooks filtran automáticamente según rol
-- Componentes renderizan acciones según rol
+- **Nota:** No se usa middleware para proteger rutas (no necesario en arquitectura actual)
+- Hooks filtran automáticamente según `userRole` pasado como prop
+- Componentes renderizan UI/acciones según `userRole`
+- **Ejemplo:** `ProductionOrderList.tsx:102-106` - `canEdit()` función
+
+**Arquitectura de seguridad:**
+```typescript
+// Tres capas:
+1. RLS (DB) → Filtra datos en el origen
+2. Hooks (query) → Añaden filtros user_id para operators
+3. UI (condicional) → Ocultán acciones/campos según rol
+```
+
+---
+
+## 🧪 Testing
+
+### Pruebas Manuales Recomendadas (Checklist)
+
+**CRÍTICO - Ejecutar antes de cualquier despliegue:**
+
+#### 1. Real-time (2 pestañas)
+- [ ] Operario crea orden → aparece en dashboard de ingeniero en <2s
+- [ ] Ingeniero aprueba orden → status cambia en pestaña de operario en <2s
+- [ ] Editar orden → cambios reflejados en otras pestañas
+
+#### 2. RLS & Roles (Aislamiento de datos)
+- [ ] Login como operario → solo ve sus propias órdenes
+- [ ] Login como ingeniero → ve todas las órdenes
+- [ ] Operario NO puede acceder a rutas de admin (verificación manual)
+- [ ] Intentar modificar `userRole` en localStorage → no debe acceder a datos de otros
+
+#### 3. Rollback (Manejo de errores)
+- [ ] Desconectar internet
+- [ ] Crear orden → debe mostrar error
+- [ ] UI debe revertir al estado anterior (no queda "fantasma")
+- [ ] Re-conectar → operación funciona
+
+#### 4. Cálculo de Costos (Precisión)
+- [ ] Crear orden con materiales/equipo/team Known
+- [ ] Verificar que total_cost = material_cost + labor_cost + equipment_cost + energy + maintenance
+- [ ] Comparar con cálculo manual en Excel → debe coincidir
+
+#### 5. Sincronización de Inventario
+- [ ] Aprobar orden → materiales deben deductarse del inventario
+- [ ] Stock insuficiente → warning en formulario (si implementado)
+- [ ] Verificar transacción atómica (pending → aprobado + inventario actualizado o nada)
+
+#### 6. Responsive (Mobile)
+- [ ] Probar en <768px (Chrome DevTools)
+- [ ] Navegación móvil (menú hamburguesa)
+- [ ] Formularios legibles, inputs grandes (≥44px)
+- [ ] Tablas con scroll horizontal
+- [ ] Gráficos responsive
+
+#### 7. Accesibilidad Básica
+- [ ] Navegación solo con teclado (Tab, Enter)
+- [ ] Focus visible en todos los elementos interactivos
+- [ ] Screen reader básico (VoiceOver/NVDA) → leer contendores
+- [ ] Contraste ≥ 4.5:1 (verificar con DevTools Lighthouse)
+
+#### 8. Vulnerabilidades de Seguridad
+- [ ] **Costos ocultos:** Operario NO ve costos en lista, detalles, dashboard ( Tasks #20-23)
+- [ ] **SQL Injection:** Intentar inyección en campos de texto → debe fallar safe
+- [ ] **XSS:** Injectar `<script>alert('xss')</script>` en notas → no debe ejecutar
+- [ ] **Rate limiting:** Enviar 6 logins fallidos seguidos → debe bloquear (pending implementación)
+- [ ] **Logging de auditoría:** Verificar que acciones críticas se registran en `audit_logs` (pending implementación)
+
+---
+
+### Comandos Útiles
+
+```bash
+npm run dev       # Desarrollo (http://localhost:3000)
+npm run build     # Build producción
+npm run lint      # Linter (fix errores)
+npm run lint:fix  # Auto-fix cuando sea posible
+```
 
 ## 🧪 Testing
 
@@ -448,13 +563,18 @@ npm run lint      # Linter
 
 ## 📝 Convenciones de Código
 
-- TypeScript strict mode
+- TypeScript strict mode (sin `any`)
 - Componentes con `'use client'` explícito
 - snake_case en BD ↔ camelCase en app
 - PascalCase para componentes
-- Funciones `useCallback` para handlers
-- Async/await siempre
-- Comentarios solo cuando sea necesario
+- Funciones `useCallback` para handlers en useEffect
+- Async/await siempre (no callbacks)
+- Comentarios solo cuando sea necesario explicar el **porqué**, no el qué
+- Optimistic updates siempre con rollback
+- Real-time subscriptions con cleanup en useEffect
+- Validación de entradas con Zod schemas
+
+**Leer:** `rules/CLAUDE.md` para directrices completas de desarrollo.
 
 ## 🐛 Troubleshooting
 
@@ -479,6 +599,21 @@ Propietario - Tayasal Studio
 Para soporte técnico o consultas:
 - Email: soporte@tayasal.com
 - Teléfono: +1 234 567 890
+
+---
+
+## 📚 Documentación del Proyecto
+
+La documentación detallada se encuentra en la carpeta `memory/`:
+
+- **`SECURITY_FIRST_SUMMARY.md`** - 📖 **LEER PRIMERO** - Análisis de seguridad y criterios de lanzamiento
+- **`TASKS.md`** - ✅ Lista completa de tareas con prioridades, estimaciones y criterios de aceptación
+- **`cybersecurity-compliance.md`** - 🛡️ Matriz OWASP Top 10 y roadmap de seguridad
+- **`role-separation-analysis.md`** - 🔐 Análisis detallado de separación de roles (operario vs ingeniero)
+- **`project-context.md`** - Visión general, estructura, flujos de usuario
+- **`active-tasks.md`** - Lista de tareas activas (seguimiento en Claude Tasks)
+
+**Recomendación:** Leer `SECURITY_FIRST_SUMMARY.md` antes de despliegue.
 
 ---
 
