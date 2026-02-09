@@ -210,26 +210,54 @@ Todas las tablas tienen políticas RLS que garantizan:
 - Los ingenieros/admins pueden ver todas las órdenes de producción
 - Aislamiento completo entre usuarios
 
-## 🎨 Roles de Usuario
+## 👥 Roles de Usuario
 
-### **Operario (operator)**
+### **Operario (Personal Operativo)**
+**Propósito:** Personal en campo que registra producción.
+
+**Permisos:**
 - ✅ Crear nuevas órdenes de producción
 - ✅ Editar sus propias órdenes (solo si estado = 'draft')
-- ✅ Ver lista de sus órdenes
-- ✅ Ver detalles de sus órdenes
-- ✅ Ver inventario de materiales (read-only)
-- ❌ NO ve órdenes de otros
-- ❌ NO ve costos/ganancias detallados
+- ✅ Ver lista de sus órdenes (solo propias)
+- ✅ Ver detalles de sus órdenes (sin ver costos)
+- ✅ Ver inventario de materiales (solo lectura)
+- ❌ **NO** ve órdenes de otros operarios
+- ❌ **NO** ve costos/ganancias (¡confidencial!)
+- ❌ **NO** puede aprobar/rechazar órdenes
+- ❌ **NO** tiene acceso a dashboard de ingeniero
 
-### **Ingeniero/Admin (engineer/admin)**
-- ✅ Ver todas las órdenes (todos los operarios)
+**⚠️ Bug actual:** Los costos son visibles en la UI (deben ocultarse). Ver `memory/role-separation-analysis.md`.
+
+---
+
+### **Ingeniero/Admin**
+**Propósito:** Personal en oficina que revisa, aprueba, y analiza.
+
+**Permisos:**
+- ✅ Ver **todas** las órdenes (de todos los operarios)
 - ✅ Filtrar por fecha/tipo/planta/operario
-- ✅ Ver detalles completos + costos
+- ✅ Ver detalles completos **incluyendo costos**
 - ✅ Aprobar/rechazar órdenes (cambiar status)
 - ✅ Acceder a Dashboard con reportes y gráficos
-- ✅ Gestionar inventario
+- ✅ Gestionar inventario (ajustar stocks)
 - ✅ Gestionar plantas/equipos/personal
 - ✅ Exportar datos a Excel, CSV, JSON
+- ✅ (Admin) Gestionar usuarios y roles
+
+---
+
+### **Diferencias Clave**
+
+| Capacidad | Operario | Ingeniero/Admin |
+|-----------|----------|-----------------|
+| **Órdenes vistas** | Solo propias | Todas |
+| **Ver costos** | ❌ No | ✅ Sí |
+| **Aprobar órdenes** | ❌ No | ✅ Sí |
+| **Dashboard analítico** | ❌ No | ✅ Sí |
+| **Gestionar inventario** | ❌ Solo lectura | ✅ CRUD completo |
+| **Exportar datos** | ❌ No | ✅ Sí |
+
+**Nota:** El acceso a datos está protegido por **RLS (Row Level Security)** en la base de datos. Incluso si la UIfallara, un operario nunca vería órdenes de otros gracias a las políticas RLS.
 
 ## 🗺️ Estructura del Proyecto
 
