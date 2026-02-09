@@ -68,7 +68,7 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
     }, new Map<string, number>())
   ).map(([name, value]) => ({ name, value }));
 
-  const productionByMonth = Array.from(
+  const productionByMonthRaw = Array.from(
     orders.reduce((acc, order) => {
       const month = format(new Date(order.production_date), 'MMMM yyyy', { locale: es });
       const current = acc.get(month) || { quantity: 0, cost: 0 };
@@ -85,6 +85,11 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
   }))
   .reverse()
   .slice(0, 6);
+
+  // Role-based data filtering: remove cost data for operators
+  const productionByMonth = (userRole === 'operator')
+    ? productionByMonthRaw.map(({ month, cantidad }) => ({ month, cantidad }))
+    : productionByMonthRaw;
 
   const lowStockMaterials = inventoryMaterials.filter(
     m => m.current_quantity <= m.min_stock_quantity && m.current_quantity > 0
