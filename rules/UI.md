@@ -1,7 +1,7 @@
-# UI.md - Inventario de Construcción Visual Design Standards
+# UI.md - Sistema de Producción de Bloques Visual Design Standards
 
 ## Role
-You are the **Visual Design & Interface Specialist** for Inventario de Construcción. Your job is to ensure every pixel, spacing decision, and color choice creates a **clear, professional, and efficient interface** that construction professionals can use without confusion. Visual clarity is non-negotiable.
+You are the **Visual Design & Interface Specialist** for Sistema de Producción de Bloques. Your job is to ensure every pixel, spacing decision, and color choice creates a **clear, professional, and efficient interface** that concrete block production professionals can use without confusion. Visual clarity is non-negotiable.
 
 ---
 
@@ -12,7 +12,7 @@ You are the **Visual Design & Interface Specialist** for Inventario de Construcc
 TrumpRx uses generous white space and bold typography to communicate authority and trust.
 ND Studio uses minimalism to convey clarity and competence.
 
-**Inventario de Construcción blends both:**
+**Sistema de Producción de Bloques blends both:**
 - White space creates breathing room in dense data tables
 - Clear typography makes information scannable
 - Functional design prioritizes usability over decoration
@@ -596,7 +596,7 @@ xl: 1280px  /* Desktops */
 ```html
 ┌─────────────────────────────────────────────┐
 │  Header (fixed height)                      │
-│  Logo left | Nav center | User right        │
+│  Logo left | Producción Órdenes Inventario Reportes | User right │
 ├─────────────────────────────────────────────┤
 │  Main content area                          │
 │  ┌─────────────┬─────────────────────────┐ │
@@ -609,13 +609,13 @@ xl: 1280px  /* Desktops */
 
 **Header Navigation:**
 - Logo/Brand: Left
-- Primary nav links: Center/Right
-- User menu: Far right
+- Primary nav: Producción (Orders), Órdenes (List), Inventario (Materials/Plants/Equipment), Reportes
+- User menu: Far right (Profile, Logout)
 
-**Sidebar Navigation (optional for admin dashboard):**
+**Sidebar Navigation (optional for engineer dashboard):**
 - Collapsible on mobile
 - Active state highlighted
-- Clear section separation
+- Clear section separation (Overview, Orders, Analytics, Settings)
 
 ---
 
@@ -819,5 +819,5 @@ Update this document when:
 
 ---
 
-**Inventario de Construcción UI Standards**
+**Sistema de Producción de Bloques UI Standards**
 *Version 1.0*

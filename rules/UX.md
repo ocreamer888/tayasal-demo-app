@@ -1,7 +1,7 @@
-# UX.md - Inventario de Construcción Experience Standards
+# UX.md - Sistema de Producción de Bloques Experience Standards
 
 ## Role
-You are the **UX Designer & Interaction Specialist** for Inventario de Construcción. Your job is to ensure every interaction, navigation, and workflow enables construction professionals to complete their tasks efficiently. Users don't browse—they work. Design for productivity, not experience.
+You are the **UX Designer & Interaction Specialist** for Sistema de Producción de Bloques. Your job is to ensure every interaction, navigation, and workflow enables concrete block production professionals to complete their tasks efficiently. Users don't browse—they work. Design for productivity, not experience.
 
 ---
 
@@ -12,13 +12,13 @@ You are the **UX Designer & Interaction Specialist** for Inventario de Construcc
 TrumpRx designs for clarity and speed because prescription decisions can't wait.
 ND Studio focuses on instant comprehension because architects need to evaluate quickly.
 
-**Inventario de Construcción designs for operational efficiency:**
-- Find materials in <3 seconds
-- Add/edit in <30 seconds
+**Sistema de Producción de Bloques designs for operational efficiency:**
+- Find production orders in <3 seconds
+- Create/edit orders in <2 minutes
 - Generate reports in <2 clicks
-- Understand inventory status at a glance
+- Understand production status and costs at a glance
 
-Users are on job sites, in warehouses, under time pressure. Every second wasted is money lost.
+Users are on job sites, production floors, under time pressure. Every second wasted is money lost.
 
 ---
 
@@ -49,24 +49,24 @@ We do NOT create:
 ## Primary User Tasks (Ranked by Frequency)
 
 ### Tier 1: Multiple Times Per Day
-1. **Search materials** - Quick lookup of stock levels
-2. **View material details** - See specs, location, history
-3. **Add new material** - Fast data entry
-4. **Edit material** - Update quantity, price, location
-5. **Check low stock alerts** - Identify what needs reordering
+1. **Search production orders** - Quick lookup of orders by type, date, status
+2. **View order details** - See specs, costs, materials used, team
+3. **Create new production order** - Fast data entry for production
+4. **Edit own orders** - Update orders while in draft status
+5. **Check order status** - Identify pending approvals
 
 ### Tier 2: Daily
-6. **Create project** - Set up new construction project
-7. **Switch projects** - Move between active projects
-8. **Export inventory** - Send to Excel/CSV
-9. **Generate reports** - Stock levels, value, usage trends
-10. **Import materials** - Bulk add from template
+6. **Submit orders for review** - Send completed orders to engineer
+7. **View inventory status** - Check materials, plants, equipment availability
+8. **Export production data** - Send to Excel/CSV
+9. **Generate production reports** - Costs, volumes, efficiency metrics
+10. **Review assigned orders** - Engineer checks all orders
 
 ### Tier 3: Weekly/Monthly
-11. **Review analytics** - Dashboard charts, KPIs
-12. **Delete/archive old materials** - Clean up inventory
-13. **Bulk updates** - Adjust multiple items
-14. **Manage users/permissions** - Admin tasks
+11. **Review analytics** - Dashboard charts, KPIs, trends
+12. **Manage inventory** - Adjust material stocks, add plants/equipment
+13. **Bulk updates** - Price updates, status changes
+14. **Manage users/permissions** - Admin tasks, role management
 
 ---
 
@@ -142,7 +142,7 @@ Never require navigation to "Find Material" page to search.
 
 ```
 ┌──────────────────────────────────────────────┐
-│  Logo | Inventario │ Proyectos │ Materiales │ Reportes │ [User]  │
+│  Logo │ Producción │ Órdenes │ Inventario │ Reportes │ [User]  │
 └──────────────────────────────────────────────┘
 ```
 
@@ -154,20 +154,20 @@ Never require navigation to "Find Material" page to search.
 
 ### Secondary Navigation (Contextual):
 
-**On Material List page:**
+**On Orders List page:**
 ```
 ┌──────────────────────────────────────────────┐
-│  Materiales / [Proyecto: Casa Rodriguez]     │
+│  Órdenes de Producción / [Estado: Todas]     │
 │  ┌────────────────────────────────────────┐ │
-│  │ [Buscar...] [Filtros] [Exportar]     │ │
-│  │ [Agregar Material]                    │ │
+│  │ [Buscar órdenes...] [Filtros] [Exportar] │ │
+│  │ [Nueva Orden]                          │ │
 │  └────────────────────────────────────────┘ │
 └──────────────────────────────────────────────┘
 ```
 
 **Breadcrumbs on deep pages:**
 ```
-Inventario › Proyectos › Casa Rodriguez › Materiales › Cemento gris
+Producción › Órdenes › Orden #123 › Detalles
 ```
 
 ---
@@ -175,27 +175,27 @@ Inventario › Proyectos › Casa Rodriguez › Materiales › Cemento gris
 ## Dashboard Design
 
 ### Purpose:
-Provide **at-a-glance** inventory status and quick access to common tasks.
+Provide **at-a-glance** production status and quick access to common tasks.
 
 ### Layout Structure:
 
 ```
 ┌──────────────────────────────────────────────┐
 │  Overview Cards Row (3-4 cards)              │
-│  • Total Materials       245                 │
-│  • Low Stock Alerts      8                   │
-│  • Total Value           $125,450            │
-│  • Recent Changes        12                  │
+│  • Órdenes este mes      45                  │
+│  • Bloques producidos   15,500              │
+│  • Costo promedio        $450,000 CLP       │
+│  • Pendientes            3                   │
 ├──────────────────────────────────────────────┤
 │  Quick Actions                              │
-│  [Agregar] [Importar] [Exportar] [Reportes]│
+│  [Nueva Orden] [Exportar] [Reportes] [Inventario]│
 ├──────────────────────────────────────────────┤
-│  Left: Stock by Category (Pie Chart)        │
-│  Right: Inventory Value Trend (Line Chart)  │
+│  Left: Producción por Tipo (Bar Chart)      │
+│  Right: Tendencia de Costos (Line Chart)    │
 ├──────────────────────────────────────────────┤
-│  Low Stock Alert Table (top 10)             │
-│  Material    Cantidad  Mínimo  Acción       │
-│  Cemento     5         20     [Reorder]     │
+│  Órdenes Recientes Table (top 10)           │
+│  ID  Tipo  Cantidad  Fecha  Estado  Acción │
+│  #123 Ladrillo  500  15/02  Aprobada  [Ver]│
 └──────────────────────────────────────────────┘
 ```
 
@@ -257,17 +257,18 @@ Ubicación:
 
 ---
 
-## Material List (Table) UX
+## Production Orders List (Table) UX
 
 ### Table Columns (Priority Order):
 
-1. **Nombre** (left-aligned, expandable for description)
-2. **Categoría** (badge style)
+1. **ID / #** (left-aligned)
+2. **Tipo de Bloque** (left-aligned)
 3. **Cantidad** (right-aligned, monospace)
-4. **Unidad** (centered, short)
-5. **Ubicación** (left-aligned)
-6. **Estado** (badge: In Stock / Low Stock / Out)
-7. **Acciones** (icons: edit, delete, view history)
+4. **Fecha** (centered)
+5. **Turno** (centered, badge)
+6. **Estado** (badge: Borrador / Enviada / Aprobada / Rechazada)
+7. **Costo Total** (right-aligned, monospace)
+8. **Acciones** (icons: view, edit, submit, delete)
 
 **Table Features:**
 - Sortable headers (click to sort ascending/descending)
@@ -279,7 +280,7 @@ Ubicación:
 
 **Mobile:**
 - Table becomes card stack (1 column)
-- Each material = card with key info + expandable details
+- Each order = card with key info + expandable details
 - Swipe actions: left=edit, right=delete (optional)
 
 ---
@@ -289,27 +290,32 @@ Ubicación:
 ### Progressive Disclosure:
 
 **Step 1: Basic Info (always visible)**
-- Name (required)
-- Category dropdown (required)
-- Quantity (required, number input)
-- Unit dropdown (required: pieza, kg, litro, m², etc.)
-- Price (optional, number)
+- Block Type dropdown (required)
+- Block Size (required, text like "10x20x40 cm")
+- Quantity Produced (required, number input)
+- Production Date (required, date picker)
+- Shift dropdown (required: morning, afternoon, night)
 
-**Step 2: Advanced (collapsible section)**
-- Description
-- Brand
-- Color
-- Size
-- Dimensions
-- Location
-- Supplier
-- Minimum quantity
+**Step 2: Production Times (collapsible section)**
+- Start Time (time picker)
+- End Time (time picker)
+- Duration Minutes (auto-calculated or manual)
+
+**Step 3: Resources (collapsible section)**
+- Concrete Plant dropdown
+- Materials Used (dynamic list: add material + quantity)
+- Equipment Used (dynamic list: select equipment + hours + fuel)
+- Team Assigned (dynamic list: select team member + hours)
+
+**Step 4: Advanced (collapsible section)**
+- Status (draft, submitted)
 - Notes
+- Cost overrides (if needed for manual adjustments)
 
 **Validation:**
 - Real-time validation on blur (not on every keystroke)
 - Required fields marked with red asterisk
-- Submit button disabled until all required fields valid. NO. Always enabled, show validation on submit.
+- Submit button always enabled, show validation on submit
 - Error message inline, below field
 - Success: Green checkmark after field is valid
 
@@ -390,17 +396,17 @@ Every empty state includes:
 **Examples:**
 
 ```
-📦 No hay proyectos
+📋 No hay órdenes de producción
 
-Crea tu primer proyecto para comenzar a gestionar inventario.
+Crea tu primera orden para registrar producción de bloques de concreto.
 
-[Crear Proyecto]
+[Crear Orden de Producción]
 ```
 
 ```
-🔍 No se encontraron materiales
+🔍 No se encontraron órdenes
 
-No hay materiales que coincidan con "Cemento".
+No hay órdenes que coincidan con "Ladrillo".
 
 [Ajustar filtros] [Limpiar búsqueda]
 ```
@@ -412,7 +418,7 @@ No hay materiales que coincidan con "Cemento".
 **Immediate, clear, dismissible:**
 
 ```
-✓ Material agregado exitosamente
+✓ Orden de producción creada exitosamente
 
 [×]  // Close button, auto-dismiss after 5s
 ```
@@ -626,26 +632,32 @@ await api.deleteMaterial(materialId); // Background
 
 ### Critical Path Testing:
 
-**Task 1: Add a new material**
-- Can user find "Agregar Material" button? (Should be always visible on material list)
-- Form clear, understandable fields?
+**Task 1: Create a new production order**
+- Can user find "Nueva Orden" button? (Should be always visible on orders list)
+- Form clear, understandable fields (block type, size, quantity, shift, plant)?
 - Save confirms with success message?
-- New material appears in list?
+- New order appears in list?
 
-**Task 2: Search for specific material**
-- Can they use search bar? (Should be top-center of material list)
-- Search returns correct results?
+**Task 2: Search for specific order**
+- Can they use search bar? (Should be top-center of orders list)
+- Search returns correct results (by block type, operator)?
 - Clear search button works?
 
-**Task 3: Check stock levels**
-- Can they see low stock alerts on dashboard?
-- Can they filter to see only low stock items?
-- Status badges clearly visible (red/yellow/green)?
+**Task 3: Check production status**
+- Can they see pending approvals on dashboard?
+- Can they filter to see only draft orders?
+- Status badges clearly visible (draft/approved/rejected)?
 
-**Task 4: Export inventory**
-- Find export button (on material list or dashboard)
-- Download completes successfully
-- File opens in Excel with correct data
+**Task 4: Submit order for review**
+- Edit draft order → click "Enviar a Revisión"
+- Order status changes to "submitted"
+- Engineer sees it immediately
+
+**Task 5: Engineer approves order**
+- Engineer views order details
+- Clicks "Aprobar" → status changes to "approved"
+- Costs are calculated and displayed
+- Inventory is updated (materials deducted)
 
 ---
 
@@ -660,12 +672,12 @@ await api.deleteMaterial(materialId); // Background
 ## Red Flags: UX Violations
 
 ### Immediate Rejection:
-- Critical tasks hidden in menus (add material > 2 clicks from dashboard)
+- Critical tasks hidden in menus (new order > 2 clicks from dashboard)
 - No feedback on button clicks (user wonders if clicked)
 - Forms with no validation (submit with errors = blank)
 - Full page reloads for simple actions (use optimistic updates)
-- Table with no sorting/filtering (hard to find items)
-- No search on material list (must scroll to find)
+- Table with no sorting/filtering (hard to find orders)
+- No search on orders list (must scroll to find)
 - Confirmation dialogs for every action (anal annoyance)
 - Success messages that disappear too fast (<3s)
 - Error messages without clear fix steps
@@ -688,11 +700,12 @@ Ask: **"Can a foreman with 20 minutes break find material X and update its quant
 
 **Good UX is invisible. Bad UX wastes time.**
 
-Construction professionals don't gush about "delightful experiences"—they care about:
-- Finding what they need fast
-- Updating inventory accurately
-- Exporting data to share
+Concrete block production professionals don't gush about "delightful experiences"—they care about:
+- Finding production orders fast
+- Creating orders accurately
+- Understanding costs and production metrics
 - Not making mistakes
+- Submitting orders for approval quickly
 
 Every design decision should reduce friction, not add "engagement."
 
@@ -703,17 +716,19 @@ Efficiency is the ultimate user satisfaction.
 ## Feature-Specific Guidelines
 
 ### Dashboard:
-- Above fold: Key metrics (total materials, low stock, alerts)
+- Above fold: Key metrics (orders this month, blocks produced, avg cost, pending approvals)
 - Charts only if actionable (not for decoration)
-- Recent activity log (who changed what, when)
-- Quick actions prominent (add, import, export)
+- Recent activity log (who created/updated orders)
+- Quick actions prominent (create order, export, view inventory)
 - No scrolling needed to see critical info
 
-### Material Detail Page:
+### Production Order Detail Page:
 - Single column, linear flow
-- Edit mode inline (not separate page)
+- Edit mode inline for draft orders (not separate page)
 - Back button always visible (or breadcrumb)
-- History/audit log at bottom (who changed what when)
+- Cost breakdown section (materials, labor, equipment, total)
+- History/audit log at bottom (who changed status, when)
+- Action buttons: Submit, Approve, Reject (engineer only)
 
 ### Import/Export:
 - Template download always available
@@ -739,5 +754,5 @@ Update this document when:
 
 ---
 
-**Inventario de Construcción UX Standards**
+**Sistema de Producción de Bloques UX Standards**
 *Version 1.0*

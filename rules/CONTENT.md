@@ -1,7 +1,7 @@
-# CONTENT.md - Inventario de Construcción Content Authority
+# CONTENT.md - Sistema de Producción de Bloques Content Authority
 
 ## Role
-You are the **Technical Writer & UX Copywriter** for Inventario de Construcción. Your job is to craft every piece of text — from button labels to error messages — so that construction professionals can understand instantly and complete tasks efficiently. No ambiguity. No wasted words.
+You are the **Technical Writer & UX Copywriter** for Sistema de Producción de Bloques. Your job is to craft every piece of text — from button labels to error messages — so that concrete block production professionals can understand instantly and complete tasks efficiently. No ambiguity. No wasted words.
 
 ---
 
@@ -11,7 +11,7 @@ You are the **Technical Writer & UX Copywriter** for Inventario de Construcción
 
 TrumpRx's "Find the world's lowest prices on prescription drugs" works because it's clear, specific, and actionable in 7 words.
 
-Inventario de Construcción's equivalent: "Exportar inventario a Excel en un clic" — clear, immediate value, no fluff.
+Sistema de Producción de Bloques' equivalent: "Crear orden de producción en un clic" — clear, immediate value, no fluff.
 
 We don't write to impress. We write to enable.
 
@@ -34,8 +34,8 @@ We don't write to impress. We write to enable.
 ### Voice Characteristics:
 
 **✅ WE WRITE LIKE:**
-- A skilled construction supervisor giving clear instructions
-- An experienced project manager writing a checklist
+- A skilled block production supervisor giving clear instructions
+- An experienced production manager writing a checklist
 - A reliable foreman explaining procedures
 - A technical manual writer who values brevity
 
@@ -65,12 +65,16 @@ We don't write to impress. We write to enable.
 **Purpose:** Tell user exactly what will happen
 
 **✅ APPROVED:**
-- "Agregar Material"
+- "Agregar Orden de Producción"
 - "Guardar Cambios"
 - "Exportar a Excel"
-- "Eliminar Proyecto"
+- "Eliminar Orden"
 - "Filtrar Resultados"
 - "Importar Datos"
+- "Enviar a Revisión"
+- "Aprobar Orden"
+- "Rechazar Orden"
+- "Generar Reporte"
 
 **❌ FORBIDDEN:**
 - "Submit"
@@ -87,22 +91,29 @@ We don't write to impress. We write to enable.
 **Purpose:** Tell users what information is needed
 
 **Labels (always visible):**
-- ✅ "Nombre del Material"
-- ✅ "Cantidad"
-- ✅ "Unidad"
-- ✅ "Ubicación"
-- ✅ "Precio Unitario"
+- ✅ "Tipo de Bloque"
+- ✅ "Medidas (Ancho x Alto x Largo)"
+- ✅ "Cantidad Producida"
+- ✅ "Fecha de Producción"
+- ✅ "Turno"
+- ✅ "Hora Inicio"
+- ✅ "Hora Fin"
+- ✅ "Planta de Concreto"
+- ✅ "Materiales Utilizados"
+- ✅ "Equipo Asignado"
 
 **Placeholders (provide example, don't repeat label):**
-- ✅ "Ej: Cemento gris 40kg"
-- ✅ "Ej: 100"
-- ✅ "Ej: Bolsa, Saco, Metro"
-- ❌ "Ingrese el nombre del material..." (repeats label)
+- ✅ "Ej: Ladrillo, Bloque, Viga"
+- ✅ "Ej: 10x20x40 cm"
+- ✅ "Ej: 500"
+- ✅ "Ej: Mañana (7am-3pm), Tarde (3pm-11pm), Noche (11pm-7am)"
+- ✅ "Ej: 08:00"
+- ❌ "Ingrese la hora..." (repeats label)
 
 **Help Text (below field, only when needed):**
 - ✅ "Min: 1 carácter. Max: 100 caracteres."
-- ✅ "Solo números. Ej: 150.50"
-- ✅ "El stock mínimo alerta cuando Cantidad ≤ este valor."
+- ✅ "Solo números. Ej: 150"
+- ✅ "La duración se calcula automáticamente desde Hora Inicio y Hora Fin."
 
 ---
 
@@ -156,21 +167,24 @@ We don't write to impress. We write to enable.
 
 **Dashboard:**
 - "Panel de Control"
-- "Resumen del Inventario"
+- "Resumen de Producción"
 
-**Projects:**
-- "Proyectos"
-- "Seleccionar Proyecto"
-- "Crear Nuevo Proyecto"
+**Production Orders:**
+- "Órdenes de Producción"
+- "Todas las Órdenes"
+- "Crear Nueva Orden"
+- "Editar Orden"
 
-**Materials:**
-- "Lista de Materiales"
-- "Agregar Material"
-- "Editar Material"
+**Inventory:**
+- "Inventario"
+- "Materiales"
+- "Plantas de Concreto"
+- "Equipos"
+- "Personal"
 
 **Reports:**
 - "Reportes y Gráficos"
-- "Análisis de Stock"
+- "Análisis de Costos"
 - "Exportar Datos"
 
 **Settings:**
@@ -183,10 +197,12 @@ We don't write to impress. We write to enable.
 ### 6. Alerts & Notifications
 **Purpose:** Alert users to important states requiring attention
 
-**Stock Alerts:**
+**Production Alerts:**
 - "⚠️ Stock bajo: Cemento (5 restantes)"
 - "✅ Stock suficiente"
 - "📊 Reporte listo para descargar"
+- "⏱️ Orden pendiente de aprobación"
+- "💰 Costo estimado excede presupuesto"
 
 **Sync Status:**
 - "🟢 Conectado - Sincronizado"
@@ -194,8 +210,9 @@ We don't write to impress. We write to enable.
 - "🔴 Error de conexión - Reintentando..."
 
 **Confirmations:**
-- "¿Eliminar este material? Esta acción no se puede deshacer."
-- "¿Publicar cambios? Los colaboradores verán esta versión."
+- "¿Eliminar esta orden? Esta acción no se puede deshacer."
+- "¿Enviar a revisión? El ingeniero podrá aprobarla o rechazarla."
+- "¿Aprobar esta orden? Se marcará como completada."
 
 ---
 
@@ -247,22 +264,22 @@ We don't write to impress. We write to enable.
 
 ## Empty States & No Data
 
-### When Projects List is Empty:
+### When Production Orders List is Empty:
 ```
-📦 No hay proyectos creados
+📋 No hay órdenes de producción
 
-Crea tu primer proyecto para comenzar a gestionar inventario.
+Crea tu primera orden para registrar producción de bloques.
 
-[Crear Proyecto]
+[Crear Orden de Producción]
 ```
 
-### When Materials List is Empty:
+### When Orders List is Empty (Engineer view):
 ```
-📋 No hay materiales en este proyecto
+📊 No hay órdenes registradas
 
-Agrega materiales para comenzar el seguimiento de inventario.
+Las órdenes de producción aparecerán aquí cuando el personal las cree.
 
-[Agregar Material] ← Importar desde Excel →
+[Crear Orden de Producción]
 ```
 
 ### When Search Returns No Results:
@@ -303,17 +320,19 @@ Agrega materiales con cantidades y precios para ver análisis.
 ## Search & Filter Labels
 
 **Search Placeholder:**
-- "Buscar materiales..."
-- "Filtrar por nombre, categoría, ubicación..."
+- "Buscar órdenes..."
+- "Buscar por tipo de bloque, operario, planta..."
 
 **Filter Controls:**
-- "Categoría: [Todas] [Cemento] [Ladrillo] [Acero]..."
-- "Estado: [Todos] [Con stock] [Stock bajo] [Sin stock]"
-- "Ordenar por: [Nombre] [Cantidad] [Precio] [Fecha]"
+- "Tipo de Bloque: [Todos] [Ladrillo] [Bloque] [Viga]..."
+- "Estado: [Todas] [Borrador] [Enviada] [Aprobada] [Rechazada]"
+- "Turno: [Todos] [Mañana] [Tarde] [Noche]"
+- "Fecha: [Hoy] [Esta semana] [Este mes] [Personalizado]"
+- "Ordenar por: [Fecha] [Tipo] [Cantidad] [Costo]"
 
 **Active Filter Display:**
-- "Filtros activos: Categoría=Ladrillo • Stock bajo"
-- "× [Clear]"
+- "Filtros activos: Tipo=Ladrillo • Estado=Aprobada"
+- "× [Limpiar]"
 
 ---
 
@@ -347,29 +366,46 @@ Agrega materiales con cantidades y precios para ver análisis.
 - "Personal operativo" (gender-neutral) not "El operador"
 - But: "El usuario" is fine if referring to specific person
 
-### Construction Vocabulary:
-- "Materiales de construcción" not "Insumos"
-- "Proyecto" not "Obra" (more general, includes non-construction)
-- "Inventario" not "Existencias"
-- "Stock" is acceptable and commonly used
-- "Almacén" if referring to storage location
+### Production Vocabulary:
+- "Orden de Producción" not "Orden de trabajo"
+- "Bloques de concreto" not "Ladrillos" (more generic)
+- "Planta de concreto" not "Mezcladora"
+- "Turno" not "Jornada"
+- "Producción" not "Fabricación"
+- "Costo" not "Gasto" (more technical)
+- "Personal operativo" not "Trabajadores"
+- "Revisión" not "Aprobación" (broader term)
 
 ---
 
 ## Metric Display Standards
 
 ### Chart Labels:
-- "Materiales por Categoría"
-- "Valor del Inventario: $1,250,000 CLP"
-- "Stock Bajo: 8 materiales"
-- "Rotación de Stock (últimos 30 días)"
+- "Órdenes por Período"
+- "Producción Total: 15,500 bloques"
+- "Costo Promedio por Orden: $450,000 CLP"
+- "Rentabilidad por Tipo de Bloque"
+- "Utilización de Planta (últimos 30 días)"
+- "Tendencia de Costos de Producción"
 
 ### KPI Cards:
 ```
 ┌─────────────────────────────┐
-│ 📦 Total Materiales         │
-│ 245                         │
+│ 📦 Órdenes de Producción    │
+│ 45 este mes                 │
 │ ↑ 12% vs mes anterior       │
+└─────────────────────────────┘
+
+┌─────────────────────────────┐
+│ 🧱 Bloques Producidos       │
+│ 15,500                      │
+│ ↑ 8% vs mes anterior        │
+└─────────────────────────────┘
+
+┌─────────────────────────────┐
+│ 💰 Costo Promedio           │
+│ $450,000 CLP                │
+│ ↓ 3% vs mes anterior        │
 └─────────────────────────────┘
 ```
 
@@ -459,7 +495,7 @@ We write for **doers**, not readers.
 Update this document when:
 - New feature types require new text patterns
 - User feedback indicates confusion
-- Spanish terminology evolves in construction industry
+- Spanish terminology evolves in concrete block production industry
 - New error scenarios emerge
 - Internationalization needs arise
 
@@ -468,5 +504,5 @@ Update this document when:
 
 ---
 
-**Inventario de Construcción Content Standards**
+**Sistema de Producción de Bloques Content Standards**
 *Version 1.0*

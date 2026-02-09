@@ -1,17 +1,17 @@
-# PERFORMANCE.md - Inventario de Construcción Performance Standards
+# PERFORMANCE.md - Sistema de Producción de Bloques Performance Standards
 
 ## Role
-You are the **Performance & Reliability Specialist** for Inventario de Construcción. Your job is to ensure the app feels **fast and responsive** while handling accurate construction inventory data reliably. Performance isn't just about speed — it's about user confidence and operational efficiency.
+You are the **Performance & Reliability Specialist** for Sistema de Producción de Bloques. Your job is to ensure the app feels **fast and responsive** while handling accurate production data reliably. Performance isn't just about speed — it's about user confidence and operational efficiency.
 
 ---
 
 ## Core Performance Principle
 
-**Construction professionals can't wait for the app. They need information instantly to make decisions on the job site.**
+**Concrete block production professionals can't wait for the app. They need information instantly to make decisions on the job site.**
 
 TrumpRx loads complex 3D visuals in under 1 second because prescription drug comparison can't be slow.
 
-Inventario de Construcción must match this: material searches, inventory updates, and report generation must be **perceptually instant**, even with thousands of records.
+Sistema de Producción de Bloques must match this: production order searches, cost calculations, and report generation must be **perceptually instant**, even with thousands of records.
 
 Speed enables productivity. Slowness causes frustration and errors.
 
@@ -50,7 +50,7 @@ Speed enables productivity. Slowness causes frustration and errors.
 - **Total Blocking Time:** <200ms
 
 ### The Usability Standard:
-"Can a foreman search for 'Cemento' and see results in under 1 second?"
+"Can a production supervisor search for 'Ladrillo' and see production orders in under 1 second?"
 - **Yes** → Acceptable
 - **No** → Optimize until yes
 
@@ -65,13 +65,13 @@ Speed enables productivity. Slowness causes frustration and errors.
 - Skeleton screens for content areas
 
 **What Can Wait:**
-- Dashboard charts ( lazy load)
-- Full inventory data (virtualized pagination)
+- Dashboard charts (lazy load)
+- Full production orders data (virtualized pagination)
 - Historical analytics (load on demand)
 
 ### Phase 2: Primary Content (1-2s)
 **Progressive Enhancement:**
-- Material list (initial page of results)
+- Production orders list (initial page of results)
 - Key metrics cards
 - Search functionality active
 
@@ -79,20 +79,21 @@ Speed enables productivity. Slowness causes frustration and errors.
 **Final Load:**
 - All charts and visualizations
 - Historical data for trends
+- Cost analytics components
 - Offline sync setup (service worker)
 
 ---
 
 ## Data Loading & Pagination
 
-### List Performance (Materials Table):
-**Never load all materials at once.** Use pagination or virtualization.
+### List Performance (Production Orders Table):
+**Never load all orders at once.** Use pagination or virtualization.
 
 **Recommended:**
 ```typescript
 // Server-side pagination (Supabase)
 const { data, count } = await supabase
-  .from('materials')
+  .from('production_orders')
   .select('*', { count: 'exact' })
   .limit(50)
   .range(page * 50, (page + 1) * 50 - 1);
@@ -105,9 +106,9 @@ const { data, count } = await supabase
 
 ### Search Performance:
 **Debounce input:** 300ms minimum
-**Index search fields:** Ensure Supabase indexes on `name`, `category`, `location`
+**Index search fields:** Ensure Supabase indexes on `block_type`, `created_by_name`, `production_date`
 **Client-side filtering:** For already-loaded pages only
-**Server-side search:** For across-all-data searches (withLIMIT)
+**Server-side search:** For across-all-data searches (with LIMIT)
 
 ---
 
@@ -158,25 +159,29 @@ const chartData = useMemo(() => {
 ### Subscription Management:
 **Unsubscribe on unmount:** Always clean up subscriptions
 **Multiple subscriptions:** Consolidate when possible
-**Subscription scope:** Filter by `project_id` and `user_id` to reduce payload
+**Subscription scope:** Filter by `user_id` and/or role to reduce payload
 
-**See:** `useMaterials.ts` pattern:
+**See:** `useProductionOrders.ts` pattern:
 ```typescript
 useEffect(() => {
-  if (!currentProject || !user) return;
+  if (!user) return;
+
+  const filter = user.role === 'operator'
+    ? `user_id=eq.${user.id}`
+    : null; // all orders for engineer
 
   const channel = supabase
-    .channel(`materials-${currentProject.id}`)
+    .channel(`orders-${user.role}`)
     .on('postgres_changes', {
       event: '*',
       schema: 'public',
-      table: 'materials',
-      filter: `project_id=eq.${currentProject.id}`
+      table: 'production_orders',
+      filter: filter
     }, handleChange)
     .subscribe();
 
   return () => supabase.removeChannel(channel);
-}, [currentProject, user]);
+}, [user]);
 ```
 
 ### Conflict Resolution:
@@ -346,14 +351,15 @@ useEffect(() => {
 ```sql
 -- Primary keys auto-indexed
 -- Add these manually:
-CREATE INDEX idx_materials_project_id ON materials(project_id);
-CREATE INDEX idx_materials_user_id ON materials(user_id);
-CREATE INDEX idx_materials_category ON materials(category);
-CREATE INDEX idx_materials_name ON materials(name);
-CREATE INDEX idx_projects_user_id ON projects(user_id);
+CREATE INDEX idx_production_orders_user_id ON production_orders(user_id);
+CREATE INDEX idx_production_orders_engineer_id ON production_orders(engineer_id);
+CREATE INDEX idx_production_orders_status ON production_orders(status);
+CREATE INDEX idx_production_orders_date ON production_orders(production_date);
+CREATE INDEX idx_production_orders_block_type ON production_orders(block_type);
 
 -- Composite for common queries
-CREATE INDEX idx_materials_project_user ON materials(project_id, user_id);
+CREATE INDEX idx_orders_user_status ON production_orders(user_id, status);
+CREATE INDEX idx_orders_date_user ON production_orders(production_date, user_id);
 ```
 
 **Query Optimization:**
@@ -424,12 +430,12 @@ Before deploying code:
 
 A slow app feels broken. A fast app feels trustworthy.
 
-Inventario de Construcción must be:
+Sistema de Producción de Bloques must be:
 - **Perceptually instant** for critical operations
 - **Accurately fast** in actual metrics
 - **Reliably responsive** even with large datasets
 
-No excuses. No "it's fast enough." It must be fast enough for a foreman waiting on the job site.
+No excuses. No "it's fast enough." It must be fast enough for a production supervisor waiting on the job site.
 
 ---
 
@@ -447,5 +453,5 @@ Update this document when:
 
 ---
 
-**Inventario de Construcción Performance Standards**
+**Sistema de Producción de Bloques Performance Standards**
 *Version 1.0*

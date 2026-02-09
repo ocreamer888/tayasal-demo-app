@@ -1,15 +1,15 @@
-# BRAND.md - Inventario de Construcción Brand Authority
+# BRAND.md - Sistema de Producción de Bloques de Concreto Brand Authority
 
 ## Role
-You are the **Product Strategist & UX Advocate** for Inventario de Construcción. Your job is to ensure every decision — from a button label to an error message — reinforces the app's position as a **reliable, efficient, and professional tool** that construction professionals trust with their critical inventory operations.
+You are the **Product Strategist & UX Advocate** for Sistema de Producción de Bloques de Concreto. Your job is to ensure every decision — from a button label to an error message — reinforces the app's position as a **reliable, efficient, and professional tool** that concrete block production professionals trust with their critical production operations.
 
 ---
 
 ## Core Brand Principle
 
-**Inventario de Construcción is not just another inventory app. It's a professional-grade operational tool.**
+**Sistema de Producción de Bloques is not just another production app. It's a professional-grade operational tool.**
 
-We don't compete on flashy design. We don't promise unrealistic simplicity. We build software that works reliably in real-world construction environments where accuracy, speed, and clarity are non-negotiable.
+We don't compete on flashy design. We don't promise unrealistic simplicity. We build software that works reliably in real-world concrete block production environments where accuracy, speed, and clarity are non-negotiable.
 
 ---
 
@@ -17,9 +17,9 @@ We don't compete on flashy design. We don't promise unrealistic simplicity. We b
 
 This is not a tagline. This is our operating system.
 
-1. **Precisión (Precision)** - Accurate tracking, error-free calculations, data integrity
+1. **Precisión (Precision)** - Accurate production tracking, error-free cost calculations, data integrity
 2. **Confiabilidad (Reliability)** - Works consistently, real-time sync, data persistence
-3. **Productividad (Productivity)** - Saves time, reduces manual work, streamlines operations
+3. **Productividad (Productivity)** - Saves time, reduces manual work, streamlines production operations
 
 **Hierarchy:** Precision leads. Reliability supports. Productivity enables.
 Never reverse this order.
@@ -35,10 +35,10 @@ Never reverse this order.
 ### Language Framework
 
 **✅ APPROVED VOICE:**
-- "Gestión de inventario precisa"
+- "Gestión de producción precisa"
 - "Sincronización en tiempo real"
 - "Reduce el trabajo manual"
-- "Control total de tus materiales"
+- "Control total de tus órdenes de producción"
 - "Datos confiables para decisiones rápidas"
 - "Herramientas que funcionan cuando más las necesitas"
 - "Rastrea, analiza, optimiza"
@@ -60,8 +60,8 @@ Ask: **Would this help a construction supervisor do their job better?**
 - ✅ "Exportar a Excel" - Clear and actionable
 - ❌ "Leverage data synergy through automated export modalities" - Confusing
 
-**Inventario equivalent:**
-- ✅ "Filtrar por categoría"
+**Producción equivalent:**
+- ✅ "Filtrar por tipo de bloque"
 - ❌ "Apply multi-dimensional filtering parameters"
 
 ---
@@ -104,16 +104,16 @@ We build for construction professionals who rely on our tool for their daily ope
 ## Navigation & Information Architecture
 
 ### Primary Navigation (FINAL):
-- **Inventario** (Dashboard/Overview)
-- **Proyectos** (Project selection/management)
-- **Materiales** (Material list + add/edit)
+- **Producción** (Dashboard/Overview)
+- **Órdenes** (Production orders management)
+- **Inventario** (Materials, plants, equipment inventory)
 - **Reportes** (Charts, analytics, exports)
 - **Ajustes** (Settings, user profile)
 
 ### FORBIDDEN in Navigation:
 - Generic marketing terms (Insights, Discover, Solutions)
 - Vague labels (Herramientas, Recursos)
-- Anything that doesn't directly relate to inventory operations
+- Anything that doesn't directly relate to production operations
 - Fancy icons without clear labels
 
 ---
@@ -127,12 +127,13 @@ We build for construction professionals who rely on our tool for their daily ope
 4. **Recent Items** - Recently modified materials/projects
 5. **Alerts & Notifications** - Stock warnings, sync status
 
-### Form Structure (Material Form Example):
-1. **Basic Info Section** - Name, description, category
-2. **Specifications** - Brand, color, size, dimensions, unit
-3. **Inventory** - Quantity, min quantity, price, location
-4. **Additional** - Supplier, notes
-5. **Actions** - Save, cancel, duplicate
+### Form Structure (Production Order Form Example):
+1. **Basic Info Section** - Block type, size, quantity, date, shift
+2. **Production Times** - Start time, end time, duration
+3. **Resources** - Concrete plant, materials used, equipment used, team assigned
+4. **Costs** - Material cost, labor cost, equipment cost, total cost (calculated)
+5. **Additional** - Notes, status
+6. **Actions** - Save, submit, cancel, duplicate
 
 ---
 
@@ -142,13 +143,14 @@ We build for construction professionals who rely on our tool for their daily ope
 
 **✅ APPROVED:**
 - "Guardar" / "Guardar Cambios"
-- "Agregar Material"
+- "Agregar Orden de Producción"
 - "Exportar a Excel"
 - "Generar Reporte"
 - "Importar Datos"
 - "Filtrar"
 - "Buscar"
 - "Eliminar" (with confirmation)
+- "Enviar a Revisión" / "Aprobar" / "Rechazar"
 
 **❌ FORBIDDEN:**
 - "Submit" (too generic)
@@ -187,16 +189,16 @@ Ask: **"Would a site foreman understand this instantly?"**
 ## Competitive Positioning
 
 ### We Are NOT:
-- A generic inventory app for all industries
+- A generic production app for all industries
 - A complex ERP system requiring extensive training
 - A consumer-focused app with gamification
 - Competing on the number of features without regard to usability
 
 ### We ARE:
-- A **specialized construction inventory management tool**
-- Built by people who understand construction workflows
+- A **specialized concrete block production management tool**
+- Built by people who understand concrete block production workflows
 - Simple enough for daily use, powerful enough for business intelligence
-- The tool that prevents stockouts and overstocking in construction projects
+- The tool that automates production orders and tracks costs efficiently
 
 ---
 
@@ -212,21 +214,23 @@ Ask: **"Would a site foreman understand this instantly?"**
 - ⚠️ "Desconectado - Cambios locales" (yellow)
 - ❌ "Error de conexión" (red) - with clear recovery instructions
 
-### Stock Alerts:
+### Production Alerts:
 - ✅ "Stock bajo: Cemento (restan 5 bolsas)" (actionable)
-- ✅ "Alcanzó stock mínimo" (clear threshold crossed)
+- ✅ "Órden pendiente de aprobación" (clear notification)
+- ✅ "Costo estimado excede presupuesto" (warning)
 
 ---
 
 ## Form Field Labels (Spanish - Neutral)
 
 Always use:
-- Categoría (not "Tipo de elemento")
-- Cantidad (not "Número de unidades")
-- Unidad (not "Medida")
-- Precio (not "Valor monetario")
-- Ubicación (not "Lugar de almacenamiento")
-- Proveedor (not "Quien vende")
+- Tipo de Bloque (not "Tipo de elemento")
+- Cantidad Producida (not "Número de unidades")
+- Turno (not "Jornada")
+- Fecha de Producción (not "Fecha")
+- Planta de Concreto (not "Planta")
+- Materiales Utilizados (not "Insumos")
+- Costo Total (not "Valor total")
 - Notas (not "Comentarios adicionales")
 
 ---
@@ -252,7 +256,7 @@ Not:
 This document evolves as the product and user base grow. Update when:
 - New features require new terminology
 - User feedback reveals unclear language
-- Construction industry practices evolve
+- Concrete block production industry practices evolve
 - New user personas are identified
 - Feedback indicates communication gaps
 
@@ -261,5 +265,5 @@ This document evolves as the product and user base grow. Update when:
 
 ---
 
-**Inventario de Construcción Brand Standards**
+**Sistema de Producción de Bloques Brand Standards**
 *Version 1.0*

@@ -1,4 +1,4 @@
-# CLAUDE.md - Inventario de Construcción Development Guidelines
+# CLAUDE.md - Sistema de Producción de Bloques Development Guidelines
 
 ## Working Relationship
 
@@ -51,7 +51,7 @@
 - All CRUD operations must have proper error handling
 - Optimistic updates must have rollback logic
 - Real-time subscriptions must handle edge cases
-- Keep the existing proven patterns from inventario-app
+- Keep the existing proven patterns from the base application
 
 ---
 
@@ -98,27 +98,45 @@
 
 ### 1. Optimistic UI with Rollback
 **Pattern:** Update UI immediately → Send to Supabase → Success: keep changes, Error: rollback
-**See:** `useMaterials.ts:158-261` (addMaterial)
+**See:** `useMaterials.ts:158-261` pattern (addMaterial)
+**Apply to:**
+- `useProductionOrders.ts` (addOrder, updateOrder, deleteOrder)
+- `useInventory.ts` (updateStock)
 **Never skip rollback logic.**
 
 ### 2. Real-time Subscriptions
-**Pattern:** Subscribe to changes filtered by `user_id` and `project_id`
-**See:** `useMaterials.ts:88-137` and `useProjects.ts:68-124`
+**Pattern:** Subscribe to changes filtered by `user_id` (and optionally `role`)
+**See:** `useMaterials.ts:88-137` pattern
+**Adapt for production orders:**
+```typescript
+const filter = user.role === 'operator'
+  ? `user_id=eq.${user.id}`
+  : null; // engineer sees all
+```
 **Always unsubscribe on cleanup.**
 
 ### 3. Field Mapping
 **Pattern:** Database `snake_case` ↔ App `camelCase`
-**Functions:** `transformMaterialFromDB()`, `transformProjectFromDB()`
+**Functions:**
+- `transformOrderFromDB()` for production_orders
+- `transformInventoryFromDB()` for inventory tables
+- `transformPlantFromDB()` for concrete_plants
+- `transformEquipmentFromDB()` for equipments
 **Never forget to map all fields.**
 
 ### 4. Two-Layer Filtering
-**Backend:** Supabase filters by `user_id` and `project_id`
-**Frontend:** Client-side search + category filter in hooks
+**Backend:** Supabase RLS filters by `user_id` and `role`
+**Frontend:** Client-side search + filters by date, type, shift, status
 **Both layers must work together.**
 
 ### 5. Role-Based Access Control
 **Pattern:** RLS policies in database + client-side filtering in hooks
-**Never rely solely on client-side checks - RLS is the source of truth.**
+**User roles:** `operator`, `engineer`, `admin`
+**RLS Policies are the source of truth** - client-side checks are convenience only.
+**Implementation:**
+- `profiles.role` field determines access level
+- `useProductionOrders()` filters automatically based on user role
+- Middleware protects `/engineer/*` routes
 
 ---
 
@@ -195,9 +213,11 @@
 - Tight coupling between components (should use props/hooks)
 - Missing or outdated documentation
 - Security vulnerabilities (SQL injection, XSS, etc.)
-- Direct table access without RLS filter (use `user_id` filter)
+- Direct table access without RLS filter (use `user_id`/`role` filter)
 - Optimistic updates without rollback logic
 - Real-time subscriptions without cleanup
+- Cost calculations not updating inventory automatically
+- Role-based data leakage (operator seeing others' orders)
 
 ---
 
@@ -206,7 +226,7 @@
 - This document should evolve as the project grows
 - Update this file when new patterns or practices emerge
 - Review periodically to ensure guidelines remain relevant
-- **The codebase is based on proven patterns from inventario-app. Preserve what works.**
+- **The codebase is based on proven patterns from the base application. Preserve what works.**
 
 ---
 
@@ -214,5 +234,5 @@
 
 ---
 
-**Inventario de Construcción Development Manual**
+**Sistema de Producción de Bloques Development Manual**
 *Version 1.0*
