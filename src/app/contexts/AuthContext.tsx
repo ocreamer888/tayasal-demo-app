@@ -33,13 +33,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', userId)
+        .eq('id', userId)  // profiles table uses 'id' not 'user_id'
         .single();
 
       if (error) throw error;
       setProfile(data as Profile);
     } catch (error) {
-      console.error('Failed to fetch profile:', error);
       setProfile(null);
     }
   }, [supabase]);
@@ -61,47 +60,57 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(user);
           if (user) {
             fetchProfile(user.id);
+          } else {
           }
         }
       })
       .catch(err => {
-        console.error('AuthContext: Error getting user:', err);
         clearTimeout(getUserTimeout);
       })
       .finally(() => {
         if (mounted) {
           setLoading(false);
+        } else {
         }
       });
+
 
     // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('🔧 AuthContext: onAuthStateChange fired:', event, session?.user?.email || 'no user');
       try {
         if (mounted) {
           setUser(session?.user ?? null);
           if (session?.user) {
+            console.log('🔧 AuthContext: Session user exists, fetching profile...');
             try {
               await fetchProfile(session.user.id);
+              console.log('🔧 AuthContext: Profile fetch completed');
             } catch (profileErr) {
-              console.error('AuthContext: Profile fetch failed:', profileErr);
+              console.error('🔧 AuthContext: Profile fetch failed:', profileErr);
             }
           } else {
+            console.log('🔧 AuthContext: Clearing profile (no session)');
             setProfile(null);
           }
+          console.log('🔧 AuthContext: Calling router.refresh()');
           router.refresh();
         }
       } catch (err) {
-        console.error('AuthContext: onAuthStateChange error:', err);
+        console.error('🔧 AuthContext: onAuthStateChange error:', err);
       } finally {
+        console.log('🔧 AuthContext: onAuthStateChange finally - setting loading false');
         if (mounted) {
           setLoading(false);
+          console.log('🔧 AuthContext: setLoading(false) called from onAuthStateChange');
         }
       }
     });
 
     return () => {
+      console.log('🔧 AuthContext: Unmounting - setting mounted=false');
       mounted = false;
       subscription.unsubscribe();
     };
