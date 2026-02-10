@@ -348,48 +348,67 @@ export function useProductionOrders({ userRole }: UseProductionOrdersProps) {
   }, [user, orders, supabase]);
 
   const updateOrderStatus = useCallback(async (id: string, status: ProductionOrder['status']) => {
-    // Get the current order to check materials_used
     const currentOrder = orders.find(o => o.id === id);
     if (!currentOrder) {
       throw new Error('Orden no encontrada');
     }
 
-    // If status is being changed to 'approved' and it wasn't already approved,
-    // deduct inventory for materials used from the order owner's inventory
-    if (status === 'approved' && currentOrder.status !== 'approved') {
-      const materialsToDeduct = currentOrder.materials_used;
-      const orderUserId = currentOrder.user_id; // The operator who created the order
+    // Optimistic update: set status to new value immediately
+    const previousStatus = currentOrder.status;
+    setOrders(prev =>
+      prev.map(o => o.id === id ? { ...o, status, updatedAt: new Date().toISOString() } : o)
+    );
 
-      if (materialsToDeduct.length > 0) {
-        // Deduct inventory for all materials
-        const deductionPromises = materialsToDeduct.map(async (materialUsage) => {
-          const { error } = await supabase
-            .from('inventory_materials')
-            .update({
-              // Using raw SQL subtraction for atomic update
-              current_quantity: (supabase as any).raw(`current_quantity - ?`, [materialUsage.quantity]),
-              last_updated: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-            })
-            .eq('id', materialUsage.materialId)
-            .eq('user_id', orderUserId); // Use order owner's user ID
+    try {
+      // Use atomic database function for approval
+      if (status === 'approved' && previousStatus !== 'approved') {
+        // Call RPC: approve_order_with_inventory_deduction
+        const { data: result, error: rpcError } = await supabase.rpc(
+          'approve_order_with_inventory_deduction',
+          {
+            p_order_id: id,
+            p_approver_id: user?.id
+          }
+        );
 
-          return { materialUsage, error };
-        });
-
-        const results = await Promise.all(deductionPromises);
-
-        // Check if any deduction failed
-        const failedDeductions = results.filter(r => r.error);
-        if (failedDeductions.length > 0) {
-          const errorMsgs = failedDeductions.map(f => f.error?.message || 'Error desconocido').join('; ');
-          throw new Error(`Error descontando inventario: ${errorMsgs}`);
+        if (rpcError) {
+          throw new Error(`Error aprobando orden: ${rpcError.message}`);
         }
-      }
-    }
 
-    await updateOrder(id, { status });
-  }, [updateOrder, orders, supabase]);
+        if (!result.success) {
+          // Rollback optimistic update
+          setOrders(prev =>
+            prev.map(o => o.id === id ? { ...o, status: previousStatus, updatedAt: new Date().toISOString() } : o)
+          );
+
+          // Provide user-friendly error messages based on error code
+          switch (result.code) {
+            case 'ORDER_NOT_FOUND':
+              throw new Error('Orden no encontrada');
+            case 'INSUFFICIENT_PERMISSIONS':
+              throw new Error('No tienes permisos para aprobar órdenes');
+            case 'ALREADY_APPROVED':
+              throw new Error('La orden ya está aprobada');
+            case 'INVALID_STATUS':
+              throw new Error('Solo se pueden aprobar órdenes en estado "Enviada"');
+            default:
+              throw new Error(result.error || 'Error desconocido al aprobar la orden');
+          }
+        }
+
+        // Success: result includes materials_deducted count
+        console.log(`Order ${id} approved, ${result.materials_deducted} materials deducted`);
+      } else {
+        // For non-approval status changes, use regular updateOrder
+        await updateOrder(id, { status });
+      }
+    } catch (err) {
+      console.error('Error updating order status:', err);
+      // Rollback already handled above for approval case
+      // For non-approval, updateOrder has its own rollback
+      throw err;
+    }
+  }, [orders, user, supabase, updateOrder]);
 
   return {
     orders,
