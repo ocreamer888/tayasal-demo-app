@@ -69,11 +69,26 @@
 
 ## 🔴 Remaining Tier 1 Tasks (Priority Order)
 
-### Category D (Data Integrity) - HIGH PRIORITY
-- ⬜ **Task #3**: Verify and document RLS policies (30min)
+### Category D (Data Integrity) - ✅ COMPLETE
+- ✅ **Task #3**: Verify and document RLS policies (30min)
   - **FOUNDATIONAL** - All security depends on this
-- ⬜ **Task #7**: Implement atomic order approval transaction (2h)
+  - **Status:** Completed 2026-02-10 by Marco
+  - **Verification:** All 23 policies exist across 6 tables ✅
+  - **Critical:** `production_orders` role-based policies verified (engineers/admins see all, operators see own)
+  - **Documents:** `RLS_VERIFICATION_CHECKLIST.md`, `RLS_VERIFICATION_REPORT.md`, `src/migrations/001_rls_policies_backup.sql`
+- ✅ **Task #7**: Implement atomic order approval transaction (2h)
   - Prevent inventory/order data corruption
+  - **Created:** `src/migrations/002_atomic_approval_transaction.sql`
+    - PostgreSQL function: `approve_order_with_inventory_deduction()`
+    - Single transaction updates order status AND deducts inventory
+    - Row-level locking (`FOR UPDATE`) prevents race conditions
+    - Returns JSON with success/error details, specific error codes
+    - SECURITY DEFINER ensures proper access despite RLS
+  - **Updated:** `src/lib/hooks/useProductionOrders.ts`
+    - `updateOrderStatus()` now uses RPC call to atomic function
+    - Optimistic UI update with automatic rollback on error
+    - Removed ~30 lines of manual Promise.all logic
+    - Handles edge cases: already approved, insufficient permissions, missing materials
 
 ### Category E (Misc)
 - ⬜ **Task #4**: Create database migration files (1h)
@@ -84,9 +99,9 @@
 
 ## 📊 Progress Summary
 
-**Tier 1 Completion:** 11/16 tasks (69%)
-**Time Invested:** ~25 hours estimated
-**Status:** Category A ✅, B ✅, C ✅ all complete. Now in Category D (Data Integrity) & E (Misc)
+**Tier 1 Completion:** 13/16 tasks (81%)
+**Time Invested:** ~27.5 hours estimated
+**Status:** Category A ✅, B ✅, C ✅, D ✅ (all complete). Category E remaining: #4, #31, #30
 
 ---
 
@@ -98,10 +113,10 @@
    - See `memory/lessons-learned.md` for technical explanation
    - **Action:** Create subtask for Redis migration before production
 
-2. **RLS Verification** (Task #3):
-   - All security depends on correct RLS policies
-   - Must manually verify in Supabase Dashboard
-   - Document each policy with screenshots
+2. **Database Migration Execution** (Task #4):
+   - Need to execute all migration SQL files in Supabase
+   - Files: `SUPABASE_SCHEMA.sql`, `src/migrations/001_rls_policies_backup.sql`, `src/migrations/002_atomic_approval_transaction.sql`
+   - Verify function exists: `SELECT approve_order_with_inventory_deduction(...)`
 
 ---
 

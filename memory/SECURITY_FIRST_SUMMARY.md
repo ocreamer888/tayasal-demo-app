@@ -102,8 +102,8 @@
 - [x] Task #32: Error response sanitization
 
 **Day 4: Data Integrity (2-3h)**
-- [ ] Task #7: Atomic order approval transaction
-- [ ] Task #3: Verify RLS policies (Supabase Dashboard + docs)
+- [x] Task #7: Atomic order approval transaction
+- [x] Task #3: Verify RLS policies (Supabase Dashboard + docs)
 
 **Day 5: Reproducibility (1h)**
 - [ ] Task #4: Generate migration files
@@ -188,14 +188,14 @@ Don't memorize vulnerabilities. Use the 10 categories as audit:
 
 | Requirement | Why It's Critical | Task |
 |-------------|-------------------|------|
-| Cost data hidden | Business confidentiality (profit margins) | #20-24 |
-| RLS verified | Data isolation (operators only see own orders) | #3 |
-| Rate limiting | Prevent credential stuffing attacks | #25 |
-| Account lockout | Thwart brute force login attempts | #26 |
-| Security headers | Protect against XSS, clickjacking | #27 |
-| Audit logging | Cannot detect or investigate breaches | #30 |
-| Atomic transactions | Prevent inventory/order data corruption | #7 |
-| Error sanitization | No stack traces → less attack surface | #32 |
+| Cost data hidden | Business confidentiality (profit margins) | #20-24 ✅ |
+| RLS verified | Data isolation (operators only see own orders) | #3 ✅ |
+| Rate limiting | Prevent credential stuffing attacks | #25 ✅ |
+| Account lockout | Thwart brute force login attempts | #26 ✅ |
+| Security headers | Protect against XSS, clickjacking | #27 ✅ |
+| Audit logging | Cannot detect or investigate breaches | #30 ❌ |
+| Atomic transactions | Prevent inventory/order data corruption | #7 ✅ |
+| Error sanitization | No stack traces → less attack surface | #32 ✅ |
 
 ### ✅ After Completing Tier 1:
 
@@ -388,17 +388,16 @@ Your architecture:
 
 | Aspect | Status |
 |--------|--------|
-| Data isolation (RLS) | ✅ Strong foundation |
+| Data isolation (RLS) | ✅ **Verified** (#3 - all 23 policies exist) |
 | Cost confidentiality | ✅ **Fixed** (#20-24) |
 | Authentication hardening | ✅ **Complete** (#25, #26, #29) |
 | Security headers | ✅ **Complete** (#27) |
 | Environment validation | ✅ **Complete** (#28) |
 | Error sanitization | ✅ **Complete** (#32) |
+| Atomic transactions | ✅ **Complete** (#7) |
 | Audit logging | ❌ **Critical gap** (#30) |
-| RLS verification | ⚠️ Pending (#3) |
-| Atomic transactions | ⚠️ Pending (#7) |
 | Dependency scanning | ⚠️ Pending (#31) |
-| **Overall** | 🟢 **~80% OWASP compliant** |
+| **Overall** | 🟢 **~90% OWASP compliant** |
 
 **Launch Readiness:** ❌ **No** - Must complete **Tier 1 security tasks** first (3-4 days of focused work).
 
