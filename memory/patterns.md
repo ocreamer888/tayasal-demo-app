@@ -256,4 +256,101 @@ const envSchema = z.object({
 
 ---
 
+## Responsive Navigation Pattern
+
+**Structure:**
+- Desktop (md+): Fixed left sidebar with full navigation
+- Mobile (<md): Top header with hamburger menu (Sheet component)
+
+**Implementation:**
+
+1. **Shared nav items** (`src/components/layout/nav-items.ts`):
+   ```typescript
+   export const mainNavItems: NavItem[] = [
+     { label: "Dashboard", href: "/", icon: BarChart3 },
+     { label: "Producción", href: "/production", icon: ClipboardList },
+     { label: "Inventario", href: "/inventory", icon: Package },
+     { label: "Pedidos", href: "/orders", icon: ShoppingCart },
+     { label: "Reportes", href: "/reports", icon: FileText, roles: ['engineer', 'admin'] },
+   ];
+   ```
+
+2. **Sidebar component** (desktop):
+   ```tsx
+   <div className="hidden md:flex flex-col h-screen w-64 bg-gradient-to-b from-green-900/20 to-green-800/20 border-r">
+     {/* Logo */}
+     {/* Navigation links with role filtering */}
+     {/* UserNav at bottom */}
+   </div>
+   ```
+
+3. **Header component** (mobile-only):
+   ```tsx
+   <header className="md:hidden sticky top-0 ...">
+     {/* Logo */}
+     {/* Hamburger button */}
+     <Sheet> {/* Mobile nav sheet */} </Sheet>
+   </header>
+   ```
+
+4. **Dashboard layout**:
+   ```tsx
+   <div className="flex min-h-screen bg-gradient-to-t from-green-900 to-green-800">
+     <Sidebar className="hidden md:flex" />
+     <div className="flex-1">
+       <Header className="md:hidden" />
+       <main>...</main>
+     </div>
+   </div>
+   ```
+
+**Key Points:**
+- Sidebar and Header both consume `useAuth()` to filter nav items by `userRole`
+- Active link highlighting via `usePathname()`
+- Consistent green gradient theme across both
+- Sidebar uses `overflow-auto` for scrollable navigation if needed
+
+---
+
+## Design System: Green Gradient Theme
+
+**Color palette:** Green spectrum with gradient overlays.
+
+**Background patterns:**
+- **Main page backgrounds**: `bg-gradient-to-t from-green-900 to-green-800` (solid, full opacity)
+- **Sidebar/panels**: `bg-gradient-to-b from-green-900/20 to-green-800/20` (20% opacity, light tint)
+- **Accent**: `from-green-500 to-green-600` for logo and highlights
+- **Borders**: `border-green-950` (dark) or `border-white/20` (light on dark)
+
+**Rationale:** Creates visual hierarchy:
+- Dark full-gradient = primary page backgrounds
+- Light translucent gradient = floating panels/sidebar
+- Green accent = brand identity
+
+**Components using this:**
+- `DashboardPage` background
+- `Sidebar` background
+- `Header` mobile sheet background
+- `MetricCard` accent bar
+
+---
+
+## shadcn/ui Integration
+
+**Configuration:** `components.json` with:
+- `"style": "default"` (New York)
+- `"theme": "emerald"` (green color scheme)
+- `"iconLibrary": "lucide"`
+- `"baseColor": "neutral"`
+- `"cssVariables": true`
+
+**Custom components built:**
+- `MetricCard` - Premium metric display with gradient accent
+- `LoadingSpinner` - Animated spinner
+- `Sidebar` - Responsive navigation (new)
+
+**Available shadcn components:** Button, Card, Input, Label, Select, Sheet, ScrollArea (unused), DropdownMenu, Avatar, Badge, Separator, etc.
+
+---
+
 **Last Updated:** 2026-02-09

@@ -22,11 +22,11 @@ export function Sidebar({ className }: SidebarProps) {
 
   return (
     <div className={cn(
-      "hidden md:flex flex-col h-screen w-64 bg-gradient-to-b from-green-900 to-green-800 border-r border-green-950",
+      "hidden md:flex flex-col h-[98vh] w-64 bg-gradient-to-b from-green-900/20 to-green-800/20 m-4 border-r border-white/20 rounded-r-2xl",
       className
     )}>
       {/* Logo */}
-      <div className="flex h-16 items-center gap-3 border-b border-green-950 px-6">
+      <div className="flex h-16 items-center gap-3 border-b border-white/20 px-6">
         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-b from-green-500 to-green-600 shadow-sm">
           <svg
             className="h-5 w-5 text-white"
