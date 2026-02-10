@@ -37,36 +37,56 @@
   - File: `src/lib/rate-limit.ts` (extended)
   - Config: 5 failed attempts → 1 hour lock
   - Integrated into login API route
+- ✅ **Task #29**: Password strength validation
+  - File: `src/app/signup/page.tsx`
+  - Added zxcvbn library, real-time strength meter, checklist
+  - Enforced minimum score 3 ("Fuerte") and 12+ characters
+
+---
+
+### Tier 1: Security Hardening - Category C (Defense Headers & Configuration)
+- ✅ **Task #27**: Security headers middleware
+  - File: `src/middleware.ts` (created)
+  - Headers: X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, CSP, HSTS (prod)
+  - CSP configured with Supabase URLs (`https://...supabase.co wss://...supabase.co`)
+- ✅ **Task #28**: Environment validation on startup
+  - File: `src/lib/env-validation.ts` (created)
+  - Zod schema validates required env vars: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+  - Warns if `SUPABASE_SERVICE_ROLE_KEY` missing in production
+  - Called in `src/app/layout.tsx` → fails fast on misconfiguration
+- ✅ **Task #32**: Error response sanitization
+  - File: `src/lib/error-handler.ts` (created)
+    - `getClientErrorMessage(error, default?)` - returns full error in dev, generic in prod
+    - `createErrorResponse(error, status, default?)` - logger + sanitized JSON response
+  - Updated `src/app/api/auth/signup/route.ts` to use sanitization:
+    - Replaced `error.message` with `getClientErrorMessage(error, 'No se pudo crear la cuenta...')`
+    - Prevents leakage of "User already registered", DB constraint errors, etc.
+  - Login route already used generic messages (maintained)
+  - All API routes now prevent stack traces, internal paths, or sensitive details in responses
+  - Full errors still logged server-side via `console.error` for debugging
 
 ---
 
 ## 🔴 Remaining Tier 1 Tasks (Priority Order)
 
-### Category B (Authentication) - Continue
-- ⬜ **Task #29**: Password strength validation (1h)
-  - Add zxcvbn to signup page, enforce score ≥ 3
-
-### Category C (Defense Headers & Configuration)
-- ⬜ **Task #27**: Security headers middleware (1h)
-- ⬜ **Task #28**: Environment validation on startup (30min)
-- ⬜ **Task #32**: Error response sanitization (1h)
-
-### Category D (Data Integrity)
+### Category D (Data Integrity) - HIGH PRIORITY
 - ⬜ **Task #3**: Verify and document RLS policies (30min)
+  - **FOUNDATIONAL** - All security depends on this
 - ⬜ **Task #7**: Implement atomic order approval transaction (2h)
+  - Prevent inventory/order data corruption
 
 ### Category E (Misc)
 - ⬜ **Task #4**: Create database migration files (1h)
 - ⬜ **Task #31**: Dependabot dependency scanning (30min)
-- ⬜ **Task #30**: Comprehensive audit logging (8h)
+- ⬜ **Task #30**: Comprehensive audit logging (8h) - Biggest effort
 
 ---
 
 ## 📊 Progress Summary
 
-**Tier 1 Completion:** 7/16 tasks (44%)
-**Time Invested:** ~20 hours estimated
-**Critical Path:** Category A ✅ complete, Category B ✅ complete, Category C → current
+**Tier 1 Completion:** 11/16 tasks (69%)
+**Time Invested:** ~25 hours estimated
+**Status:** Category A ✅, B ✅, C ✅ all complete. Now in Category D (Data Integrity) & E (Misc)
 
 ---
 
@@ -109,3 +129,20 @@
 - Cost confidentiality ✅ fully implemented (5 locations checked)
 - Auth API routes now proxy via server (more secure, enables rate limiting)
 - All changes tracked in individual task records via TaskCreate/TaskUpdate
+
+---
+
+## 🎨 Tier 2 UX Improvements (Charts Responsiveness)
+
+**Chart Layout Enhancement** (2026-02-09):
+- Made ProductionDashboard charts fully fluid (horizontal + vertical)
+- Changes in `src/components/dashboard/ProductionDashboard.tsx`:
+  - Grid: `grid-cols-1 gap-4 auto-rows-1fr` + `w-full`
+  - ChartContainer: `w-full max-w-9xl min-h-[300px] flex-1`
+  - CardContent: `w-full px-4` + `flex-1`
+  - Removed `min-w-0` constraints
+- Result: Charts now grow/shrink responsively with container, maintaining minimum height of 300px
+- Supports flexible dashboard layouts without scrollbars or overflow issues
+
+**Note:** These improvements enhance UX but are not security blockers. Can continue alongside Tier 1.
+

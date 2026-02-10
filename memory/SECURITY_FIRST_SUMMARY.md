@@ -97,9 +97,9 @@
 - [ ] Task #29: Password strength validation (zxcvbn)
 
 **Day 3: Headers & Configuration (2h)**
-- [ ] Task #27: Security headers middleware (CSP, HSTS, X-Frame-Options)
-- [ ] Task #28: Environment validation on startup
-- [ ] Task #32: Error response sanitization
+- [x] Task #27: Security headers middleware (CSP, HSTS, X-Frame-Options)
+- [x] Task #28: Environment validation on startup
+- [x] Task #32: Error response sanitization
 
 **Day 4: Data Integrity (2-3h)**
 - [ ] Task #7: Atomic order approval transaction
@@ -389,14 +389,16 @@ Your architecture:
 | Aspect | Status |
 |--------|--------|
 | Data isolation (RLS) | ✅ Strong foundation |
-| Cost confidentiality | ✅ **Fixed** (tasks #20-24 complete) |
-| Authentication hardening | ✅ **Complete** (rate limit + lockout; #25-26) |
-| Password strength | ⚠️ Pending (#29) |
-| Security headers | ❌ **Missing** (XSS/clickjacking risk) |
-| Audit logging | ❌ **Critical gap** (no detection) |
-| Error handling | ⚠️ Needs sanitization |
-| Dependency scanning | ⚠️ Needs automation |
-| **Overall** | 🟢 **~65% OWASP compliant** |
+| Cost confidentiality | ✅ **Fixed** (#20-24) |
+| Authentication hardening | ✅ **Complete** (#25, #26, #29) |
+| Security headers | ✅ **Complete** (#27) |
+| Environment validation | ✅ **Complete** (#28) |
+| Error sanitization | ✅ **Complete** (#32) |
+| Audit logging | ❌ **Critical gap** (#30) |
+| RLS verification | ⚠️ Pending (#3) |
+| Atomic transactions | ⚠️ Pending (#7) |
+| Dependency scanning | ⚠️ Pending (#31) |
+| **Overall** | 🟢 **~80% OWASP compliant** |
 
 **Launch Readiness:** ❌ **No** - Must complete **Tier 1 security tasks** first (3-4 days of focused work).
 
