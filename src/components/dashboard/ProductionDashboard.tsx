@@ -142,7 +142,7 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
           <CardHeader className="w-full flex-shrink-0">
             <CardTitle className="text-h3 text-neutral-900">Producción por Mes</CardTitle>
           </CardHeader>
-          <CardContent className="flex-1 px-0 pb-0 min-h-0">
+          <CardContent className="flex-1 w-full px-4 pb-0 min-h-0">
             <ChartContainer
               config={{
                 cantidad: {
@@ -188,11 +188,12 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
           <CardHeader className="w-full flex-shrink-0">
             <CardTitle className="text-h3 text-neutral-900">Órdenes por Estado</CardTitle>
           </CardHeader>
-          <CardContent className="flex-1 px-0 pb-0 min-h-0 flex items-center justify-center">
+          <CardContent className="flex-1 w-full px-4 pb-0 min-h-0 flex items-center justify-center">
             <ChartContainer
               config={{
                 value: {
                   label: "Cantidad",
+                  color: "hsl(var(--chart-1))",
                 },
               }}
             >
@@ -226,7 +227,7 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
           <CardHeader className="w-full flex-shrink-0">
             <CardTitle className="text-h3 text-neutral-900">Producción por Tipo de Bloque</CardTitle>
           </CardHeader>
-          <CardContent className="flex-1 px-0 pb-0 min-h-0">
+          <CardContent className="flex-1 w-full px-4 pb-0 min-h-0">
             <ChartContainer
               config={{
                 value: {

@@ -54,15 +54,15 @@ function ChartContainer({
         data-slot="chart"
         data-chart={chartId}
         className={cn(
-          "relative flex flex-col overflow-hidden rounded-xl border border-white/60 bg-white/50 shadow-sm",
-          "flex-1 min-w-[300px] min-h-[300px]", // Grow with container, minimum 300px height
+          "relative flex flex-col overflow-hidden rounded-xl border border-white/60 bg-white/50 w-full shadow-sm",
+          "flex-1 max-w-9xl min-h-[300px]", // Grow with container, minimum 300px height
           "p-3 sm:p-4",
           className
         )}
         {...props}
       >
         <ChartStyle id={chartId} config={config} />
-        <div className="flex-1 w-full min-w-0">
+        <div className="flex-1 w-full">
           <RechartsPrimitive.ResponsiveContainer
             width="100%"
             height="100%"
