@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { checkRateLimit, generateAuthKey } from '@/lib/rate-limit';
+import { getClientErrorMessage } from '@/lib/error-handler';
 
 /**
  * POST /api/auth/signup
@@ -55,7 +56,12 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error(`Signup failed for ${email}: ${error.message}`);
-      return NextResponse.json({ error: error.message }, { status: 400 });
+      // Sanitize error message for production (prevent information leakage)
+      const errorMessage = getClientErrorMessage(
+        error,
+        'No se pudo crear la cuenta. Por favor, verifica la información e inténtalo de nuevo.'
+      );
+      return NextResponse.json({ error: errorMessage }, { status: 400 });
     }
 
     // Return session data for client to set (if confirmed immediately)

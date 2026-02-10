@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { checkRateLimit, generateAuthKey, isAccountLocked, getLockRemaining, recordFailedLogin, resetFailedLogin } from '@/lib/rate-limit';
+import { getClientErrorMessage } from '@/lib/error-handler';
 
 /**
  * POST /api/auth/login
