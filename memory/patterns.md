@@ -277,7 +277,7 @@ const envSchema = z.object({
 
 2. **Sidebar component** (desktop):
    ```tsx
-   <div className="hidden md:flex flex-col h-screen w-64 bg-gradient-to-b from-green-900/20 to-green-800/20 border-r">
+   <div className="hidden md:flex flex-col h-[98vh] w-64 bg-gradient-to-b from-green-900/20 to-green-800/20 m-4 border-r border-white/20 rounded-r-2xl">
      {/* Logo */}
      {/* Navigation links with role filtering */}
      {/* UserNav at bottom */}
@@ -286,70 +286,164 @@ const envSchema = z.object({
 
 3. **Header component** (mobile-only):
    ```tsx
-   <header className="md:hidden sticky top-0 ...">
+   <header className="md:hidden sticky top-0 z-100 flex h-16 items-center justify-between px-6 bg-green-900/80 backdrop-blur-sm">
      {/* Logo */}
      {/* Hamburger button */}
-     <Sheet> {/* Mobile nav sheet */} </Sheet>
+     <Sheet> {/* Mobile nav sheet with same nav items */} </Sheet>
    </header>
    ```
 
-4. **Dashboard layout**:
+4. **Protected Page Layout** (Dashboard, Orders, Inventory, etc.):
    ```tsx
-   <div className="flex min-h-screen bg-gradient-to-t from-green-900 to-green-800">
-     <Sidebar className="hidden md:flex" />
-     <div className="flex-1">
-       <Header className="md:hidden" />
-       <main>...</main>
-     </div>
-   </div>
+   export default function Page() {
+     const { user, profile, loading } = useAuth();
+     const userRole = (profile?.role || user?.user_metadata?.role) as 'operator' | 'engineer' | 'admin' || 'operator';
+
+     // Auth guard
+     useEffect(() => { if (!loading && !user) router.push('/login'); }, [user, loading]);
+
+     if (loading) return <LoadingSpinner />;
+     if (!user) return null;
+
+     return (
+       <div className="min-h-screen bg-gradient-to-t from-green-900 to-green-800 flex">
+         <Sidebar className="hidden md:flex" />
+         <div className="flex-1 flex flex-col min-h-screen">
+           <Header className="md:hidden" />
+           <main className="flex-1 mx-auto max-w-7xl px-4 py-8 overflow-y-auto">
+             <PageHeader title="..." description="..." icon={Icon} />
+             {/* Page content */}
+           </main>
+         </div>
+       </div>
+     );
+   }
    ```
 
 **Key Points:**
 - Sidebar and Header both consume `useAuth()` to filter nav items by `userRole`
 - Active link highlighting via `usePathname()`
 - Consistent green gradient theme across both
-- Sidebar uses `overflow-auto` for scrollable navigation if needed
+- Main content area uses `overflow-y-auto` for scrollable content
+- User role derived from `profile?.role` with fallback to `user.user_metadata.role`
 
 ---
 
-## Design System: Green Gradient Theme
+## Page Layout Composition Pattern
 
-**Color palette:** Green spectrum with gradient overlays.
+**Standard page structure for all protected routes:**
 
-**Background patterns:**
-- **Main page backgrounds**: `bg-gradient-to-t from-green-900 to-green-800` (solid, full opacity)
-- **Sidebar/panels**: `bg-gradient-to-b from-green-900/20 to-green-800/20` (20% opacity, light tint)
-- **Accent**: `from-green-500 to-green-600` for logo and highlights
-- **Borders**: `border-green-950` (dark) or `border-white/20` (light on dark)
+```typescript
+'use client';
 
-**Rationale:** Creates visual hierarchy:
-- Dark full-gradient = primary page backgrounds
-- Light translucent gradient = floating panels/sidebar
-- Green accent = brand identity
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/app/contexts/AuthContext';
+import { Sidebar } from '@/components/layout/Sidebar';
+import { Header } from '@/components/layout/Header';
+import { PageHeader } from '@/components/shared/PageHeader';
+import { SomeIcon } from 'lucide-react';
 
-**Components using this:**
-- `DashboardPage` background
-- `Sidebar` background
-- `Header` mobile sheet background
-- `MetricCard` accent bar
+export default function PageName() {
+  const { user, profile, loading } = useAuth();
+  const router = useRouter();
+  const userRole = (profile?.role || user?.user_metadata?.role) as 'operator' | 'engineer' | 'admin' || 'operator';
+
+  // Authentication guard
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [user, loading, router]);
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-neutral-50">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-t from-green-900 to-green-800 flex">
+      <Sidebar className="hidden md:flex" />
+      <div className="flex-1 flex flex-col min-h-screen">
+        <Header className="md:hidden" />
+        <main className="flex-1 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 overflow-y-auto">
+          <PageHeader
+            title="Page Title"
+            description="Description"
+            icon={SomeIcon}
+            actions={<Button>Action</Button>} // optional
+          />
+          {/* Page-specific content */}
+        </main>
+      </div>
+    </div>
+  );
+}
+```
+
+**Notes:**
+- Loading state: centered spinner on neutral background
+- Authenticated layout: green gradient background with sidebar/header
+- `overflow-y-auto` on main allows independent scrolling
+- PageHeader supports optional `actions` prop for buttons (e.g., "Create New")
 
 ---
 
-## shadcn/ui Integration
+## Toast Notification Pattern
 
-**Configuration:** `components.json` with:
-- `"style": "default"` (New York)
-- `"theme": "emerald"` (green color scheme)
-- `"iconLibrary": "lucide"`
-- `"baseColor": "neutral"`
-- `"cssVariables": true`
+**Library:** `sonner`
 
-**Custom components built:**
-- `MetricCard` - Premium metric display with gradient accent
-- `LoadingSpinner` - Animated spinner
-- `Sidebar` - Responsive navigation (new)
+**Usage:**
+```typescript
+import { toast } from 'sonner';
 
-**Available shadcn components:** Button, Card, Input, Label, Select, Sheet, ScrollArea (unused), DropdownMenu, Avatar, Badge, Separator, etc.
+// Success
+toast.success('Orden creada exitosamente');
+
+// Error
+toast.error(
+  error instanceof Error ? error.message : 'Error al eliminar la orden'
+);
+
+// Loading toast
+const toastId = toast.loading('Processing...');
+toast.success('Done!', { id: toastId });
+```
+
+**Placement:** Global `Toaster` component in `src/app/layout.tsx`:
+```tsx
+<Toaster position="top-right" richColors />
+```
+
+---
+
+## Form Handling Pattern
+
+**State management:** Local `useState` for form fields.
+
+**Validation:** Client-side with Zod (via `@hookform/resolvers` + `react-hook-form`).
+
+**Submission:**
+```typescript
+const handleSubmit = async (formData: any) => {
+  try {
+    await mutation.mutateAsync(formData);
+    toast.success('Success message');
+    resetForm();
+  } catch (error) {
+    toast.error('Error message');
+  }
+};
+```
+
+**Modal dialogs:** Controlled via state (`showForm`, `editingOrder`).
 
 ---
 

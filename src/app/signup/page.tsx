@@ -101,7 +101,7 @@ export default function SignupPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-t from-green-900 to-green-800 px-4 py-12 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
+        <CardHeader className="text-center w-full">
           <CardTitle className="text-2xl font-bold text-neutral-900">
             Crear Cuenta
           </CardTitle>
@@ -119,7 +119,7 @@ export default function SignupPage() {
 
             <div className="space-y-2">
               <Label htmlFor="fullName" className="text-sm font-medium text-neutral-700">
-                Nombre Completo <span className="text-red-500">*</span>
+                Nombre Completo <span className="text-red-900">*</span>
               </Label>
               <Input
                 id="fullName"
@@ -133,7 +133,7 @@ export default function SignupPage() {
 
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-medium text-neutral-700">
-                Correo electrónico <span className="text-red-500">*</span>
+                Correo electrónico <span className="text-red-900">*</span>
               </Label>
               <Input
                 id="email"
@@ -148,7 +148,7 @@ export default function SignupPage() {
 
             <div className="space-y-2">
               <Label htmlFor="role" className="text-sm font-medium text-neutral-700">
-                Rol en el Sistema <span className="text-red-500">*</span>
+                Rol en el Sistema <span className="text-red-900">*</span>
               </Label>
               <Select value={role} onValueChange={(value) => setRole(value as 'operator' | 'engineer')}>
                 <SelectTrigger id="role">
@@ -168,7 +168,7 @@ export default function SignupPage() {
 
             <div className="space-y-2">
               <Label htmlFor="password" className="text-sm font-medium text-neutral-700">
-                Contraseña <span className="text-red-500">*</span>
+                Contraseña <span className="text-red-900">*</span>
               </Label>
               <Input
                 id="password"
@@ -180,7 +180,7 @@ export default function SignupPage() {
                 placeholder="••••••••"
                 autoComplete="new-password"
               />
-              <p className="text-xs text-neutral-500">Mínimo 12 caracteres</p>
+              <p className="text-xs text-neutral-900">Mínimo 12 caracteres</p>
 
               {/* Password Strength Meter */}
               {password && (
@@ -237,7 +237,7 @@ export default function SignupPage() {
 
             <div className="space-y-2">
               <Label htmlFor="confirmPassword" className="text-sm font-medium text-neutral-700">
-                Confirmar Contraseña <span className="text-red-500">*</span>
+                Confirmar Contraseña <span className="text-red-900">*</span>
               </Label>
               <Input
                 id="confirmPassword"
@@ -256,9 +256,9 @@ export default function SignupPage() {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-neutral-500">
+            <p className="text-sm text-neutral-200">
               ¿Ya tienes cuenta?{' '}
-              <a href="/login" className="font-medium text-green-600 hover:text-green-700">
+              <a href="/login" className="font-medium text-green-900 hover:text-green-600">
                 Inicia sesión aquí
               </a>
             </p>

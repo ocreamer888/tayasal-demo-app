@@ -15,6 +15,7 @@ import { Header } from '@/components/layout/Header';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Plus, Search, ClipboardList } from 'lucide-react';
 import { ProductionOrder } from '@/types/production-order';
+import { Sidebar } from '@/components/layout/Sidebar';
 
 export default function OrdersPage() {
   const { user, profile } = useAuth();
@@ -111,9 +112,18 @@ export default function OrdersPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-t from-green-900 to-green-800">
-      <Header />
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gradient-to-t from-green-900 to-green-800 flex">
+         
+         {/* Desktop Sidebar - hidden on mobile */}
+         <Sidebar className="hidden md:flex" />
+
+      {/* Content Area */}
+      <div className="flex-1 flex flex-col min-h-screen">
+        {/* Mobile Header */}
+        <Header className="md:hidden" />
+
+        {/* Main Content */}
+        <main className="flex-1 mx-auto min-w-5xl max-w-9xl px-4 py-8 max-h-screen overflow-y-auto">
         <PageHeader
           title="Órdenes de Producción"
           description="Gestiona tus órdenes de producción"
@@ -219,6 +229,7 @@ export default function OrdersPage() {
           />
         )}
       </main>
+    </div>
     </div>
   );
 }

@@ -2,7 +2,6 @@
 
 import * as React from "react"
 import * as RechartsPrimitive from "recharts"
-
 import { cn } from "@/lib/utils"
 
 // Format: { THEME_NAME: CSS_SELECTOR }
@@ -55,7 +54,7 @@ function ChartContainer({
         data-slot="chart"
         data-chart={chartId}
         className={cn(
-          "relative overflow-hidden rounded-xl border border-neutral-200 bg-white p-4 shadow-sm",
+          "relative overflow-hidden rounded-xl border border-white/60 bg-white/50 p-4 shadow-sm",
           "[&_.recharts-cartesian-axis-tick_text]:fill-neutral-500 [&_.recharts-cartesian-axis-tick_line]:stroke-neutral-200 [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-neutral-200/50 [&_.recharts-cartesian-grid_horizontal_line]:stroke-dashed [&_.recharts-cartesian-grid_vertical_line]:stroke-dashed [&_.recharts-curve.recharts-tooltip-cursor]:stroke-neutral-300 [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-neutral-100 [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-neutral-100 [&_.recharts-reference-line_[stroke='#ccc']]:stroke-neutral-300 flex aspect-[4/3] min-h-[300px] justify-center text-xs sm:aspect-video [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-hidden [&_.recharts-sector]:outline-hidden [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-surface]:outline-hidden",
           className
         )}

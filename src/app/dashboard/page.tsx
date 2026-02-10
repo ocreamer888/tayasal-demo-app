@@ -44,7 +44,7 @@ export default function DashboardPage() {
         <Header className="md:hidden" />
 
         {/* Main Content */}
-        <main className="flex-1 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+        <main className="flex-1 mx-auto max-w-7xl px-4 py-8 max-h-screen overflow-y-auto">
           <PageHeader
             title="Dashboard"
             description={

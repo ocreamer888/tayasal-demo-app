@@ -138,8 +138,8 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Production Trend */}
-        <Card className="p-6">
-          <CardHeader className="px-0 pt-0">
+        <Card className="flex flex-col">
+          <CardHeader className="w-full">
             <CardTitle className="text-h3 text-neutral-900">Producción por Mes</CardTitle>
           </CardHeader>
           <CardContent className="px-0 pb-0">
@@ -184,8 +184,8 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
         </Card>
 
         {/* Orders by Status */}
-        <Card className="p-6">
-          <CardHeader className="px-0 pt-0">
+        <Card className="">
+          <CardHeader className="w-full">
             <CardTitle className="text-h3 text-neutral-900">Órdenes por Estado</CardTitle>
           </CardHeader>
           <CardContent className="px-0 pb-0">
@@ -223,7 +223,7 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Production by Block Type */}
         <Card className="p-6">
-          <CardHeader className="px-0 pt-0">
+          <CardHeader className="w-full">
             <CardTitle className="text-h3 text-neutral-900">Producción por Tipo de Bloque</CardTitle>
           </CardHeader>
           <CardContent className="px-0 pb-0">
@@ -261,13 +261,13 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
 
         {/* Low Stock Alert */}
         <Card className="p-6">
-          <CardHeader className="px-0 pt-0">
+          <CardHeader className="w-full">
             <CardTitle className="text-h3 text-neutral-900">Alertas de Stock Bajo</CardTitle>
           </CardHeader>
-          <CardContent className="px-0 pb-0">
+          <CardContent className="flex flex-col items-center justify-center px-0 pb-0 h-full">
             {lowStockMaterials.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-neutral-500">
-                <CheckCircle size={48} className="text-green-500 mb-4" />
+                <CheckCircle size={48} className="text-green-100 mb-4" />
                 <p className="font-medium">Todos los materiales tienen stock suficiente</p>
               </div>
             ) : (
@@ -299,7 +299,7 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
 
       {/* Recent Orders */}
       <Card className="p-6">
-        <CardHeader className="px-0 pt-0">
+        <CardHeader className="w-full">
           <CardTitle className="text-h3 text-neutral-900">Órdenes Recientes</CardTitle>
         </CardHeader>
         <CardContent className="px-0 pb-0">

@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
   // Base styles: inline-flex, gap-2, rounded-lg (8px), font-semibold, transition-all, focus ring
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive active:translate-y-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-semibold transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive active:translate-y-0",
   {
     variants: {
       variant: {
@@ -33,10 +33,10 @@ const buttonVariants = cva(
       },
       size: {
         default: "h-10 px-5 py-2 has-[>svg]:px-4",
-        sm: "h-8 gap-1.5 rounded-md px-3 has-[>svg]:px-2.5 text-xs",
+        sm: "h-8 gap-1.5 rounded-full px-3 has-[>svg]:px-2.5 text-xs",
         md: "h-10 gap-2 px-4 has-[>svg]:px-3 text-sm",
-        lg: "h-12 gap-2.5 rounded-lg px-6 has-[>svg]:px-5 text-base",
-        xl: "h-14 gap-3 rounded-lg px-8 has-[>svg]:px-7 text-lg",
+        lg: "h-12 gap-2.5 rounded-full px-6 has-[>svg]:px-5 text-base",
+        xl: "h-14 gap-3 rounded-full px-8 has-[>svg]:px-7 text-lg",
         icon: "size-10",
         "icon-sm": "size-8",
         "icon-lg": "size-12",

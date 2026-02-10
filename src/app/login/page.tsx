@@ -62,7 +62,7 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-t from-green-900 to-green-800 px-4 py-12 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
+        <CardHeader className="text-center w-full">
           <CardTitle className="text-2xl font-bold text-neutral-900">
             Sistema de Producción
           </CardTitle>
@@ -73,13 +73,13 @@ export default function LoginPage() {
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-6">
             {error && (
-              <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+              <div className="rounded-full border border-red-200 bg-red-50 p-4 text-sm text-red-700">
                 {error}
               </div>
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium text-neutral-700">
+              <Label htmlFor="email" className="text-sm font-medium text-neutral-900">
                 Correo electrónico
               </Label>
               <Input
@@ -114,9 +114,9 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-neutral-500">
+            <p className="text-sm text-neutral-200">
               ¿No tienes cuenta?{' '}
-              <a href="/signup" className="font-medium text-green-600 hover:text-green-700">
+              <a href="/signup" className="font-medium text-green-900 hover:text-green-600">
                 Regístrate aquí
               </a>
             </p>

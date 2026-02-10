@@ -17,6 +17,9 @@
 - ✅ **Production build**: `npm run build` succeeds
 - ✅ **Responsive sidebar navigation**: Desktop fixed sidebar + mobile header with sheet
 - ✅ **Green gradient theme**: Consistent use of `from-green-900/20 to-green-800/20` (sidebar/panels) and `from-green-900 to-green-800` (main backgrounds)
+- ✅ **Standardized page layout**: All protected pages (Dashboard, Orders, Inventory) follow same layout composition pattern
+- ✅ **Toast notifications**: Using `sonner` for success/error feedback
+- ✅ **Role-based navigation filtering**: Nav items gated by user role (operators don't see "Reportes")
 
 ### Known Issues
 - ⚠️ **In-memory rate limiting** (needs Redis for production)
@@ -71,13 +74,15 @@
 | Root layout | `src/app/layout.tsx` |
 | Auth context | `src/app/contexts/AuthContext.tsx` |
 | Login page | `src/app/login/page.tsx` |
-| Dashboard page | `src/app/dashboard/page.tsx` |
+| Signup page | `src/app/signup/page.tsx` |
+| Protected pages | `src/app/dashboard/page.tsx`, `src/app/orders/page.tsx`, `src/app/inventory/page.tsx` |
 | Dashboard component | `src/components/dashboard/ProductionDashboard.tsx` |
-| Sidebar navigation | `src/components/layout/Sidebar.tsx` |
-| Mobile header | `src/components/layout/Header.tsx` |
-| Shared nav items | `src/components/layout/nav-items.ts` |
+| Layout components | `src/components/layout/Sidebar.tsx`, `Header.tsx`, `UserNav.tsx`, `nav-items.ts` |
+| Production components | `src/components/production/ProductionOrderList.tsx`, `ProductionOrderForm.tsx`, `ProductionOrderDetails.tsx` |
+| Inventory components | `src/components/inventory/InventoryPanel.tsx` |
+| Shared components | `src/components/shared/PageHeader.tsx`, `MetricCard.tsx`, `LoadingSpinner.tsx` |
 | Supabase client | `src/lib/supabase/client.ts` |
-| Data hooks | `src/lib/hooks/` |
+| Data hooks | `src/lib/hooks/useProductionOrders.ts`, `useInventoryMaterials.ts` |
 | Security middleware | `src/middleware.ts` |
 | Env validation | `src/lib/env-validation.ts` |
 | Supabase schema | `SUPABASE_SCHEMA.sql` |
@@ -128,6 +133,40 @@ SUPABASE_SERVICE_ROLE_KEY=...  # Server-side admin operations
 | #32 | Error response sanitization | ⏳ Incomplete |
 | #3 | RLS policy verification | ⚠️ Needs manual verification in Supabase |
 | ✅ | Desktop sidebar navigation | **Completed** (2026-02-09) |
+| ✅ | Standardized protected page layout | **Completed** (Dashboard, Orders, Inventory all follow same pattern) |
+
+---
+
+## Completed Features (Recent)
+
+**Authentication & Dashboard (2026-02-09)**
+- Fixed CSP to include Supabase API + WebSocket
+- Resolved auth redirect race condition
+- Non-blocking AuthContext loading state
+- Defensive date handling in dashboard charts
+- TypeScript compatibility fixes (Zod v4, zxcvbn, env validation)
+
+**Responsive Navigation (2026-02-09)**
+- Desktop sidebar with green gradient theme
+- Mobile header with hamburger menu (Sheet)
+- Role-based navigation filtering
+- Shared nav items constant
+- Applied to all protected pages (Dashboard, Orders, Inventory)
+
+**Orders Management Page**
+- Full CRUD interface with search & status filters
+- Modal dialogs for create/edit/view
+- Role-based action permissions (engineers can approve/reject)
+- Toast notifications (sonner)
+- Uses `useProductionOrders` hook with optimistic updates
+
+**Inventory Page**
+- Placeholder panel (to be implemented)
+- Follows standard protected page layout
+
+---
+
+**Last Updated:** 2026-02-09
 
 ---
 

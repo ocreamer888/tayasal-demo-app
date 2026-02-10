@@ -75,17 +75,17 @@ export function InventoryPanel() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 min-w-5xl max-w-7xl mx-auto">
       {/* Tabs */}
       <Tabs defaultValue="materials" value={activeTab} onValueChange={(value) => setActiveTab(value as TabType)}>
-        <TabsList className="grid w-full grid-cols-4 bg-neutral-100 p-1 rounded-lg">
+        <TabsList className="grid w-full grid-cols-4 bg-neutral-300/80 rounded-full">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
               <TabsTrigger
                 key={tab.id}
                 value={tab.id}
-                className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:text-green-700 data-[state=active]:shadow-sm"
+                className="flex items-center justify-center rounded-full gap-2 data-[state=active]:bg-neutral-200 data-[state=active]:text-green-700 data-[state=active]:shadow-sm"
               >
                 <Icon size={16} />
                 <span className="hidden sm:inline">{tab.label}</span>
@@ -96,8 +96,8 @@ export function InventoryPanel() {
 
         {/* Materials Tab */}
         <TabsContent value="materials" className="mt-6">
-          <Card className="p-6">
-            <CardHeader className="px-0 pt-0">
+          <Card className="p-4">
+            <CardHeader className="w-full">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-h3 text-neutral-900">Inventario de Materiales</CardTitle>
                 <Button size="sm">

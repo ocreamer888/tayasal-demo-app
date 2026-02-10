@@ -42,13 +42,21 @@ export function UserNav() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+        <Button variant="ghost" className="relative h-1/2 w-full flex items-center justify-between rounded-full bg-white/5 hover:bg-white/10 gap-4">
           <Avatar className="h-10 w-10 ring-2 ring-green-500 ring-offset-2">
             <AvatarImage src={user?.user_metadata?.avatar_url} alt={displayName} />
             <AvatarFallback className="bg-gradient-to-b from-green-500 to-green-600 text-white font-bold">
               {getInitials(undefined, user?.email)}
             </AvatarFallback>
           </Avatar>
+          <span className="flex flex-col items-start w-full">
+          <p className="text-sm font-medium leading-none text-neutral-200">
+              {displayName}
+            </p>
+            <p className="text-xs leading-none text-neutral-300">
+              {userRoleLabel}
+            </p>
+          </span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>

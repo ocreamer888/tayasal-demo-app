@@ -7,6 +7,7 @@ import { UserNav } from "./UserNav"
 import { useAuth } from "@/app/contexts/AuthContext"
 import { mainNavItems } from "./nav-items"
 
+
 interface SidebarProps {
   className?: string
 }
@@ -20,13 +21,36 @@ export function Sidebar({ className }: SidebarProps) {
     !item.roles || item.roles.includes(userRole)
   )
 
+  const { user } = useAuth()
+
+  const getInitials = (name?: string | null, email?: string | null) => {
+    const fullName = name || user?.user_metadata?.full_name || ""
+    if (fullName) {
+      return fullName
+        .split(" ")
+        .map((n: string) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2)
+    }
+    if (email) {
+      return email.charAt(0).toUpperCase()
+    }
+    return "U"
+  }
+
+  const displayName = profile?.company_name || user?.user_metadata?.full_name || user?.email || "Usuario"
+  const userRoleLabel = profile?.role === "engineer" || profile?.role === "admin"
+    ? "Ingeniero / Admin"
+    : "Operario"
+
   return (
     <div className={cn(
-      "hidden md:flex flex-col h-[98vh] w-64 bg-gradient-to-b from-green-900/20 to-green-800/20 m-4 border-r border-white/20 rounded-r-2xl",
+      "hidden md:flex flex-col h-[96vh] w-64 bg-white/5 m-4 backdrop-blur-md border-x border-white/20 rounded-2xl",
       className
     )}>
       {/* Logo */}
-      <div className="flex h-16 items-center gap-3 border-b border-white/20 px-6">
+      <div className="flex h-16 items-center gap-3 border-b border-white/20 rounded-b-2xl px-6">
         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-b from-green-500 to-green-600 shadow-sm">
           <svg
             className="h-5 w-5 text-white"
@@ -63,8 +87,8 @@ export function Sidebar({ className }: SidebarProps) {
       </div>
 
       {/* Navigation */}
-      <div className="flex-1 overflow-auto px-3 py-4">
-        <nav className="flex flex-col gap-1">
+      <div className="flex-1 overflow-auto px-4 py-4">
+        <nav className="flex flex-col gap-1 justify-around rounded-2xl h-full">
           {filteredNavItems.map((item) => {
             const isActive = pathname === item.href
             return (
@@ -87,8 +111,8 @@ export function Sidebar({ className }: SidebarProps) {
       </div>
 
       {/* User Section */}
-      <div className="border-t border-green-950 p-4">
-        <div className="flex flex-col gap-2">
+      <div className="border-t border-white/20 rounded-t-2xl p-4">
+        <div className="flex flex-row gap-4">
           <UserNav />
         </div>
       </div>
