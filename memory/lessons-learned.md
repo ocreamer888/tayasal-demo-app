@@ -255,4 +255,188 @@ if (process.env.NODE_ENV === 'production') {
 5. **Headers are free security** - add them now
 6. **Don't skip the "boring" tasks** (env validation, error sanitization) - they're critical
 
-**Next:** Continue with Task #26 (Account Lockout) OR Task #29 (Password Strength)?
+---
+
+## Auth Redirect Race Condition & Loading State Management
+
+**Date:** 2026-02-09
+**Task:** Login → Dashboard access
+**Issue:** After successful authentication, dashboard would not load or would redirect back to login.
+
+### The Problem: Loading State Blocking
+
+**Classic race:** `onAuthStateChange` handler `await`ed `fetchProfile()` before setting `loading=false`. If profile fetch took >100ms, the dashboard saw `loading=true` and showed spinner indefinitely. If the dashboard mounted during that `await`, it saw `user=null, loading=false` and redirected to login.
+
+**Symptoms:**
+- Blank page after login
+- Redirect loop: dashboard → login → dashboard
+- Loading spinner that never disappears
+- Console: "onAuthStateChange fired: SIGNED_IN" but UI never updated
+
+### The Root Cause Pattern
+
+```typescript
+❌ BAD - Blocks loading state:
+onAuthStateChange(async (event, session) => {
+  setLoading(true);  // ← blocks UI
+  await fetchProfile(...); // ← if this hangs, loading stays true forever
+  setLoading(false);
+});
+
+❌ BAD - Event ordering:
+await supabase.auth.setSession(data.session);
+router.push('/dashboard'); // ← navigates BEFORE AuthContext processes event
+```
+
+### The Solution: Non-Blocking Auth State Updates
+
+**Pattern 1: Fire-and-forget profile fetch**
+```typescript
+✅ GOOD:
+onAuthStateChange((event, session) => {
+  setUser(session?.user ?? null);
+  if (session?.user) {
+    fetchProfile(session.user.id).catch(err => {
+      console.error('Profile fetch failed:', err);
+      setProfile(null); // fallback
+    });
+  } else {
+    setProfile(null);
+  }
+  setLoading(false); // ← set immediately, profile loads in background
+});
+```
+
+**Rationale:** The user object is enough to render the UI. Profile data (role, company_name) is secondary. Render the dashboard as soon as we know who the user is, and show profile-dependent data when it arrives. If profile fetch fails, we still have `user.user_metadata.role` as fallback.
+
+**Pattern 2: React to `user` change instead of manual navigation**
+
+In login page:
+```typescript
+const { user } = useAuth();
+useEffect(() => {
+  if (user) {
+    router.push('/dashboard');
+  }
+}, [user, router]);
+
+const handleLogin = async () => {
+  await supabase.auth.setSession(data.session);
+  // No manual navigation - useEffect handles it
+};
+```
+
+**Rationale:** Eliminates race conditions. The navigation is a **reaction** to auth state, not a separate step. No timeouts, no event ordering issues.
+
+---
+
+## Content Security Policy: WebSocket Support
+
+**Issue:** Supabase Realtime (WebSocket) connections blocked:
+```
+Violates CSP: "connect-src 'self' https://xxx.supabase.co"
+```
+
+**Fix:** Add `wss://` to `connect-src`:
+```http
+connect-src 'self' https://xxx.supabase.co wss://xxx.supabase.co
+```
+
+**Lesson:** CSP must whitelist **all** external connection types:
+- `https://` for REST API (fetch)
+- `wss://` for WebSocket realtime
+- `ws://` in development if needed
+
+Missing either breaks functionality.
+
+---
+
+## TypeScript Library Compatibility
+
+**Issues encountered:**
+1. **zxcvbn**: Fallback object missing `warning` property required by `@types/zxcvbn`
+2. **Zod v4**: `.errors` → `.issues` API change
+3. **validateEnv**: Assertion syntax `asserts env is Env` invalid
+
+**Lesson:** Always check library version and type definition compatibility. Zod v4 introduced breaking changes - update code accordingly.
+
+**Pattern:** For third-party libs with optional fields in return types:
+```typescript
+// Ensure fallback matches full interface
+return { score: 0, feedback: { warning: '', suggestions: [] } };
+```
+
+---
+
+## ProductionDashboard: Defensive Data Processing
+
+**Issue:** Chart rendering crashed on `order.production_date = null`:
+```typescript
+format(new Date(null), ...) → RangeError: Invalid time value
+```
+
+**Fix:**
+1. **Chart aggregation:** Skip orders without dates or invalid dates
+2. **Table display:** Ternary `order.production_date ? format(...) : '-'`
+
+**Lesson:** Never trust external data (even from your own DB). Guard against:
+- `null` / `undefined`
+- Invalid dates (`isNaN(date.getTime())`)
+- Empty strings that parse to `Invalid Date`
+
+Use pattern:
+```typescript
+if (!value) return fallback;
+const date = new Date(value);
+if (isNaN(date.getTime())) return fallback;
+safeOperation(date);
+```
+
+---
+
+## Authentication State Subscription Scoping
+
+**Bug:** Variable `subscription` used in timeout callback was out of scope:
+```typescript
+const { data: { subscription } } = onAuthStateChange(...);
+setTimeout(() => subscription.unsubscribe(), 5000); // ❌subscription undefined here
+```
+
+**Fix:** Store subscription in outer variable accessible to both closures:
+```typescript
+let subscription: any;
+const { data: { subscription: sub } } = onAuthStateChange(...);
+subscription = sub; // now timeout callback can access it
+```
+
+**Lesson:** When creating promises with cleanup, variables referenced in both the event handler AND timeout must be in shared outer scope. Destructuring inside the promise executor limits visibility.
+
+---
+
+## Recommended Authentication Flow Pattern
+
+Final working pattern for Next.js App Router + Supabase:
+
+**AuthContext:**
+- `onAuthStateChange` → update `user`, `profile` (async fetch), set `loading=false` immediately
+- Never block on profile fetch
+- Provide `user` and `profile` via context
+
+**Login Page:**
+- Call API route → get session → `supabase.auth.setSession()`
+- Use `useAuth()` hook to observe `user` state
+- `useEffect(() => { if (user) router.push('/dashboard') }, [user])`
+- No manual waits, timeouts, or event listeners
+
+**Dashboard Page:**
+- Check `!loading && !user` → redirect to `/login`
+- Show loading spinner while `loading=true`
+- Render as soon as `user` exists, even if `profile` still loading
+
+**Middleware:**
+- CSP includes both `https://` and `wss://` for Supabase
+- No auth logic in middleware (just headers)
+
+---
+
+**Next Steps:** Implement production rate limiting with Redis, verify RLS policies, enable Dependabot.

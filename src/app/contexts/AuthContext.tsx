@@ -80,33 +80,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('🔧 AuthContext: onAuthStateChange fired:', event, session?.user?.email || 'no user');
-      try {
-        if (mounted) {
-          setUser(session?.user ?? null);
-          if (session?.user) {
-            console.log('🔧 AuthContext: Session user exists, fetching profile...');
-            try {
-              await fetchProfile(session.user.id);
-              console.log('🔧 AuthContext: Profile fetch completed');
-            } catch (profileErr) {
-              console.error('🔧 AuthContext: Profile fetch failed:', profileErr);
-            }
-          } else {
-            console.log('🔧 AuthContext: Clearing profile (no session)');
-            setProfile(null);
-          }
-          console.log('🔧 AuthContext: Calling router.refresh()');
-          router.refresh();
-        }
-      } catch (err) {
-        console.error('🔧 AuthContext: onAuthStateChange error:', err);
-      } finally {
-        console.log('🔧 AuthContext: onAuthStateChange finally - setting loading false');
-        if (mounted) {
-          setLoading(false);
-          console.log('🔧 AuthContext: setLoading(false) called from onAuthStateChange');
-        }
+      if (!mounted) return;
+
+      // Update user immediately
+      setUser(session?.user ?? null);
+
+      if (session?.user) {
+        // Fetch profile in background without blocking loading state
+        fetchProfile(session.user.id).catch(err => {
+          console.error('🔧 AuthContext: Profile fetch failed:', err);
+          setProfile(null);
+        });
+      } else {
+        setProfile(null);
       }
+
+      // Mark auth as ready (profile may still be loading, but that's okay)
+      setLoading(false);
+      router.refresh();
     });
 
     return () => {

@@ -23,7 +23,7 @@ export default function SignupPage() {
 
   // Password strength calculation using zxcvbn
   const passwordStrength = useMemo(() => {
-    if (!password) return { score: 0, feedback: { suggestions: [] } };
+    if (!password) return { score: 0, feedback: { warning: '', suggestions: [] } };
     return zxcvbn(password);
   }, [password]);
 

@@ -1,12 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useAuth } from '@/app/contexts/AuthContext';
+import type { FormEvent } from 'react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -14,9 +16,17 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const { user } = useAuth(); // Get auth state from context
   const router = useRouter();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  // Navigate when user becomes available
+  useEffect(() => {
+    if (user) {
+      router.push('/dashboard');
+    }
+  }, [user, router]);
+
+  const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
@@ -39,10 +49,8 @@ export default function LoginPage() {
       // Set the session in Supabase client (stores in localStorage)
       if (data.session) {
         await supabase.auth.setSession(data.session);
+        // Navigation will happen automatically via useEffect when context updates
       }
-
-      router.push('/dashboard');
-      router.refresh();
     } catch (error: any) {
       console.error('Login error:', error);
       setError(error.message || 'Error al iniciar sesión');
@@ -52,7 +60,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-neutral-50 px-4 py-12 sm:px-6 lg:px-8">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-t from-green-900 to-green-800 px-4 py-12 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-neutral-900">

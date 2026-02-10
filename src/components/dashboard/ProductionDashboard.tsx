@@ -70,7 +70,14 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
 
   const productionByMonthRaw = Array.from(
     orders.reduce((acc, order) => {
-      const month = format(new Date(order.production_date), 'MMMM yyyy', { locale: es });
+      // Skip orders without production_date or with invalid date
+      if (!order.production_date) return acc;
+      const date = new Date(order.production_date);
+      if (isNaN(date.getTime())) {
+        console.warn('Invalid production_date for order:', order.id);
+        return acc;
+      }
+      const month = format(date, 'MMMM yyyy', { locale: es });
       const current = acc.get(month) || { quantity: 0, cost: 0 };
       acc.set(month, {
         quantity: current.quantity + order.quantity_produced,
@@ -347,7 +354,7 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
                           {order.quantity_produced.toLocaleString()}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
-                          {format(new Date(order.production_date), 'dd/MM/yyyy')}
+                          {order.production_date ? format(new Date(order.production_date), 'dd/MM/yyyy') : '-'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <Badge variant={statusVariant}>

@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers/Providers";
+import { validateEnv } from "@/lib/env-validation";
+
+// Validate environment on server startup (fails fast if misconfigured)
+validateEnv();
 
 const inter = Inter({
   variable: "--font-inter",
