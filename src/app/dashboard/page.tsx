@@ -6,6 +6,7 @@ import { useAuth } from '@/app/contexts/AuthContext';
 import { ProductionDashboard } from '@/components/dashboard/ProductionDashboard';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Header } from '@/components/layout/Header';
+import { Sidebar } from '@/components/layout/Sidebar';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { BarChart3 } from 'lucide-react';
 
@@ -33,20 +34,29 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-t from-green-900 to-green-800">
-      <Header />
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-        <PageHeader
-          title="Dashboard"
-          description={
-            userRole === 'engineer' || userRole === 'admin'
-              ? 'Panel de control de ingeniero'
-              : 'Panel de producción'
-          }
-          icon={BarChart3}
-        />
-        <ProductionDashboard userRole={userRole} />
-      </main>
+    <div className="min-h-screen bg-neutral-50 flex">
+      {/* Desktop Sidebar - hidden on mobile */}
+      <Sidebar className="hidden md:flex" />
+
+      {/* Content Area */}
+      <div className="flex-1 flex flex-col min-h-screen">
+        {/* Mobile Header */}
+        <Header className="md:hidden" />
+
+        {/* Main Content */}
+        <main className="flex-1 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+          <PageHeader
+            title="Dashboard"
+            description={
+              userRole === 'engineer' || userRole === 'admin'
+                ? 'Panel de control de ingeniero'
+                : 'Panel de producción'
+            }
+            icon={BarChart3}
+          />
+          <ProductionDashboard userRole={userRole} />
+        </main>
+      </div>
     </div>
   );
 }

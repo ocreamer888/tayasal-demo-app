@@ -116,7 +116,7 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
   return (
     <div className="space-y-6">
       {/* Stats Cards - Premium Metric Cards */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         <MetricCard
           title="Órdenes de Producción"
           value={totalOrders}
@@ -134,12 +134,6 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
             description="Por orden"
           />
         )}
-        <MetricCard
-          title="Pendientes"
-          value={pendingApprovals}
-          description="Aprobación requerida"
-          trend={{ value: pendingApprovals, isPositive: false }}
-        />
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

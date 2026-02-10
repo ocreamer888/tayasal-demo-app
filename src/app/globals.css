@@ -124,7 +124,7 @@
   --radius: 0.5rem;
   --background: #FAFAFA;
   --foreground: #171717;
-  --card: #FFFFFF;
+  --card: #f8f8f888;
   --card-foreground: #171717;
   --popover: #FFFFFF;
   --popover-foreground: #171717;
@@ -137,7 +137,7 @@
   --accent: #10B981;
   --accent-foreground: #171717;
   --destructive: #EF4444;
-  --border: #E5E5E5;
+  --border: #ffffff28;
   --input: #E5E5E5;
   --ring: #10B981;
   --sidebar: #FAFAFA;
@@ -203,10 +203,7 @@
 }
 
 /* Custom scrollbar */
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
-::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #555; }
+::-webkit-scrollbar { width: 0px; height: 0px; }
 
 /* Smooth transitions */
 * {

@@ -29,9 +29,9 @@ export function PageHeader({
             </div>
           )}
           <div>
-            <h1 className="text-h1 text-neutral-900">{title}</h1>
+            <h1 className="text-h1 text-neutral-100">{title}</h1>
             {description && (
-              <p className="mt-1 text-sm text-neutral-500">{description}</p>
+              <p className="mt-1 text-sm text-neutral-200">{description}</p>
             )}
           </div>
         </div>

@@ -25,24 +25,22 @@ function MetricCard({
       data-slot="metric-card"
       className={cn(
         // Premium gradient background with green accent bar
-        "relative overflow-hidden rounded-2xl border border-green-100 bg-gradient-to-br from-white to-green-50 p-7 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5",
+        "relative overflow-hidden rounded-xl bg-gradient-to-br from-white/20 to-white/30 backdrop-blur-sm border border-neutral-100/20 p-7 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5",
         className
       )}
       {...props}
     >
-      {/* Left green accent gradient bar */}
-      <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-green-500 to-green-600" />
 
       <div className="relative pl-4">
         {/* Label - uppercase with letter spacing */}
-        <div className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
+        <div className="text-xs font-semibold uppercase tracking-wider text-neutral-200">
           {title}
         </div>
 
         {/* Value - large, bold, tabular numbers */}
         <div
           className={cn(
-            "mt-2 font-bold text-neutral-900",
+            "mt-2 font-bold text-neutral-200",
             typeof value === "number" && value >= 1000 ? "text-4xl" : "text-5xl"
           )}
           style={{ lineHeight: 1 }}
@@ -76,7 +74,7 @@ function MetricCard({
 
         {/* Optional description */}
         {description && (
-          <p className="mt-2 text-sm text-neutral-500">{description}</p>
+          <p className="mt-2 text-sm text-neutral-200">{description}</p>
         )}
       </div>
     </div>

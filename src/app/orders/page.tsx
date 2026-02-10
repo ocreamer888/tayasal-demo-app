@@ -111,7 +111,7 @@ export default function OrdersPage() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-gradient-to-t from-green-900 to-green-800">
       <Header />
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         <PageHeader
@@ -194,7 +194,7 @@ export default function OrdersPage() {
           </Card>
         ) : (
           <>
-            <div className="mb-4 text-sm text-neutral-500">
+            <div className="mb-4 text-sm text-neutral-200">
               Mostrando {filteredOrders.length} de {orders.length} órdenes
             </div>
             <ProductionOrderList

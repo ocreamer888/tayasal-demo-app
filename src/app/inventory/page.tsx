@@ -7,7 +7,7 @@ import { Package } from 'lucide-react';
 
 export default function InventoryPage() {
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-gradient-to-t from-green-900 to-green-800">
       <Header />
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         <PageHeader

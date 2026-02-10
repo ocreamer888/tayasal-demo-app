@@ -1,6 +1,6 @@
 "use client"
 
-import * as React from "react"
+import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
@@ -8,54 +8,28 @@ import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { UserNav } from "./UserNav"
 import { Menu } from "lucide-react"
+import { mainNavItems } from "./nav-items"
+import { useAuth } from "@/app/contexts/AuthContext"
 
-interface NavItem {
-  label: string
-  href: string
-  icon?: React.ComponentType<{ className?: string }>
+interface HeaderProps {
+  className?: string
 }
 
-const mainNavItems: NavItem[] = [
-  { label: "Dashboard", href: "/" },
-  { label: "Producción", href: "/production" },
-  { label: "Inventario", href: "/inventory" },
-  { label: "Pedidos", href: "/orders" },
-  { label: "Reportes", href: "/reports" },
-]
-
-export function Header() {
+export function Header({ className }: HeaderProps) {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const { profile } = useAuth()
+  const userRole = (profile?.role || 'operator') as 'operator' | 'engineer' | 'admin'
   const pathname = usePathname()
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
 
-  const NavLinks = () => (
-    <>
-      {mainNavItems.map((item) => {
-        const isActive = pathname === item.href
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            onClick={() => setIsMobileMenuOpen(false)}
-            className={cn(
-              "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200",
-              isActive
-                ? "bg-green-50 text-green-700"
-                : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
-            )}
-          >
-            {item.icon && <item.icon className="h-4 w-4" />}
-            {item.label}
-          </Link>
-        )
-      })}
-    </>
+  const filteredNavItems = mainNavItems.filter(item =>
+    !item.roles || item.roles.includes(userRole)
   )
 
   return (
-    <header
-      className="sticky top-0 z-100 flex h-16 items-center justify-between border-b border-neutral-100 bg-white/80 px-6 backdrop-blur-lg supports-[backdrop-filter]:bg-white/60"
-      style={{ backgroundColor: "rgba(255, 255, 255, 0.8)" }}
-    >
+    <header className={cn(
+      "sticky top-0 z-100 flex h-16 items-center justify-between px-6 bg-green-900/80 backdrop-blur-sm",
+      className
+    )}>
       {/* Logo */}
       <Link href="/" className="flex items-center gap-3">
         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-b from-green-500 to-green-600 shadow-sm">
@@ -88,30 +62,21 @@ export function Header() {
             />
           </svg>
         </div>
-        <span className="text-lg font-semibold text-neutral-900">
-          Bloques Premium
+        <span className="text-xl font-bold text-neutral-200">
+          Tayasal
         </span>
       </Link>
 
-      {/* Desktop Navigation */}
-      <nav className="hidden md:flex items-center gap-1">
-        <NavLinks />
-      </nav>
-
-      {/* Mobile Navigation */}
+      {/* Mobile Menu Button */}
       <div className="flex items-center gap-4">
-        {/* User Navigation (always visible on mobile) */}
-        <UserNav />
-
-        {/* Mobile Menu Sheet */}
         <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="md:hidden">
+            <Button variant="secondary" size="icon">
               <Menu className="h-5 w-5" />
               <span className="sr-only">Abrir menú</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-72">
+          <SheetContent side="right" className="w-88 bg-gradient-to-t from-green-900 to-green-800">
             <div className="flex flex-col gap-6 py-6">
               <div className="flex items-center gap-3 px-2">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-b from-green-500 to-green-600 shadow-sm">
@@ -144,12 +109,33 @@ export function Header() {
                     />
                   </svg>
                 </div>
-                <span className="text-lg font-semibold text-neutral-900">
-                  Bloques Premium
+                <span className="text-lg font-bold text-neutral-900">
+                  Tayasal
                 </span>
               </div>
-              <nav className="flex flex-col gap-1">
-                <NavLinks />
+              <nav className="flex flex-col gap-2">
+                {filteredNavItems.map((item) => {
+                  const isActive = pathname === item.href
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={cn(
+                        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+                        isActive
+                          ? "bg-green-950/50 text-white"
+                          : "text-neutral-300 hover:bg-green-950/30 hover:text-white"
+                      )}
+                    >
+                      <item.icon className="h-5 w-5" />
+                      {item.label}
+                    </Link>
+                  )
+                })}
+                <div className="pt-2 border-t border-green-950 mt-2">
+                  <UserNav />
+                </div>
               </nav>
             </div>
           </SheetContent>
