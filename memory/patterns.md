@@ -447,4 +447,48 @@ const handleSubmit = async (formData: any) => {
 
 ---
 
+## Chart Responsiveness Pattern
+
+**Challenge:** Recharts `ResponsiveContainer` needs explicit height. Fixed heights (`height={300}`) don't adapt to container size changes.
+
+**Solution:** Use `flex-1` with `min-h-[300px]` on the chart container.
+
+**Implementation:**
+
+1. **ChartContainer** (`src/components/ui/chart.tsx`):
+   ```tsx
+   <div className="flex flex-col flex-1 w-full min-h-[300px]">
+     <div className="flex-1 w-full min-w-0">
+       <ResponsiveContainer width="100%" height="100%" aspect={undefined}>
+         {children}
+       </ResponsiveContainer>
+     </div>
+   </div>
+   ```
+
+2. **Parent Card layout** (in dashboard):
+   ```tsx
+   <Card className="flex flex-col min-h-0">
+     <CardHeader className="flex-shrink-0">...</CardHeader>
+     <CardContent className="flex-1 min-h-0">
+       <ChartContainer>{/* chart */}</ChartContainer>
+     </CardContent>
+   </Card>
+   ```
+
+3. **Grid rows equal height**:
+   ```tsx
+   <div className="grid grid-cols-1 gap-4 auto-rows-1fr">
+   ```
+
+**Key principles:**
+- `flex-1` on ChartContainer → grows to fill available space
+- `min-h-[300px]` → ensures visibility even in small containers
+- `flex-shrink-0` on CardHeader → header size fixed, content area gets all growth/shrink
+- `auto-rows-1fr` on grid → all rows equal height in same grid
+
+**Result:** Charts expand to fill tall viewports and shrink gracefully on small screens while maintaining minimum visible size.
+
+---
+
 **Last Updated:** 2026-02-09

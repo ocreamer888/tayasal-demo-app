@@ -12,7 +12,7 @@
 - ✅ **Authentication flow complete**: Login → redirect → dashboard render
 - ✅ **CSP configured** with Supabase API + WebSocket (`connect-src`)
 - ✅ **AuthContext**: Non-blocking profile fetch, proper loading state
-- ✅ **Dashboard displays**: Charts, tables, role-based data filtering
+- ✅ **Dashboard displays**: Charts, tables, role-based data filtering, fully responsive
 - ✅ **TypeScript compilation**: All errors resolved (Zod v4, zxcvbn types, etc.)
 - ✅ **Production build**: `npm run build` succeeds
 - ✅ **Responsive sidebar navigation**: Desktop fixed sidebar + mobile header with sheet
@@ -20,6 +20,7 @@
 - ✅ **Standardized page layout**: All protected pages (Dashboard, Orders, Inventory) follow same layout composition pattern
 - ✅ **Toast notifications**: Using `sonner` for success/error feedback
 - ✅ **Role-based navigation filtering**: Nav items gated by user role (operators don't see "Reportes")
+- ✅ **Fluid chart responsiveness**: Charts use `flex-1` with `min-h-[300px]`, grow/shrink with container
 
 ### Known Issues
 - ⚠️ **In-memory rate limiting** (needs Redis for production)

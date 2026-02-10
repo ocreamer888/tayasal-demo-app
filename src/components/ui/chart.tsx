@@ -54,12 +54,9 @@ function ChartContainer({
         data-slot="chart"
         data-chart={chartId}
         className={cn(
-          "relative overflow-hidden rounded-xl border border-white/60 bg-white/50 shadow-sm",
-          "flex flex-col justify-center",
-          // Responsive aspect ratios: mobile-first approach
-          "min-h-[250px] xs:min-h-[280px] sm:min-h-[320px]",
-          "aspect-auto sm:aspect-[4/3] md:aspect-video",
-          "p-3 xs:p-4",
+          "relative flex flex-col overflow-hidden rounded-xl border border-white/60 bg-white/50 shadow-sm",
+          "flex-1 min-w-[300px] min-h-[300px]", // Grow with container, minimum 300px height
+          "p-3 sm:p-4",
           className
         )}
         {...props}
@@ -70,7 +67,6 @@ function ChartContainer({
             width="100%"
             height="100%"
             aspect={undefined}
-            minWidth={200}
           >
             {children}
           </RechartsPrimitive.ResponsiveContainer>

@@ -136,13 +136,13 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
         )}
       </div>
 
-      <div className="grid grid-cols-1 gap-4">
+      <div className="grid grid-cols-1 gap-4 auto-rows-1fr">
         {/* Production Trend */}
-        <Card className="flex flex-col">
-          <CardHeader className="w-full">
+        <Card className="flex flex-col min-h-0">
+          <CardHeader className="w-full flex-shrink-0">
             <CardTitle className="text-h3 text-neutral-900">Producción por Mes</CardTitle>
           </CardHeader>
-          <CardContent className="flex-1 px-0 pb-0 min-h-[100px]">
+          <CardContent className="flex-1 px-0 pb-0 min-h-0">
             <ChartContainer
               config={{
                 cantidad: {
@@ -184,11 +184,11 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
         </Card>
 
         {/* Orders by Status */}
-        <Card className="">
-          <CardHeader className="w-full">
+        <Card className="flex flex-col min-h-0">
+          <CardHeader className="w-full flex-shrink-0">
             <CardTitle className="text-h3 text-neutral-900">Órdenes por Estado</CardTitle>
           </CardHeader>
-          <CardContent className="flex-1 px-0 pb-0 min-h-[300px]">
+          <CardContent className="flex-1 px-0 pb-0 min-h-0 flex items-center justify-center">
             <ChartContainer
               config={{
                 value: {
@@ -220,13 +220,13 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 auto-rows-1fr">
         {/* Production by Block Type */}
-        <Card className="p-6">
-          <CardHeader className="w-full">
+        <Card className="flex flex-col min-h-0 p-6">
+          <CardHeader className="w-full flex-shrink-0">
             <CardTitle className="text-h3 text-neutral-900">Producción por Tipo de Bloque</CardTitle>
           </CardHeader>
-          <CardContent className="flex-1 px-0 pb-0 min-h-[300px]">
+          <CardContent className="flex-1 px-0 pb-0 min-h-0">
             <ChartContainer
               config={{
                 value: {
@@ -260,11 +260,11 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
         </Card>
 
         {/* Low Stock Alert */}
-        <Card className="p-6">
-          <CardHeader className="w-full">
+        <Card className="flex flex-col min-h-0 p-6">
+          <CardHeader className="w-full flex-shrink-0">
             <CardTitle className="text-h3 text-neutral-900">Alertas de Stock Bajo</CardTitle>
           </CardHeader>
-          <CardContent className="flex-1 flex flex-col items-center justify-center px-0 pb-0 min-h-[300px]">
+          <CardContent className="flex-1 flex flex-col items-center justify-center px-0 pb-0 min-h-0">
             {lowStockMaterials.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-neutral-500">
                 <CheckCircle size={48} className="text-green-100 mb-4" />
