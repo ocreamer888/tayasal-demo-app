@@ -116,7 +116,7 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
   return (
     <div className="space-y-6">
       {/* Stats Cards - Premium Metric Cards */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 w-full">
         <MetricCard
           title="Órdenes de Producción"
           value={totalOrders}
@@ -136,13 +136,13 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
         )}
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4">
         {/* Production Trend */}
         <Card className="flex flex-col">
           <CardHeader className="w-full">
             <CardTitle className="text-h3 text-neutral-900">Producción por Mes</CardTitle>
           </CardHeader>
-          <CardContent className="px-0 pb-0">
+          <CardContent className="flex-1 px-0 pb-0 min-h-[100px]">
             <ChartContainer
               config={{
                 cantidad: {
@@ -151,7 +151,7 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
                 },
               }}
             >
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={productionByMonth}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--neutral-200)" className="stroke-neutral-200" />
                   <XAxis
@@ -188,7 +188,7 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
           <CardHeader className="w-full">
             <CardTitle className="text-h3 text-neutral-900">Órdenes por Estado</CardTitle>
           </CardHeader>
-          <CardContent className="px-0 pb-0">
+          <CardContent className="flex-1 px-0 pb-0 min-h-[300px]">
             <ChartContainer
               config={{
                 value: {
@@ -196,7 +196,7 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
                 },
               }}
             >
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={ordersByStatus}
@@ -226,7 +226,7 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
           <CardHeader className="w-full">
             <CardTitle className="text-h3 text-neutral-900">Producción por Tipo de Bloque</CardTitle>
           </CardHeader>
-          <CardContent className="px-0 pb-0">
+          <CardContent className="flex-1 px-0 pb-0 min-h-[300px]">
             <ChartContainer
               config={{
                 value: {
@@ -235,7 +235,7 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
                 },
               }}
             >
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={productionByType}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--neutral-200)" className="stroke-neutral-200" />
                   <XAxis
@@ -264,14 +264,14 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
           <CardHeader className="w-full">
             <CardTitle className="text-h3 text-neutral-900">Alertas de Stock Bajo</CardTitle>
           </CardHeader>
-          <CardContent className="flex flex-col items-center justify-center px-0 pb-0 h-full">
+          <CardContent className="flex-1 flex flex-col items-center justify-center px-0 pb-0 min-h-[300px]">
             {lowStockMaterials.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-neutral-500">
                 <CheckCircle size={48} className="text-green-100 mb-4" />
                 <p className="font-medium">Todos los materiales tienen stock suficiente</p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-3 max-h-[200px] overflow-y-auto">
                 {lowStockMaterials.slice(0, 5).map((material) => (
                   <div
                     key={material.id}
@@ -283,7 +283,7 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
                         Stock: {material.current_quantity} / Mín: {material.min_stock_quantity} {material.unit}
                       </p>
                     </div>
-                    <AlertTriangle size={24} className="text-yellow-600" />
+                    <AlertTriangle size={24} className="text-yellow-600 shrink-0" />
                   </div>
                 ))}
                 {lowStockMaterials.length > 5 && (

@@ -54,20 +54,27 @@ function ChartContainer({
         data-slot="chart"
         data-chart={chartId}
         className={cn(
-          "relative overflow-hidden rounded-xl border border-white/60 bg-white/50 p-4 shadow-sm",
-          "[&_.recharts-cartesian-axis-tick_text]:fill-neutral-500 [&_.recharts-cartesian-axis-tick_line]:stroke-neutral-200 [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-neutral-200/50 [&_.recharts-cartesian-grid_horizontal_line]:stroke-dashed [&_.recharts-cartesian-grid_vertical_line]:stroke-dashed [&_.recharts-curve.recharts-tooltip-cursor]:stroke-neutral-300 [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-neutral-100 [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-neutral-100 [&_.recharts-reference-line_[stroke='#ccc']]:stroke-neutral-300 flex aspect-[4/3] min-h-[300px] justify-center text-xs sm:aspect-video [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-hidden [&_.recharts-sector]:outline-hidden [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-surface]:outline-hidden",
+          "relative overflow-hidden rounded-xl border border-white/60 bg-white/50 shadow-sm",
+          "flex flex-col justify-center",
+          // Responsive aspect ratios: mobile-first approach
+          "min-h-[250px] xs:min-h-[280px] sm:min-h-[320px]",
+          "aspect-auto sm:aspect-[4/3] md:aspect-video",
+          "p-3 xs:p-4",
           className
         )}
         {...props}
       >
         <ChartStyle id={chartId} config={config} />
-        <RechartsPrimitive.ResponsiveContainer
-          width="100%"
-          height="100%"
-          aspect={undefined}
-        >
-          {children}
-        </RechartsPrimitive.ResponsiveContainer>
+        <div className="flex-1 w-full min-w-0">
+          <RechartsPrimitive.ResponsiveContainer
+            width="100%"
+            height="100%"
+            aspect={undefined}
+            minWidth={200}
+          >
+            {children}
+          </RechartsPrimitive.ResponsiveContainer>
+        </div>
       </div>
     </ChartContext.Provider>
   )
