@@ -23,9 +23,10 @@ export function useConcretePlants() {
 
   const { user } = useAuth();
   const supabaseInstance = supabase;
+  const userId = user?.id;
 
   const fetchPlants = useCallback(async () => {
-    if (!user) {
+    if (!userId) {
       setPlants([]);
       setLoading(false);
       return;
@@ -38,7 +39,7 @@ export function useConcretePlants() {
       const { data, error: fetchError } = await supabase
         .from('concrete_plants')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .order('name', { ascending: true });
 
       if (fetchError) throw fetchError;
@@ -51,7 +52,7 @@ export function useConcretePlants() {
     } finally {
       setLoading(false);
     }
-  }, [user, supabase]);
+  }, [userId, supabase]);
 
   useEffect(() => {
     fetchPlants();
@@ -59,17 +60,17 @@ export function useConcretePlants() {
 
   // Real-time subscription
   useEffect(() => {
-    if (!user) return;
+    if (!userId) return;
 
     const channel = supabase
-      .channel(`plants-${user.id}`)
+      .channel(`plants-${userId}`)
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
           table: 'concrete_plants',
-          filter: `user_id=eq.${user.id}`,
+          filter: `user_id=eq.${userId}`,
         },
         (payload) => {
           console.log('Concrete plant change received:', payload);
@@ -92,18 +93,30 @@ export function useConcretePlants() {
     return () => {
       supabaseInstance.removeChannel(channel);
     };
-  }, [user, supabase]);
+  }, [userId, supabase]);
 
   const addPlant = useCallback(async (plant: Omit<ConcretePlant, 'id' | 'created_at' | 'updated_at' | 'user_id'>) => {
-    if (!user) {
+    if (!userId) {
       throw new Error('Debes iniciar sesión para agregar plantas');
     }
 
+    const tempId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const now = new Date().toISOString();
+
+    // Optimistic add
+    const optimisticPlant: ConcretePlant = {
+      ...plant,
+      id: tempId,
+      user_id: userId,
+      created_at: now,
+      updated_at: now,
+    };
+
+    setPlants(prev => [...prev, optimisticPlant]);
 
     try {
       const newPlant = {
-        user_id: user.id,
+        user_id: userId,
         ...plant,
         created_at: now,
         updated_at: now,
@@ -117,15 +130,25 @@ export function useConcretePlants() {
 
       if (insertError) throw insertError;
 
-      return transformPlantFromDB(data);
+      const transformedData = transformPlantFromDB(data);
+
+      setPlants(prev =>
+        prev.map(p => p.id === tempId ? transformedData : p)
+      );
+
+      return transformedData;
     } catch (err) {
       console.error('Error adding concrete plant:', err);
+
+      // Rollback
+      setPlants(prev => prev.filter(p => p.id !== tempId));
+
       throw err;
     }
-  }, [user, supabase]);
+  }, [userId, supabase, setPlants]);
 
   const updatePlant = useCallback(async (id: string, updates: Partial<ConcretePlant>) => {
-    if (!user) return;
+    if (!userId) return;
 
     try {
       const updateData: any = { updated_at: new Date().toISOString() };
@@ -140,31 +163,31 @@ export function useConcretePlants() {
         .from('concrete_plants')
         .update(updateData)
         .eq('id', id)
-        .eq('user_id', user.id);
+        .eq('user_id', userId);
 
       if (updateError) throw updateError;
     } catch (err) {
       console.error('Error updating concrete plant:', err);
       throw err;
     }
-  }, [user, supabase]);
+  }, [userId, supabase]);
 
   const deletePlant = useCallback(async (id: string) => {
-    if (!user) return;
+    if (!userId) return;
 
     try {
       const { error: deleteError } = await supabase
         .from('concrete_plants')
         .delete()
         .eq('id', id)
-        .eq('user_id', user.id);
+        .eq('user_id', userId);
 
       if (deleteError) throw deleteError;
     } catch (err) {
       console.error('Error deleting concrete plant:', err);
       throw err;
     }
-  }, [user, supabase]);
+  }, [userId, supabase]);
 
   return {
     plants,

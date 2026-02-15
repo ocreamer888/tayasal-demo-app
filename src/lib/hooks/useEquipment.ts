@@ -27,9 +27,10 @@ export function useEquipment() {
 
   const { user } = useAuth();
   const supabaseInstance = supabase;
+  const userId = user?.id;
 
   const fetchEquipment = useCallback(async () => {
-    if (!user) {
+    if (!userId) {
       setEquipment([]);
       setLoading(false);
       return;
@@ -42,7 +43,7 @@ export function useEquipment() {
       const { data, error: fetchError } = await supabase
         .from('equipments')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .order('name', { ascending: true });
 
       if (fetchError) throw fetchError;
@@ -55,24 +56,24 @@ export function useEquipment() {
     } finally {
       setLoading(false);
     }
-  }, [user, supabase]);
+  }, [userId, supabase]);
 
   useEffect(() => {
     fetchEquipment();
   }, [fetchEquipment]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!userId) return;
 
     const channel = supabase
-      .channel(`equipment-${user.id}`)
+      .channel(`equipment-${userId}`)
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
           table: 'equipments',
-          filter: `user_id=eq.${user.id}`,
+          filter: `user_id=eq.${userId}`,
         },
         (payload) => {
           console.log('Equipment change received:', payload);
@@ -95,18 +96,30 @@ export function useEquipment() {
     return () => {
       supabaseInstance.removeChannel(channel);
     };
-  }, [user, supabase]);
+  }, [userId, supabase]);
 
   const addEquipment = useCallback(async (equipmentData: Omit<Equipment, 'id' | 'created_at' | 'updated_at' | 'user_id'>) => {
-    if (!user) {
+    if (!userId) {
       throw new Error('Debes iniciar sesión para agregar equipos');
     }
 
+    const tempId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const now = new Date().toISOString();
+
+    // Optimistic add
+    const optimisticEquipment: Equipment = {
+      ...equipmentData,
+      id: tempId,
+      user_id: userId,
+      created_at: now,
+      updated_at: now,
+    };
+
+    setEquipment(prev => [...prev, optimisticEquipment]);
 
     try {
       const newEquipment = {
-        user_id: user.id,
+        user_id: userId,
         ...equipmentData,
         created_at: now,
         updated_at: now,
@@ -120,15 +133,25 @@ export function useEquipment() {
 
       if (insertError) throw insertError;
 
-      return transformEquipmentFromDB(data);
+      const transformedData = transformEquipmentFromDB(data);
+
+      setEquipment(prev =>
+        prev.map(e => e.id === tempId ? transformedData : e)
+      );
+
+      return transformedData;
     } catch (err) {
       console.error('Error adding equipment:', err);
+
+      // Rollback
+      setEquipment(prev => prev.filter(e => e.id !== tempId));
+
       throw err;
     }
-  }, [user, supabase]);
+  }, [userId, supabase, setEquipment]);
 
   const updateEquipment = useCallback(async (id: string, updates: Partial<Equipment>) => {
-    if (!user) return;
+    if (!userId) return;
 
     try {
       const updateData: any = { updated_at: new Date().toISOString() };
@@ -143,31 +166,31 @@ export function useEquipment() {
         .from('equipments')
         .update(updateData)
         .eq('id', id)
-        .eq('user_id', user.id);
+        .eq('user_id', userId);
 
       if (updateError) throw updateError;
     } catch (err) {
       console.error('Error updating equipment:', err);
       throw err;
     }
-  }, [user, supabase]);
+  }, [userId, supabase]);
 
   const deleteEquipment = useCallback(async (id: string) => {
-    if (!user) return;
+    if (!userId) return;
 
     try {
       const { error: deleteError } = await supabase
         .from('equipments')
         .delete()
         .eq('id', id)
-        .eq('user_id', user.id);
+        .eq('user_id', userId);
 
       if (deleteError) throw deleteError;
     } catch (err) {
       console.error('Error deleting equipment:', err);
       throw err;
     }
-  }, [user, supabase]);
+  }, [userId, supabase]);
 
   return {
     equipment,

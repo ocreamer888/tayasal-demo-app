@@ -24,9 +24,10 @@ export function useTeamMembers() {
 
   const { user } = useAuth();
   const supabaseInstance = supabase;
+  const userId = user?.id;
 
   const fetchMembers = useCallback(async () => {
-    if (!user) {
+    if (!userId) {
       setMembers([]);
       setLoading(false);
       return;
@@ -39,7 +40,7 @@ export function useTeamMembers() {
       const { data, error: fetchError } = await supabase
         .from('team_members')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .order('name', { ascending: true });
 
       if (fetchError) throw fetchError;
@@ -52,24 +53,24 @@ export function useTeamMembers() {
     } finally {
       setLoading(false);
     }
-  }, [user, supabase]);
+  }, [userId, supabase]);
 
   useEffect(() => {
     fetchMembers();
   }, [fetchMembers]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!userId) return;
 
     const channel = supabase
-      .channel(`team-members-${user.id}`)
+      .channel(`team-members-${userId}`)
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
           table: 'team_members',
-          filter: `user_id=eq.${user.id}`,
+          filter: `user_id=eq.${userId}`,
         },
         (payload) => {
           console.log('Team member change received:', payload);
@@ -92,18 +93,30 @@ export function useTeamMembers() {
     return () => {
       supabaseInstance.removeChannel(channel);
     };
-  }, [user, supabase]);
+  }, [userId, supabase]);
 
   const addMember = useCallback(async (memberData: Omit<TeamMember, 'id' | 'created_at' | 'updated_at' | 'user_id'>) => {
-    if (!user) {
+    if (!userId) {
       throw new Error('Debes iniciar sesión para agregar miembros');
     }
 
+    const tempId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const now = new Date().toISOString();
+
+    // Optimistic add
+    const optimisticMember: TeamMember = {
+      ...memberData,
+      id: tempId,
+      user_id: userId,
+      created_at: now,
+      updated_at: now,
+    };
+
+    setMembers(prev => [...prev, optimisticMember]);
 
     try {
       const newMember = {
-        user_id: user.id,
+        user_id: userId,
         ...memberData,
         created_at: now,
         updated_at: now,
@@ -117,15 +130,25 @@ export function useTeamMembers() {
 
       if (insertError) throw insertError;
 
-      return transformTeamMemberFromDB(data);
+      const transformedData = transformTeamMemberFromDB(data);
+
+      setMembers(prev =>
+        prev.map(m => m.id === tempId ? transformedData : m)
+      );
+
+      return transformedData;
     } catch (err) {
       console.error('Error adding team member:', err);
+
+      // Rollback
+      setMembers(prev => prev.filter(m => m.id !== tempId));
+
       throw err;
     }
-  }, [user, supabase]);
+  }, [userId, supabase, setMembers]);
 
   const updateMember = useCallback(async (id: string, updates: Partial<TeamMember>) => {
-    if (!user) return;
+    if (!userId) return;
 
     try {
       const updateData: any = { updated_at: new Date().toISOString() };
@@ -140,31 +163,31 @@ export function useTeamMembers() {
         .from('team_members')
         .update(updateData)
         .eq('id', id)
-        .eq('user_id', user.id);
+        .eq('user_id', userId);
 
       if (updateError) throw updateError;
     } catch (err) {
       console.error('Error updating team member:', err);
       throw err;
     }
-  }, [user, supabase]);
+  }, [userId, supabase]);
 
   const deleteMember = useCallback(async (id: string) => {
-    if (!user) return;
+    if (!userId) return;
 
     try {
       const { error: deleteError } = await supabase
         .from('team_members')
         .delete()
         .eq('id', id)
-        .eq('user_id', user.id);
+        .eq('user_id', userId);
 
       if (deleteError) throw deleteError;
     } catch (err) {
       console.error('Error deleting team member:', err);
       throw err;
     }
-  }, [user, supabase]);
+  }, [userId, supabase]);
 
   return {
     members,
