@@ -12,11 +12,20 @@ import { useEquipment } from '@/lib/hooks/useEquipment';
 import { useTeamMembers } from '@/lib/hooks/useTeamMembers';
 import { Plus, AlertTriangle, Package } from 'lucide-react';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { MaterialDialog } from './dialogs/MaterialDialog';
+import { PlantDialog } from './dialogs/PlantDialog';
+import { EquipmentDialog } from './dialogs/EquipmentDialog';
+import { TeamDialog } from './dialogs/TeamDialog';
+import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 
 type TabType = 'materials' | 'plants' | 'equipment' | 'team';
 
 export function InventoryPanel() {
   const [activeTab, setActiveTab] = useState<TabType>('materials');
+  const [isMaterialDialogOpen, setIsMaterialDialogOpen] = useState(false);
+  const [isPlantDialogOpen, setIsPlantDialogOpen] = useState(false);
+  const [isEquipmentDialogOpen, setIsEquipmentDialogOpen] = useState(false);
+  const [isTeamDialogOpen, setIsTeamDialogOpen] = useState(false);
 
   const {
     materials: inventoryMaterials,
@@ -100,10 +109,21 @@ export function InventoryPanel() {
             <CardHeader className="w-full">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-h3 text-neutral-900">Inventario de Materiales</CardTitle>
-                <Button size="sm">
-                  <Plus size={16} className="mr-2" />
-                  Agregar Material
-                </Button>
+                <Dialog open={isMaterialDialogOpen} onOpenChange={setIsMaterialDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button size="sm">
+                      <Plus size={16} className="mr-2" />
+                      Agregar Material
+                    </Button>
+                  </DialogTrigger>
+                  <MaterialDialog
+                    open={isMaterialDialogOpen}
+                    onOpenChange={setIsMaterialDialogOpen}
+                    onSubmit={async (materialData) => {
+                      await addMaterial(materialData);
+                      // No need to refetch - real-time will update
+                    }} />
+                </Dialog>
               </div>
             </CardHeader>
             <CardContent className="px-0 pb-0">
@@ -177,16 +197,28 @@ export function InventoryPanel() {
         {/* Plants Tab */}
         <TabsContent value="plants" className="mt-6">
           <Card className="p-6">
-            <CardHeader className="px-0 pt-0">
+            <CardHeader className="w-full">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-h3 text-neutral-900">Plantas de Concreto</CardTitle>
-                <Button size="sm">
-                  <Plus size={16} className="mr-2" />
-                  Agregar Planta
-                </Button>
+                <Dialog open={isPlantDialogOpen} onOpenChange={setIsPlantDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button size="sm">
+                      <Plus size={16} className="mr-2" />
+                      Agregar Planta
+                    </Button>
+                  </DialogTrigger>
+                  <PlantDialog
+                    open={isPlantDialogOpen}
+                    onOpenChange={setIsPlantDialogOpen}
+                    onSubmit={async (plantData) => {
+                      await addPlant(plantData);
+                    }}
+                  />
+                </Dialog>
               </div>
             </CardHeader>
-            <CardContent className="px-0 pb-0">
+            <CardContent className="w-full
+            ">
               {plantsLoading ? (
                 <div className="flex h-64 items-center justify-center">
                   <LoadingSpinner size="md" />
@@ -223,16 +255,27 @@ export function InventoryPanel() {
         {/* Equipment Tab */}
         <TabsContent value="equipment" className="mt-6">
           <Card className="p-6">
-            <CardHeader className="px-0 pt-0">
+            <CardHeader className="w-full">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-h3 text-neutral-900">Equipos</CardTitle>
-                <Button size="sm">
-                  <Plus size={16} className="mr-2" />
-                  Agregar Equipo
-                </Button>
+                <Dialog open={isEquipmentDialogOpen} onOpenChange={setIsEquipmentDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button size="sm">
+                      <Plus size={16} className="mr-2" />
+                      Agregar Equipo
+                    </Button>
+                  </DialogTrigger>
+                  <EquipmentDialog
+                    open={isEquipmentDialogOpen}
+                    onOpenChange={setIsEquipmentDialogOpen}
+                    onSubmit={async (equipmentData) => {
+                      await addEquipment(equipmentData);
+                    }}
+                  />
+                </Dialog>
               </div>
             </CardHeader>
-            <CardContent className="px-0 pb-0">
+            <CardContent className="w-full">
               {equipmentLoading ? (
                 <div className="flex h-64 items-center justify-center">
                   <LoadingSpinner size="md" />
@@ -280,16 +323,27 @@ export function InventoryPanel() {
         {/* Team Tab */}
         <TabsContent value="team" className="mt-6">
           <Card className="p-6">
-            <CardHeader className="px-0 pt-0">
+            <CardHeader className="w-full">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-h3 text-neutral-900">Equipo de Trabajo</CardTitle>
-                <Button size="sm">
-                  <Plus size={16} className="mr-2" />
-                  Agregar Miembro
-                </Button>
+                <Dialog open={isTeamDialogOpen} onOpenChange={setIsTeamDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button size="sm">
+                      <Plus size={16} className="mr-2" />
+                      Agregar Miembro
+                    </Button>
+                  </DialogTrigger>
+                  <TeamDialog
+                    open={isTeamDialogOpen}
+                    onOpenChange={setIsTeamDialogOpen}
+                    onSubmit={async (memberData) => {
+                      await addMember(memberData);
+                    }}
+                  />
+                </Dialog>
               </div>
             </CardHeader>
-            <CardContent className="px-0 pb-0">
+            <CardContent className="w-full">
               {teamLoading ? (
                 <div className="flex h-64 items-center justify-center">
                   <LoadingSpinner size="md" />

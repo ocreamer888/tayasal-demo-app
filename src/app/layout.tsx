@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers/Providers";
 import { validateEnv } from "@/lib/env-validation";
+import { Toaster } from "sonner";
 
 // Validate environment on server startup (fails fast if misconfigured)
 validateEnv();
@@ -29,6 +30,7 @@ export default function RootLayout({
         className={`${inter.variable} antialiased font-sans`}
       >
         <Providers>{children}</Providers>
+        <Toaster position="top-right" richColors />
       </body>
     </html>
   );

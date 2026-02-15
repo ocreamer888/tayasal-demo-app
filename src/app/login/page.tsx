@@ -8,12 +8,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/app/contexts/AuthContext';
+import { toast } from 'sonner';
 import type { FormEvent } from 'react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const { user } = useAuth(); // Get auth state from context
@@ -28,7 +28,6 @@ export default function LoginPage() {
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
-    setError(null);
     setLoading(true);
 
     try {
@@ -52,8 +51,8 @@ export default function LoginPage() {
         // Navigation will happen automatically via useEffect when context updates
       }
     } catch (error: any) {
-      console.error('Login error:', error);
-      setError(error.message || 'Error al iniciar sesión');
+      console.warn('Login failed:', { email, message: error.message });
+      toast.error(error.message || 'Error al iniciar sesión');
     } finally {
       setLoading(false);
     }
@@ -72,12 +71,6 @@ export default function LoginPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-6">
-            {error && (
-              <div className="rounded-full border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-                {error}
-              </div>
-            )}
-
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-medium text-neutral-900">
                 Correo electrónico
