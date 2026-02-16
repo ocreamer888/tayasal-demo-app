@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test:
+    name: Test & Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter
+        run: npm run lint
+
+      - name: Run tests
+        run: npm run test
+
+      - name: Security audit
+        run: npm audit --audit-level=moderate
+        # This will FAIL the job if vulnerabilities of moderate severity or higher are found
+        # To only warn instead of fail, use:
+        # continue-on-error: true
+        # But we want to block vulnerable deployments, so we let it fail
+
+      - name: Build (verify build works)
+        run: npm run build

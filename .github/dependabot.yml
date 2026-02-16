@@ -1,0 +1,29 @@
+# Dependabot configuration
+# See: https://docs.github.com/en/code-security/dependabot
+
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    # Look for `package.json` and `package-lock.json` in the root directory
+    directory: "/"
+    # Check for updates every day (weekday)
+    schedule:
+      interval: "daily"
+    # Set minimum severity for security updates
+    open-pull-requests-limit: 10
+    # Only security updates (not version bumps) - optional
+    # Setting to false allows version updates too
+    # Set to true if you only want security patches
+    # Allow both security and version updates
+    # For this project, we want both but with different settings below
+    # Security updates are prioritized anyway
+    versioning-strategy: increase-if-necessary
+    # Security updates: create PRs for vulnerable dependencies
+    # These are automatically created regardless of schedule
+    # We also have separate workflow for npm audit
+
+  # Optional: GitHub Actions - update action versions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
