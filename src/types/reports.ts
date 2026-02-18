@@ -1,4 +1,4 @@
-import type { ProductionOrder, InventoryMaterial } from './production-order';
+import type { ProductionOrder } from './production-order';
 
 /**
  * ReportGenerator Type Definitions

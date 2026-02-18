@@ -34,7 +34,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Desktop Sidebar - hidden on mobile */}
       <Sidebar className="hidden md:flex" />
 
@@ -44,8 +44,8 @@ export default function DashboardPage() {
         <Header className="md:hidden" />
 
         {/* Main Content */}
-        <main className="flex-1 mx-auto w-full max-w-9xl py-8 px-4 max-h-screen overflow-y-auto">
-          <PageHeader
+        <main className="flex-1 mx-auto w-full max-w-9xl px-4 py-8 max-h-screen overflow-y-auto gap-8">
+        <PageHeader
             title="Dashboard"
             description={
               userRole === 'engineer' || userRole === 'admin'

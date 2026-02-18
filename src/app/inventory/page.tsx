@@ -9,7 +9,7 @@ import { Sidebar } from '@/components/layout/Sidebar';
 
 export default function InventoryPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-t from-green-900 to-green-800 flex">
+    <div className="min-h-screen flex flex-col lg:flex-row">
          
          {/* Desktop Sidebar - hidden on mobile */}
          <Sidebar className="hidden md:flex" />
@@ -20,7 +20,7 @@ export default function InventoryPage() {
         <Header className="md:hidden" />
 
         {/* Main Content */}
-        <main className="flex-1 mx-auto max-w-7xl px-4 py-8 max-h-screen overflow-y-auto">
+        <main className="flex-1 mx-auto w-full max-w-7xl px-4 py-8 max-h-screen overflow-x-auto">
               <PageHeader
           title="Inventario"
           description="Gestiona materiales, plantas, equipos y personal"

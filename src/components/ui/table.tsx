@@ -8,7 +8,7 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
     <div
       data-slot="table-wrapper"
-      className="relative overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm"
+      className="relative overflow-x-auto rounded-xl border border-neutral-200 bg-white shadow-sm"
     >
       <table
         data-slot="table"
@@ -70,7 +70,7 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
     <th
       data-slot="table-head"
       className={cn(
-        "bg-neutral-50 h-12 px-6 text-left align-middle text-xs font-semibold uppercase tracking-wider text-neutral-600 whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+        "bg-neutral-50 h-12 px-6 text-left align-middle text-xs font-semibold uppercase tracking-wider text-neutral-600 whitespace-normal [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
         className
       )}
       {...props}
@@ -83,7 +83,7 @@ function TableCell({ className, ...props }: React.ComponentProps<"td">) {
     <td
       data-slot="table-cell"
       className={cn(
-        "px-6 py-4 align-middle whitespace-nowrap text-neutral-700 [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+        "px-6 py-4 align-middle whitespace-normal text-neutral-700 [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
         className
       )}
       {...props}

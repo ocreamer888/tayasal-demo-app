@@ -153,6 +153,7 @@
   --chart-3: #EAB308;
   --chart-4: #CA8A04;
   --chart-5: #14532D;
+  --chart-grid-color: #e5e7eb; /* For chart grid lines (light mode) */
 }
 
 .dark {
@@ -187,6 +188,7 @@
   --chart-3: #FACC15;
   --chart-4: #EAB308;
   --chart-5: #6EE7B7;
+  --chart-grid-color: #4b5563; /* For chart grid lines (dark mode) */
 }
 
 /* Base layer */

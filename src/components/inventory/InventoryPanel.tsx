@@ -84,10 +84,10 @@ export function InventoryPanel() {
   };
 
   return (
-    <div className="space-y-6 min-w-5xl max-w-7xl mx-auto">
+    <div className="space-y-6 w-full overflow-x-auto">
       {/* Tabs */}
       <Tabs defaultValue="materials" value={activeTab} onValueChange={(value) => setActiveTab(value as TabType)}>
-        <TabsList className="grid w-full grid-cols-4 bg-neutral-300/80 rounded-full">
+        <TabsList className="grid w-full grid-cols-4 bg-neutral-600/80 rounded-full">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
@@ -107,7 +107,7 @@ export function InventoryPanel() {
         <TabsContent value="materials" className="mt-6">
           <Card className="p-4">
             <CardHeader className="w-full">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between overflow-x-auto w-full">
                 <CardTitle className="text-h3 text-neutral-900">Inventario de Materiales</CardTitle>
                 <Dialog open={isMaterialDialogOpen} onOpenChange={setIsMaterialDialogOpen}>
                   <DialogTrigger asChild>
@@ -126,7 +126,7 @@ export function InventoryPanel() {
                 </Dialog>
               </div>
             </CardHeader>
-            <CardContent className="px-0 pb-0">
+            <CardContent className="w-full">
               {materialsLoading ? (
                 <div className="flex h-64 items-center justify-center">
                   <LoadingSpinner size="md" />
@@ -136,18 +136,18 @@ export function InventoryPanel() {
                   No hay materiales registrados
                 </div>
               ) : (
-                <div className="rounded-xl border border-neutral-200 overflow-hidden">
-                  <Table>
+                <div className="rounded-xl border border-neutral-200 w-full overflow-x-auto">
+                  <Table className='overflow-hidden w-full'>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Material</TableHead>
-                        <TableHead>Categoría</TableHead>
-                        <TableHead className="text-right">Cantidad</TableHead>
-                        <TableHead className="text-right">Mínimo</TableHead>
-                        <TableHead className="text-right">Costo Unit.</TableHead>
-                        <TableHead className="text-right">Total</TableHead>
-                        <TableHead>Estado</TableHead>
-                        <TableHead>Ubicación</TableHead>
+                        <TableHead className="whitespace-normal sm:whitespace-nowrap">Material</TableHead>
+                        <TableHead className="whitespace-normal sm:whitespace-nowrap">Categoría</TableHead>
+                        <TableHead className="text-right whitespace-normal sm:whitespace-nowrap">Cantidad</TableHead>
+                        <TableHead className="text-right whitespace-normal sm:whitespace-nowrap">Mínimo</TableHead>
+                        <TableHead className="text-right whitespace-normal sm:whitespace-nowrap">Costo Unit.</TableHead>
+                        <TableHead className="text-right whitespace-normal sm:whitespace-nowrap">Total</TableHead>
+                        <TableHead className="whitespace-normal sm:whitespace-nowrap">Estado</TableHead>
+                        <TableHead className="whitespace-normal sm:whitespace-nowrap">Ubicación</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -156,33 +156,33 @@ export function InventoryPanel() {
                         const totalValue = material.current_quantity * material.unit_cost;
                         return (
                           <TableRow key={material.id}>
-                            <TableCell>
+                            <TableCell className="whitespace-normal sm:whitespace-nowrap">
                               <div>
                                 <p className="font-semibold text-neutral-900">{material.material_name}</p>
                                 <p className="text-sm text-neutral-500">{material.unit}</p>
                               </div>
                             </TableCell>
-                            <TableCell className="capitalize text-neutral-700">
+                            <TableCell className="capitalize text-neutral-700 whitespace-normal sm:whitespace-nowrap">
                               {material.category}
                             </TableCell>
-                            <TableCell className="text-right font-medium tabular-nums text-neutral-900">
+                            <TableCell className="text-right font-medium tabular-nums text-neutral-900 whitespace-normal sm:whitespace-nowrap">
                               {material.current_quantity.toLocaleString()}
                             </TableCell>
-                            <TableCell className="text-right text-neutral-500 tabular-nums">
+                            <TableCell className="text-right text-neutral-500 tabular-nums whitespace-normal sm:whitespace-nowrap">
                               {material.min_stock_quantity.toLocaleString()}
                             </TableCell>
-                            <TableCell className="text-right text-neutral-700">
+                            <TableCell className="text-right text-neutral-700 whitespace-normal sm:whitespace-nowrap">
                               ${material.unit_cost.toFixed(2)}
                             </TableCell>
-                            <TableCell className="text-right font-semibold tabular-nums text-neutral-900">
+                            <TableCell className="text-right font-semibold tabular-nums text-neutral-900 whitespace-normal sm:whitespace-nowrap">
                               ${totalValue.toFixed(2)}
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="whitespace-normal sm:whitespace-nowrap">
                               <Badge variant={statusVariant}>
                                 {statusVariant === 'success' ? 'Disponible' : statusVariant === 'warning' ? 'Stock Bajo' : 'Sin Stock'}
                               </Badge>
                             </TableCell>
-                            <TableCell className="text-neutral-500">{material.location || '-'}</TableCell>
+                            <TableCell className="text-neutral-500 whitespace-normal sm:whitespace-nowrap">{material.location || '-'}</TableCell>
                           </TableRow>
                         );
                       })}
@@ -285,21 +285,21 @@ export function InventoryPanel() {
                   No hay equipos registrados
                 </div>
               ) : (
-                <div className="rounded-xl border border-neutral-200 overflow-hidden">
+                <div className="rounded-xl border border-neutral-200 overflow-x-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Nombre</TableHead>
-                        <TableHead>Modelo</TableHead>
-                        <TableHead>Serial</TableHead>
-                        <TableHead className="text-right">Costo/hora</TableHead>
-                        <TableHead>Estado</TableHead>
+                        <TableHead className="whitespace-normal sm:whitespace-nowrap">Nombre</TableHead>
+                        <TableHead className="whitespace-normal sm:whitespace-nowrap">Modelo</TableHead>
+                        <TableHead className="whitespace-normal sm:whitespace-nowrap">Serial</TableHead>
+                        <TableHead className="text-right whitespace-normal sm:whitespace-nowrap">Costo/hora</TableHead>
+                        <TableHead className="whitespace-normal sm:whitespace-nowrap">Estado</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {equipment.map((eq) => (
                         <TableRow key={eq.id}>
-                          <TableCell className="font-semibold text-neutral-900">{eq.name}</TableCell>
+                          <TableCell className="font-semibold text-neutral-900 whitespace-normal sm:whitespace-nowrap">{eq.name}</TableCell>
                           <TableCell className="text-neutral-500">{eq.model || '-'}</TableCell>
                           <TableCell className="font-mono text-neutral-500">{eq.serial_number || '-'}</TableCell>
                           <TableCell className="text-right font-semibold tabular-nums text-neutral-900">
@@ -353,7 +353,7 @@ export function InventoryPanel() {
                   No hay miembros registrados
                 </div>
               ) : (
-                <div className="rounded-xl border border-neutral-200 overflow-hidden">
+                <div className="rounded-xl border border-neutral-200 overflow-x-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>

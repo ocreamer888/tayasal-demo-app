@@ -478,9 +478,9 @@ export function ProductionOrderForm({ onSubmit, onCancel, initialData }: Product
         <CardContent className="px-0 pb-0">
           <div className="space-y-4">
             {formData.materials_used.map((material, index) => (
-              <div key={index} className="flex items-center gap-4 p-4 bg-neutral-50 rounded-lg">
+              <div key={index} className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 bg-neutral-50 rounded-lg">
                 {/* Material Select */}
-                <div className="flex-1 space-y-2">
+                <div className="w-full sm:flex-1 space-y-2">
                   <Label htmlFor={`material-${index}`} className="text-xs font-medium text-neutral-600">
                     Material
                   </Label>
@@ -510,7 +510,7 @@ export function ProductionOrderForm({ onSubmit, onCancel, initialData }: Product
                 </div>
 
                 {/* Cantidad */}
-                <div className="w-24 space-y-2">
+                <div className="w-full sm:w-24 space-y-2">
                   <Label htmlFor={`material-qty-${index}`} className="text-xs font-medium text-neutral-600">
                     Cantidad
                   </Label>
@@ -524,7 +524,7 @@ export function ProductionOrderForm({ onSubmit, onCancel, initialData }: Product
                 </div>
 
                 {/* Unidad (readonly) */}
-                <div className="w-20 space-y-2">
+                <div className="w-full sm:w-20 space-y-2">
                   <Label htmlFor={`material-unit-${index}`} className="text-xs font-medium text-neutral-600">
                     Unidad
                   </Label>
@@ -543,7 +543,7 @@ export function ProductionOrderForm({ onSubmit, onCancel, initialData }: Product
                   variant="destructive"
                   size="sm"
                   onClick={() => removeMaterialUsage(index)}
-                  className="mt-6"
+                  className="mt-0 sm:mt-6 w-full sm:w-auto"
                 >
                   <Trash2 size={16} />
                 </Button>
@@ -574,9 +574,9 @@ export function ProductionOrderForm({ onSubmit, onCancel, initialData }: Product
         <CardContent className="px-0 pb-0">
           <div className="space-y-4">
             {formData.equipment_used.map((equip, index) => (
-              <div key={index} className="flex items-center gap-4 p-4 bg-neutral-50 rounded-lg">
+              <div key={index} className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 bg-neutral-50 rounded-lg">
                 {/* Equipo Select */}
-                <div className="flex-1 space-y-2">
+                <div className="w-full sm:flex-1 space-y-2">
                   <Label htmlFor={`equip-${index}`} className="text-xs font-medium text-neutral-600">
                     Equipo
                   </Label>
@@ -603,7 +603,7 @@ export function ProductionOrderForm({ onSubmit, onCancel, initialData }: Product
                 </div>
 
                 {/* Horas */}
-                <div className="w-24 space-y-2">
+                <div className="w-full sm:w-24 space-y-2">
                   <Label htmlFor={`equip-hours-${index}`} className="text-xs font-medium text-neutral-600">
                     Horas
                   </Label>
@@ -618,7 +618,7 @@ export function ProductionOrderForm({ onSubmit, onCancel, initialData }: Product
                 </div>
 
                 {/* Combustible */}
-                <div className="w-32 space-y-2">
+                <div className="w-full sm:w-32 space-y-2">
                   <Label htmlFor={`equip-fuel-${index}`} className="text-xs font-medium text-neutral-600">
                     Combustible (L)
                   </Label>
@@ -638,7 +638,7 @@ export function ProductionOrderForm({ onSubmit, onCancel, initialData }: Product
                   variant="destructive"
                   size="sm"
                   onClick={() => removeEquipmentUsage(index)}
-                  className="mt-6"
+                  className="mt-0 sm:mt-6 w-full sm:w-auto"
                 >
                   <Trash2 size={16} />
                 </Button>
@@ -663,9 +663,9 @@ export function ProductionOrderForm({ onSubmit, onCancel, initialData }: Product
         <CardContent className="px-0 pb-0">
           <div className="space-y-4">
             {formData.team_assigned.map((member, index) => (
-              <div key={index} className="flex items-center gap-4 p-4 bg-neutral-50 rounded-lg">
+              <div key={index} className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 bg-neutral-50 rounded-lg">
                 {/* Miembro Select */}
-                <div className="flex-1 space-y-2">
+                <div className="w-full sm:flex-1 space-y-2">
                   <Label htmlFor={`member-${index}`} className="text-xs font-medium text-neutral-600">
                     Miembro
                   </Label>
@@ -693,7 +693,7 @@ export function ProductionOrderForm({ onSubmit, onCancel, initialData }: Product
                 </div>
 
                 {/* Horas */}
-                <div className="w-24 space-y-2">
+                <div className="w-full sm:w-24 space-y-2">
                   <Label htmlFor={`member-hours-${index}`} className="text-xs font-medium text-neutral-600">
                     Horas
                   </Label>
@@ -708,7 +708,7 @@ export function ProductionOrderForm({ onSubmit, onCancel, initialData }: Product
                 </div>
 
                 {/* Tarifa/hora */}
-                <div className="w-32 space-y-2">
+                <div className="w-full sm:w-32 space-y-2">
                   <Label htmlFor={`member-rate-${index}`} className="text-xs font-medium text-neutral-600">
                     Tarifa/hora
                   </Label>
@@ -723,7 +723,7 @@ export function ProductionOrderForm({ onSubmit, onCancel, initialData }: Product
                   variant="destructive"
                   size="sm"
                   onClick={() => removeTeamAssignment(index)}
-                  className="mt-6"
+                  className="mt-0 sm:mt-6 w-full sm:w-auto"
                 >
                   <Trash2 size={16} />
                 </Button>

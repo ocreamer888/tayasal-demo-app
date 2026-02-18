@@ -76,7 +76,7 @@ export function Header({ className }: HeaderProps) {
               <span className="sr-only">Abrir menú</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-88 bg-gradient-to-t from-green-900 to-green-800">
+          <SheetContent side="right" className="w-[352px] bg-gradient-to-t from-green-900 to-green-800">
             <div className="flex flex-col gap-6 py-6">
               <div className="flex items-center gap-3 px-2">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-b from-green-500 to-green-600 shadow-sm">
