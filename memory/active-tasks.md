@@ -95,7 +95,11 @@
   - Created `.github/dependabot.yml` for automated security updates
   - Created `.github/workflows/ci.yml` with npm audit check
   - CI pipeline: lint → tests → npm audit (moderate+) → build
-  - ✅ Manual activation: Dependabot enabled in GitHub Settings → Security & analysis
+  - ✅ Manual activation: Dependabot enabled in GitHub Settings
+  - 🐛 Found & fixed vulnerabilities during setup:
+    - Removed unused `xlsx` package (2 high vulnerabilities)
+    - Fixed `qs` vulnerability via `npm audit fix`
+  - Result: **0 vulnerabilities** (verified with `npm audit`)
 
 ## 🔴 Remaining Tier 1 Tasks (Priority Order)
 
@@ -146,7 +150,13 @@
 - Cost confidentiality ✅ fully implemented (5 locations checked)
 - Auth API routes now proxy via server (more secure, enables rate limiting)
 - All changes tracked in individual task records via TaskCreate/TaskUpdate
-- **Task #31 (Dependabot):** Repository files created (`.github/dependabot.yml`, `.github/workflows/ci.yml`) but **manual enable required** in GitHub Settings → Security & analysis → Enable Dependabot alerts & security updates
+- **Task #31 (Dependabot):** ✅ Complete
+  - Repository files created (`.github/dependabot.yml`, `.github/workflows/ci.yml`)
+  - Dependabot manually enabled in GitHub Settings
+  - Vulnerabilities discovered and fixed during setup:
+    - Removed unused `xlsx` package (2 high severity)
+    - Upgraded `qs` package (1 low severity)
+  - Final audit status: **0 vulnerabilities**
 
 ---
 

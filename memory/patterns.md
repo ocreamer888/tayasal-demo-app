@@ -277,7 +277,7 @@ const envSchema = z.object({
 
 2. **Sidebar component** (desktop):
    ```tsx
-   <div className="hidden md:flex flex-col h-[98vh] w-64 bg-gradient-to-b from-green-900/20 to-green-800/20 m-4 border-r border-white/20 rounded-r-2xl">
+   <div className="hidden md:flex flex-col h-screen w-64 backdrop-blur-md border-x border-r-white/20 rounded-2xl">
      {/* Logo */}
      {/* Navigation links with role filtering */}
      {/* UserNav at bottom */}
@@ -323,7 +323,7 @@ const envSchema = z.object({
 **Key Points:**
 - Sidebar and Header both consume `useAuth()` to filter nav items by `userRole`
 - Active link highlighting via `usePathname()`
-- Consistent green gradient theme across both
+- Consistent dark theme with glassmorphism effects
 - Main content area uses `overflow-y-auto` for scrollable content
 - User role derived from `profile?.role` with fallback to `user.user_metadata.role`
 
@@ -369,7 +369,7 @@ export default function PageName() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-t from-green-900 to-green-800 flex">
+    <div className="min-h-screen flex">
       <Sidebar className="hidden md:flex" />
       <div className="flex-1 flex flex-col min-h-screen">
         <Header className="md:hidden" />
@@ -390,7 +390,7 @@ export default function PageName() {
 
 **Notes:**
 - Loading state: centered spinner on neutral background
-- Authenticated layout: green gradient background with sidebar/header
+- Authenticated layout: dark background with sidebar/header
 - `overflow-y-auto` on main allows independent scrolling
 - PageHeader supports optional `actions` prop for buttons (e.g., "Create New")
 
@@ -491,4 +491,14 @@ const handleSubmit = async (formData: any) => {
 
 ---
 
-**Last Updated:** 2026-02-09
+## Dark Mode Enforcement
+
+Dark mode is the only theme for this application. It is enforced globally in `src/app/layout.tsx` by adding the `dark` class to the `<html>` element.
+
+```tsx
+<html lang="es" className="dark">
+```
+
+All color values are defined in `src/app/globals.css` using CSS custom properties (variables) inside the `.dark` selector. The color palette uses a near-black greenish background (`#011300`) with light foreground (`#FAFAFA`). Primary actions use emerald green (`#10B981`). Components should use the shadcn/ui token naming (e.g., `bg-primary`, `text-foreground`, `bg-card`) to automatically adapt to the theme.
+
+**Last Updated:** 2026-02-17

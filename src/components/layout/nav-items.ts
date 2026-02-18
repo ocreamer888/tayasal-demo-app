@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react"
-import { BarChart3, ClipboardList, Package, ShoppingCart, FileText } from "lucide-react"
+import { BarChart3, ClipboardList, Package, FileText } from "lucide-react"
 
 export interface NavItem {
   label: string
@@ -9,10 +9,13 @@ export interface NavItem {
 }
 
 export const mainNavItems: NavItem[] = [
-  { label: "Dashboard", href: "/", icon: BarChart3 },
-  { label: "Producción", href: "/production", icon: ClipboardList },
+  { label: "Dashboard", 
+    href: "/dashboard", 
+    icon: BarChart3,
+    roles: ['engineer', 'admin']
+ },
+  { label: "Producción", href: "/orders", icon: ClipboardList },
   { label: "Inventario", href: "/inventory", icon: Package },
-  { label: "Pedidos", href: "/orders", icon: ShoppingCart },
   {
     label: "Reportes",
     href: "/reports",

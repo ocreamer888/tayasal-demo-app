@@ -46,7 +46,7 @@ export function Sidebar({ className }: SidebarProps) {
 
   return (
     <div className={cn(
-      "hidden md:flex flex-col h-[96vh] w-64 bg-white/5 m-4 backdrop-blur-md border-x border-white/20 rounded-2xl",
+      "hidden md:flex flex-col h-screen w-64 backdrop-blur-md border-x border-r-white/20 rounded-2xl",
       className
     )}>
       {/* Logo */}
@@ -81,7 +81,7 @@ export function Sidebar({ className }: SidebarProps) {
             />
           </svg>
         </div>
-        <span className="text-xl font-bold text-neutral-200">
+        <span className="text-4xl font-bold text-neutral-200">
           Tayasal
         </span>
       </div>
@@ -96,10 +96,10 @@ export function Sidebar({ className }: SidebarProps) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+                  "flex items-center justify-start pl-4 gap-4 rounded-full bg-white/10 py-2 text-sm font-medium transition-all duration-200",
                   isActive
-                    ? "bg-green-950/50 text-white before:absolute before:left-0 before:top-0 before:h-full before:w-1 before:bg-green-500 before:rounded-r-md relative pl-4"
-                    : "text-neutral-300 hover:bg-green-950/30 hover:text-white"
+                    ? "bg-white/80 text-black relative pl-8"
+                    : "text-neutral-300 hover:bg-green-100/40 font-bold hover:text-white"
                 )}
               >
                 <item.icon className="h-5 w-5 shrink-0" />

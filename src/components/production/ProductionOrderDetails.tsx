@@ -22,7 +22,8 @@ interface ProductionOrderDetailsProps {
 }
 
 export function ProductionOrderDetails({ order, onClose, onEdit, onUpdateStatus }: ProductionOrderDetailsProps) {
-  const { user } = useAuth();
+  const { profile } = useAuth();
+  const userRole = profile?.role || 'operator';
 
   const getStatusBadge = (status: ProductionOrder['status']) => {
     const variant =
@@ -185,8 +186,8 @@ export function ProductionOrderDetails({ order, onClose, onEdit, onUpdateStatus 
                       <tr className="border-b border-neutral-200">
                         <th className="py-2 px-4 text-left text-sm font-semibold text-neutral-600">Material</th>
                         <th className="py-2 px-4 text-right text-sm font-semibold text-neutral-600">Cantidad</th>
-                        <th className="py-2 px-4 text-right text-sm font-semibold text-neutral-600">Costo Unit.</th>
-                        <th className="py-2 px-4 text-right text-sm font-semibold text-neutral-600">Subtotal</th>
+                        {userRole !== 'operator' && <th className="py-2 px-4 text-right text-sm font-semibold text-neutral-600">Costo Unit.</th>}
+                        {userRole !== 'operator' && <th className="py-2 px-4 text-right text-sm font-semibold text-neutral-600">Subtotal</th>}
                       </tr>
                     </thead>
                     <tbody>
@@ -197,16 +198,22 @@ export function ProductionOrderDetails({ order, onClose, onEdit, onUpdateStatus 
                             <p className="text-sm text-neutral-500">{material.unit}</p>
                           </td>
                           <td className="py-3 px-4 text-right tabular-nums text-neutral-700">{material.quantity}</td>
-                          <td className="py-3 px-4 text-right tabular-nums text-neutral-700">{formatCurrency(material.unitCost)}</td>
-                          <td className="py-3 px-4 text-right tabular-nums font-semibold text-neutral-900">
-                            {formatCurrency(material.quantity * material.unitCost)}
-                          </td>
+                          {userRole !== 'operator' && (
+                            <>
+                              <td className="py-3 px-4 text-right tabular-nums text-neutral-700">{formatCurrency(material.unitCost)}</td>
+                              <td className="py-3 px-4 text-right tabular-nums font-semibold text-neutral-900">
+                                {formatCurrency(material.quantity * material.unitCost)}
+                              </td>
+                            </>
+                          )}
                         </tr>
                       ))}
-                      <tr className="bg-neutral-50 font-bold">
-                        <td colSpan={3} className="py-3 px-4 text-right text-neutral-700">Total Materiales:</td>
-                        <td className="py-3 px-4 text-right tabular-nums text-green-600">{formatCurrency(order.material_cost)}</td>
-                      </tr>
+                      {userRole !== 'operator' && (
+                        <tr className="bg-neutral-50 font-bold">
+                          <td colSpan={4} className="py-3 px-4 text-right text-neutral-700">Total Materiales:</td>
+                          <td className="py-3 px-4 text-right tabular-nums text-green-600">{formatCurrency(order.material_cost)}</td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -231,18 +238,27 @@ export function ProductionOrderDetails({ order, onClose, onEdit, onUpdateStatus 
                           <p className="font-semibold text-neutral-900">{member.memberName}</p>
                           <p className="text-sm text-neutral-500">{member.role}</p>
                         </div>
-                        <div className="text-right">
-                          <p className="font-medium tabular-nums text-neutral-900">{member.hoursWorked}h × ${member.hourlyRate}/h</p>
-                          <p className="text-sm text-neutral-500">{formatCurrency(member.hoursWorked * member.hourlyRate)}</p>
-                        </div>
+                        {userRole !== 'operator' && (
+                          <div className="text-right">
+                            <p className="font-medium tabular-nums text-neutral-900">{member.hoursWorked}h × ${member.hourlyRate}/h</p>
+                            <p className="text-sm text-neutral-500">{formatCurrency(member.hoursWorked * member.hourlyRate)}</p>
+                          </div>
+                        )}
+                        {userRole === 'operator' && (
+                          <div className="text-right">
+                            <p className="font-medium tabular-nums text-neutral-900">{member.hoursWorked}h</p>
+                          </div>
+                        )}
                       </div>
                     ))}
-                    <div className="border-t border-neutral-200 pt-2">
-                      <div className="flex items-center justify-between font-bold">
-                        <span className="text-neutral-700">Total Mano de Obra:</span>
-                        <span className="text-green-600">{formatCurrency(totalLaborCost)}</span>
+                    {userRole !== 'operator' && (
+                      <div className="border-t border-neutral-200 pt-2">
+                        <div className="flex items-center justify-between font-bold">
+                          <span className="text-neutral-700">Total Mano de Obra:</span>
+                          <span className="text-green-600">{formatCurrency(totalLaborCost)}</span>
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 )}
               </CardContent>
@@ -261,19 +277,27 @@ export function ProductionOrderDetails({ order, onClose, onEdit, onUpdateStatus 
                       <div key={idx} className="flex items-center justify-between border-b border-neutral-100 py-2 last:border-b-0">
                         <div>
                           <p className="font-semibold text-neutral-900">{equip.equipmentName}</p>
-                          <p className="text-sm text-neutral-500">{equip.hoursUsed}h × ${equip.hourlyCost}/h</p>
+                          {userRole !== 'operator' && (
+                            <p className="text-sm text-neutral-500">{equip.hoursUsed}h × ${equip.hourlyCost}/h</p>
+                          )}
                         </div>
                         <div className="text-right">
-                          <p className="font-medium tabular-nums text-neutral-900">{formatCurrency(equip.hoursUsed * equip.hourlyCost)}</p>
+                          {userRole !== 'operator' ? (
+                            <p className="font-medium tabular-nums text-neutral-900">{formatCurrency(equip.hoursUsed * equip.hourlyCost)}</p>
+                          ) : (
+                            <p className="font-medium tabular-nums text-neutral-900">{equip.hoursUsed}h</p>
+                          )}
                         </div>
                       </div>
                     ))}
-                    <div className="border-t border-neutral-200 pt-2">
-                      <div className="flex items-center justify-between font-bold">
-                        <span className="text-neutral-700">Total Equipos:</span>
-                        <span className="text-green-600">{formatCurrency(totalEquipmentCost)}</span>
+                    {userRole !== 'operator' && (
+                      <div className="border-t border-neutral-200 pt-2">
+                        <div className="flex items-center justify-between font-bold">
+                          <span className="text-neutral-700">Total Equipos:</span>
+                          <span className="text-green-600">{formatCurrency(totalEquipmentCost)}</span>
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 )}
               </CardContent>
@@ -281,7 +305,7 @@ export function ProductionOrderDetails({ order, onClose, onEdit, onUpdateStatus 
           </div>
 
           {/* Cost Breakdown */}
-          {(user?.user_metadata?.role === 'engineer' || user?.user_metadata?.role === 'admin') && (
+          {(userRole === 'engineer' || userRole === 'admin') && (
             <Card>
               <CardHeader>
                 <CardTitle className="text-h3 text-neutral-900">Desglose de Costos</CardTitle>
@@ -331,7 +355,7 @@ export function ProductionOrderDetails({ order, onClose, onEdit, onUpdateStatus 
 
           {/* Actions */}
           <div className="flex justify-end gap-4 border-t border-neutral-200 pt-4">
-            {onEdit && (order.status === 'draft' || user?.user_metadata?.role === 'engineer') && (
+            {onEdit && (order.status === 'draft' || userRole === 'engineer' || userRole === 'admin') && (
               <Button variant="secondary" onClick={() => onEdit(order)}>
                 Editar
               </Button>

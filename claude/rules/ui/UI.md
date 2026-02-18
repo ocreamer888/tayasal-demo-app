@@ -21,72 +21,73 @@ We create interfaces that:
 
 ## Brand Color System
 
-### Primary Palette
+### Theme Tokens (shadcn/ui)
+
+The design system uses shadcn/ui's semantic color tokens defined as CSS custom properties in `src/app/globals.css`. The app runs in dark mode only; therefore the `.dark` values are the ones in effect.
 
 ```css
-/* Greens - Primary Brand & Success */
---green-50: #F0FDF4;    /* Subtle backgrounds */
---green-100: #DCFCE7;   /* Light accents */
---green-500: #22C55E;   /* Primary actions */
---green-600: #16A34A;   /* Hover states */
---green-700: #15803D;   /* Active states */
---green-900: #14532D;   /* Dark text on light backgrounds */
+/* Background and foreground */
+--background: #011300; /* Near-black greenish dark */
+--foreground: #FAFAFA; /* Almost white */
 
-/* Yellows - Attention & Warnings */
---yellow-50: #FEFCE8;   /* Subtle highlights */
---yellow-100: #FEF9C3;  /* Light warnings */
---yellow-400: #FACC15;  /* Warning states */
---yellow-500: #EAB308;  /* Attention elements */
---yellow-600: #CA8A04;  /* Warning hover */
+/* Card and popover surfaces */
+--card: #171717;
+--card-foreground: #FAFAFA;
+--popover: #171717;
+--popover-foreground: #FAFAFA;
 
-/* Neutrals - Foundation */
---neutral-0: #FFFFFF;    /* Pure white - cards, inputs */
---neutral-50: #FAFAFA;   /* Off-white backgrounds */
---neutral-100: #F5F5F5;  /* Subtle dividers */
---neutral-200: #E5E5E5;  /* Borders */
---neutral-300: #D4D4D4;  /* Disabled states */
---neutral-400: #A3A3A3;  /* Placeholder text */
---neutral-500: #737373;  /* Secondary text */
---neutral-600: #525252;  /* Body text */
---neutral-700: #404040;  /* Headings */
---neutral-800: #262626;  /* Primary text */
---neutral-900: #171717;  /* Maximum contrast */
---neutral-950: #0A0A0A;  /* Near black - premium dark */
+/* Primary actions */
+--primary: #10B981; /* Emerald green */
+--primary-foreground: #0A0A0A; /* Near black for contrast */
 
-/* Status Colors */
---status-success: #22C55E;   /* Green-500 */
---status-warning: #EAB308;   /* Yellow-500 */
---status-error: #EF4444;     /* Red for critical errors */
---status-info: #3B82F6;      /* Blue for informational */
+/* Secondary elements */
+--secondary: #262626;
+--secondary-foreground: #FAFAFA;
+
+/* Muted text and backgrounds */
+--muted: #262626;
+--muted-foreground: #A3A3A3;
+
+/* Accent (matches primary) */
+--accent: #10B981;
+--accent-foreground: #0A0A0A;
+
+/* Destructive/error */
+--destructive: #EF4444;
+
+/* Borders, inputs, focus ring */
+--border: #262626;
+--input: #262626;
+--ring: #10B981;
+
+/* Sidebar-specific tokens */
+--sidebar: #0A0A0A;
+--sidebar-foreground: #FAFAFA;
+--sidebar-primary: #10B981;
+--sidebar-primary-foreground: #0A0A0A;
+--sidebar-accent: #262626;
+--sidebar-accent-foreground: #FAFAFA;
+--sidebar-border: #262626;
+--sidebar-ring: #10B981;
+
+/* Chart color palette */
+--chart-1: #34D399;
+--chart-2: #10B981;
+--chart-3: #FACC15; /* Yellow for warnings or highlights */
+--chart-4: #EAB308;
+--chart-5: #6EE7B7;
 ```
 
 ### Color Usage Strategy
 
-**Green:**
-- Primary CTAs (Save, Create, Submit)
-- Success states and confirmations
-- Active navigation items
-- Data visualization (positive metrics)
-- Accent elements that drive action
+- **Primary (`--primary`):** Main call-to-action buttons, success states, active navigation, positive metrics in charts.
+- **Accent (`--accent`):** Secondary emphasis, matching primary.
+- **Warning (`--chart-3` / `--chart-4`):** Use yellow tones for alert states, low inventory indicators, or attention-needed elements.
+- **Destructive (`--destructive`):** Errors, delete actions, critical issues.
+- **Muted (`--muted-foreground`):** Secondary text, disabled text, placeholder text.
+- **Neutrals:** The neutral scale (`--neutral-0` to `--neutral-950`) is available for custom cases but semantic tokens are preferred.
 
-**Yellow:**
-- Warning states (low inventory)
-- Attention-needed indicators
-- Highlighted metrics
-- Secondary CTAs (Edit, Update)
-- Time-sensitive elements
-
-**Black/Neutrals:**
-- Typography (900 for headers, 700-600 for body)
-- Cards and containers (0-100)
-- Borders and dividers (200-300)
-- Sophisticated depth and layering
-
-**White:**
-- Primary backgrounds
-- Card surfaces
-- Input fields
-- Negative space for premium feel
+**Dark Mode Only:** All components should rely on the CSS variables above rather than hard-coded colors. This ensures consistent theming and future flexibility.
 
 ---
 
@@ -699,55 +700,45 @@ box-shadow: var(--shadow-xl);
 }
 
 /* Sidebar (if needed) */
+/* Sidebar - dark glassmorphism */
 .sidebar {
-  width: 240px;
-  background: var(--neutral-0);
-  border-right: 1px solid var(--neutral-100);
-  padding: 24px 16px;
-  
-  height: calc(100vh - 64px);
-  overflow-y: auto;
-}
-
-.sidebar-section {
-  margin-bottom: 24px;
-}
-
-.sidebar-label {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--neutral-500);
-  
-  padding: 0 12px;
-  margin-bottom: 8px;
+  width: 256px; /* w-64 */
+  height: 100vh; /* h-screen */
+  background: transparent; /* Uses dark background from body */
+  backdrop-filter: blur(16px); /* backdrop-blur-md */
+  -webkit-backdrop-filter: blur(16px);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px; /* rounded-2xl */
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
 }
 
 .sidebar-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  
-  padding: 10px 12px;
-  border-radius: 8px;
-  
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--neutral-700);
-  
+  gap: 1rem; /* gap-4 */
+  padding: 0.5rem 1rem; /* py-2 px-4 */
+  border-radius: 9999px; /* rounded-full */
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 500; /* font-medium */
+  color: #d4d4d4; /* neutral-300 */
+  text-decoration: none;
   transition: all 0.15s ease;
-  cursor: pointer;
 }
 
 .sidebar-item:hover {
-  background: var(--neutral-50);
-  color: var(--neutral-900);
+  background: rgba(34, 197, 94, 0.16); /* green-100/40 */
+  color: white;
+  font-weight: 600;
 }
 
 .sidebar-item.active {
-  background: var(--green-50);
-  color: var(--green-700);
+  background: rgba(255, 255, 255, 0.8); /* white/80 */
+  color: black;
+  padding-left: 2rem; /* pl-8 */
+  position: relative;
   font-weight: 600;
 }
 ```
@@ -1176,100 +1167,44 @@ Before approving any screen:
 
 ## Implementation with Tailwind
 
-### Custom Theme Extension
+### Using shadcn/ui Tokens
+
+The application uses shadcn/ui's CSS variable tokens for theming. All colors are referenced via the `var(--token)` naming convention. In Tailwind, these tokens are automatically available as `bg-primary`, `text-foreground`, `border-border`, etc.
+
+**No custom color extension is needed** because the tokens are defined in `src/app/globals.css`. The only required Tailwind configuration is to ensure the CSS file is imported (which it is in `globals.css`).
 
 ```js
-// tailwind.config.js
+// tailwind.config.js (minimal)
 module.exports = {
+  content: [
+    // Your content paths
+  ],
   theme: {
     extend: {
-      colors: {
-        green: {
-          50: '#F0FDF4',
-          100: '#DCFCE7',
-          500: '#22C55E',
-          600: '#16A34A',
-          700: '#15803D',
-          900: '#14532D',
-        },
-        yellow: {
-          50: '#FEFCE8',
-          100: '#FEF9C3',
-          400: '#FACC15',
-          500: '#EAB308',
-          600: '#CA8A04',
-        },
-        neutral: {
-          0: '#FFFFFF',
-          50: '#FAFAFA',
-          100: '#F5F5F5',
-          200: '#E5E5E5',
-          300: '#D4D4D4',
-          400: '#A3A3A3',
-          500: '#737373',
-          600: '#525252',
-          700: '#404040',
-          800: '#262626',
-          900: '#171717',
-          950: '#0A0A0A',
-        },
-      },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
       },
-      boxShadow: {
-        'xs': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-        'sm': '0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.08)',
-        'md': '0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.08)',
-        'lg': '0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.08)',
-        'xl': '0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.08)',
-      },
     },
   },
+  plugins: [
+    require('@tailwindcss/forms'),
+  ],
 };
 ```
 
 ### Example Component Usage
 
 ```tsx
-// Premium button
-<button className="
-  inline-flex items-center justify-center gap-2
-  px-6 py-3
-  bg-gradient-to-b from-green-500 to-green-600
-  text-white font-semibold text-[15px] tracking-tight
-  rounded-lg
-  shadow-sm hover:shadow-md
-  transition-all duration-200
-  hover:-translate-y-0.5
-  focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2
-">
+// Primary button using tokens
+<button className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground font-semibold text-[15px] rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
   <Check size={18} />
   Guardar Cambios
 </button>
 
-// Metric card
-<div className="
-  bg-gradient-to-br from-white to-green-50
-  border border-green-100
-  rounded-2xl p-7
-  shadow-sm hover:shadow-md
-  transition-all duration-200
-  relative overflow-hidden
-  before:absolute before:top-0 before:left-0
-  before:w-1 before:h-full
-  before:bg-gradient-to-b before:from-green-500 before:to-green-600
-">
-  <div className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
-    Total Producido
-  </div>
-  <div className="text-4xl font-bold text-neutral-900 mt-2 tabular-nums">
-    12,450
-  </div>
-  <div className="flex items-center gap-1 mt-3 text-sm font-semibold text-green-600">
-    <TrendingUp size={16} />
-    +12.5%
-  </div>
+// Card using tokens
+<div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+  <h3 className="text-lg font-semibold text-foreground mb-2">Card Title</h3>
+  <p className="text-muted-foreground">Card content goes here.</p>
 </div>
 ```
 

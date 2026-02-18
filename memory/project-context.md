@@ -1,6 +1,6 @@
 # Project Context
 
-**Last Updated:** 2026-02-09
+**Last Updated:** 2026-02-17
 **Branch:** main
 **Status:** ✅ **Working - Authentication functional, dashboard accessible**
 
@@ -16,7 +16,7 @@
 - ✅ **TypeScript compilation**: All errors resolved (Zod v4, zxcvbn types, etc.)
 - ✅ **Production build**: `npm run build` succeeds
 - ✅ **Responsive sidebar navigation**: Desktop fixed sidebar + mobile header with sheet
-- ✅ **Green gradient theme**: Consistent use of `from-green-900/20 to-green-800/20` (sidebar/panels) and `from-green-900 to-green-800` (main backgrounds)
+- ✅ **Dark theme with glassmorphism**: Dark background (#011300) with glassmorphism effects on sidebar. Color tokens defined via CSS variables in `globals.css`.
 - ✅ **Standardized page layout**: All protected pages (Dashboard, Orders, Inventory) follow same layout composition pattern
 - ✅ **Toast notifications**: Using `sonner` for success/error feedback
 - ✅ **Role-based navigation filtering**: Nav items gated by user role (operators don't see "Reportes")
@@ -130,9 +130,9 @@ SUPABASE_SERVICE_ROLE_KEY=...  # Server-side admin operations
 | #28 | Environment validation | ✅ Done |
 | #29 | Password strength (zxcvbn) | ✅ Done |
 | #30 | Audit logging | ⏳ Incomplete |
-| #31 | Dependabot setup | ⏳ Incomplete |
+| #31 | Dependabot setup | ✅ Done |
 | #32 | Error response sanitization | ⏳ Incomplete |
-| #3 | RLS policy verification | ⚠️ Needs manual verification in Supabase |
+| #3 | RLS policy verification | ✅ Complete |
 | ✅ | Desktop sidebar navigation | **Completed** (2026-02-09) |
 | ✅ | Standardized protected page layout | **Completed** (Dashboard, Orders, Inventory all follow same pattern) |
 
@@ -148,7 +148,7 @@ SUPABASE_SERVICE_ROLE_KEY=...  # Server-side admin operations
 - TypeScript compatibility fixes (Zod v4, zxcvbn, env validation)
 
 **Responsive Navigation (2026-02-09)**
-- Desktop sidebar with green gradient theme
+- Desktop sidebar with dark glassmorphism (backdrop-blur, rounded, transparent)
 - Mobile header with hamburger menu (Sheet)
 - Role-based navigation filtering
 - Shared nav items constant
@@ -167,7 +167,7 @@ SUPABASE_SERVICE_ROLE_KEY=...  # Server-side admin operations
 
 ---
 
-**Last Updated:** 2026-02-09
+**Last Updated:** 2026-02-17
 
 ---
 
@@ -181,8 +181,7 @@ SUPABASE_SERVICE_ROLE_KEY=...  # Server-side admin operations
 ### Required Post-Deploy
 1. Verify RLS policies are active (Supabase Dashboard → Database → Policies)
 2. Set `SUPABASE_SERVICE_ROLE_KEY` (for admin server operations)
-3. Enable Dependabot in GitHub repo settings
-4. Configure custom domain if needed
+3. Configure custom domain if needed
 
 ---
 

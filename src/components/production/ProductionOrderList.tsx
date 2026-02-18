@@ -117,7 +117,7 @@ export function ProductionOrderList({
                 <TableHead>Cantidad</TableHead>
                 <TableHead>Fecha / Turno</TableHead>
                 <TableHead>Estado</TableHead>
-                <TableHead>Costo Total</TableHead>
+                {userRole !== 'operator' && <TableHead>Costo Total</TableHead>}
                 <TableHead>Acciones</TableHead>
               </TableRow>
             </TableHeader>
@@ -135,7 +135,7 @@ export function ProductionOrderList({
                     <Skeleton className="h-3 w-20" />
                   </TableCell>
                   <TableCell><Skeleton className="h-6 w-16 rounded-full" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                  {userRole !== 'operator' && <TableCell><Skeleton className="h-4 w-32" /></TableCell>}
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Skeleton className="h-8 w-8 rounded" />
@@ -181,7 +181,7 @@ export function ProductionOrderList({
               <TableHead>Cantidad</TableHead>
               <TableHead>Fecha / Turno</TableHead>
               <TableHead>Estado</TableHead>
-              <TableHead>{userRole === 'operator' ? '•' : 'Costo Total'}</TableHead>
+              {userRole !== 'operator' && <TableHead>Costo Total</TableHead>}
               <TableHead>Acciones</TableHead>
             </TableRow>
           </TableHeader>
@@ -205,9 +205,11 @@ export function ProductionOrderList({
                 <TableCell>
                   {getStatusBadge(order.status)}
                 </TableCell>
-                <TableCell className="font-semibold tabular-nums text-neutral-900">
-                  {userRole === 'operator' ? '-' : formatCurrency(order.total_cost)}
-                </TableCell>
+                {userRole !== 'operator' && (
+                  <TableCell className="font-semibold tabular-nums text-neutral-900">
+                    {formatCurrency(order.total_cost)}
+                  </TableCell>
+                )}
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <Button

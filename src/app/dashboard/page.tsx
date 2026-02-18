@@ -34,7 +34,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-t from-green-900 to-green-800 flex">
+    <div className="min-h-screen flex">
       {/* Desktop Sidebar - hidden on mobile */}
       <Sidebar className="hidden md:flex" />
 
