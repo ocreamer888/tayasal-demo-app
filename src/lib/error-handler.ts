@@ -52,7 +52,7 @@ export function createErrorResponse(
  */
 export async function withErrorHandling<T>(
   fn: () => Promise<T>,
-  defaultMessage?: string
+  _defaultMessage?: string
 ): Promise<T> {
   try {
     return await fn();

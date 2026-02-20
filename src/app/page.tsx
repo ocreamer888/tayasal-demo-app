@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Package, TrendingUp, BarChart3, Shield } from 'lucide-react';
 
 export default function HomePage() {
@@ -23,6 +23,7 @@ export default function HomePage() {
       }, 100);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [user, loading, router]);
 
   if (loading) {

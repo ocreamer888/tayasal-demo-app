@@ -15,11 +15,12 @@ const envSchema = z.object({
   NEXT_PUBLIC_SUPABASE_URL: z.string().url().nonempty('Supabase URL is required'),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1, 'Supabase anon key is required'),
 
-  // Optional: Service role key (only needed for server-side admin operations)
-  SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
+  // Required for server-side admin operations (rate limiting, audit logging)
+  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1, 'Supabase service role key is required'),
 
-  // Optional: Additional configuration
+  // Optional: Site URL and error monitoring
   NEXT_PUBLIC_SITE_URL: z.string().url().optional().or(z.literal('')),
+  SENTRY_DSN: z.string().optional(),
 });
 
 type Env = z.infer<typeof envSchema>;
@@ -35,6 +36,7 @@ export function validateEnv(): void {
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+    SENTRY_DSN: process.env.SENTRY_DSN,
   };
 
   const result = envSchema.safeParse(env);
@@ -48,12 +50,6 @@ export function validateEnv(): void {
     );
   }
 
-  // Additional validation: ensure service role key exists in production for server-side operations
-  if (result.data.NODE_ENV === 'production' && !result.data.SUPABASE_SERVICE_ROLE_KEY) {
-    console.warn(
-      '⚠️  WARNING: SUPABASE_SERVICE_ROLE_KEY not set in production. Server-side operations requiring admin privileges may fail.'
-    );
-  }
 }
 
 /**
@@ -64,7 +60,7 @@ export function getEnv(): Env {
     NODE_ENV: process.env.NODE_ENV || 'development',
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL!,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
+    SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY!,
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || '',
   };
 }

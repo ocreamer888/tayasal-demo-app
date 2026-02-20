@@ -1,35 +1,28 @@
-'use server';
-
 /**
- * Rate limiting and account lockout utilities
- * ⚠️ PRODUCTION NOTE: In-memory store won't work across multiple serverless instances.
- * For production, replace with Redis (Upstash recommended).
+ * Rate limiting and account lockout utilities — Supabase-backed (distributed)
+ *
+ * Uses the `rate_limit_records` table to persist state across serverless instances.
+ * Requires SUPABASE_SERVICE_ROLE_KEY to bypass RLS on this table.
+ *
+ * Expected table schema:
+ *   key TEXT PRIMARY KEY
+ *   count INTEGER NOT NULL DEFAULT 0
+ *   reset_at BIGINT NOT NULL DEFAULT 0   -- Unix ms timestamp
+ *   locked_until BIGINT NOT NULL DEFAULT 0
+ *   lock_reason TEXT
+ *   updated_at TIMESTAMPTZ DEFAULT now()
  */
 
-interface RateLimitRecord {
-  count: number;
-  resetAt: number; // timestamp in ms
-}
+import { createClient } from '@supabase/supabase-js';
 
-interface LockoutRecord {
-  lockedUntil: number; // timestamp in ms
-  reason: string;
-}
-
-// Declare global augmentation for in-memory store (development only)
-declare global {
-  // eslint-disable-next-line no-var
-  var rateLimitStore: Map<string, RateLimitRecord> | undefined;
-  // eslint-disable-next-line no-var
-  var accountLockStore: Map<string, LockoutRecord> | undefined;
-}
+// Service-role client — bypasses RLS; never expose to the browser
+const adminClient = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 /**
- * Check if request is within rate limit
- * @param key - Unique identifier (IP, email, or combination)
- * @param maxAttempts - Maximum attempts allowed
- * @param windowMs - Time window in milliseconds
- * @returns { allowed: boolean; remaining: number; resetAt: number }
+ * Check if request is within rate limit and increment the counter.
  */
 export async function checkRateLimit(
   key: string,
@@ -41,184 +34,178 @@ export async function checkRateLimit(
   resetAt: number;
   retryAfter?: number;
 }> {
-  'use server';
-
-  // Initialize in-memory store (in production, use Redis)
-  // This is a simple implementation; for production use a proper Redis store
-  let rateLimitStore = globalThis.rateLimitStore as Map<string, RateLimitRecord> | undefined;
-  if (!rateLimitStore) {
-    rateLimitStore = new Map();
-    globalThis.rateLimitStore = rateLimitStore;
-  }
 
   const now = Date.now();
-  const record = rateLimitStore.get(key);
+  const newResetAt = now + windowMs;
 
-  // If no record or expired, create new
-  if (!record || now > record.resetAt) {
-    rateLimitStore.set(key, {
-      count: 1,
-      resetAt: now + windowMs,
-    });
-    return {
-      allowed: true,
-      remaining: maxAttempts - 1,
-      resetAt: now + windowMs,
-    };
+  // Fetch existing record
+  const { data: existing } = await adminClient
+    .from('rate_limit_records')
+    .select('count, reset_at')
+    .eq('key', key)
+    .maybeSingle();
+
+  // New window or no record — reset counter
+  if (!existing || now > Number(existing.reset_at)) {
+    await adminClient.from('rate_limit_records').upsert(
+      { key, count: 1, reset_at: newResetAt, updated_at: new Date().toISOString() },
+      { onConflict: 'key' }
+    );
+    return { allowed: true, remaining: maxAttempts - 1, resetAt: newResetAt };
   }
 
-  // Record exists and is valid
-  if (record.count >= maxAttempts) {
-    const retryAfter = Math.ceil((record.resetAt - now) / 1000);
+  // Already at limit — reject
+  if (existing.count >= maxAttempts) {
+    const retryAfter = Math.ceil((Number(existing.reset_at) - now) / 1000);
     return {
       allowed: false,
       remaining: 0,
-      resetAt: record.resetAt,
+      resetAt: Number(existing.reset_at),
       retryAfter,
     };
   }
 
-  // Increment count
-  record.count += 1;
-  rateLimitStore.set(key, record);
+  // Increment counter
+  await adminClient
+    .from('rate_limit_records')
+    .update({ count: existing.count + 1, updated_at: new Date().toISOString() })
+    .eq('key', key);
 
   return {
     allowed: true,
-    remaining: maxAttempts - record.count,
-    resetAt: record.resetAt,
+    remaining: maxAttempts - existing.count - 1,
+    resetAt: Number(existing.reset_at),
   };
 }
 
 /**
- * Generate rate limit key from request data
+ * Generate a namespaced rate limit key.
  */
 export function generateAuthKey(type: 'login' | 'signup', identifier: string): string {
   return `${type}:${identifier.toLowerCase().trim()}`;
 }
 
 /**
- * Account lockout functions
- * Track failed login attempts and lock accounts after threshold
- */
-
-/**
- * Check if account is currently locked
+ * Check if account is currently locked.
  */
 export async function isAccountLocked(email: string): Promise<boolean> {
-  'use server';
-  let lockStore = globalThis.accountLockStore as Map<string, LockoutRecord> | undefined;
-  if (!lockStore) {
-    lockStore = new Map();
-    globalThis.accountLockStore = lockStore;
-  }
 
-  const record = lockStore.get(email);
-  if (!record) return false;
+  const key = `lock:${email.toLowerCase().trim()}`;
+  const { data } = await adminClient
+    .from('rate_limit_records')
+    .select('locked_until')
+    .eq('key', key)
+    .maybeSingle();
+
+  if (!data || !data.locked_until) return false;
 
   const now = Date.now();
-  if (now < record.lockedUntil) {
-    return true; // still locked
-  }
+  if (now < Number(data.locked_until)) return true;
 
-  // Lock expired, clean up
-  lockStore.delete(email);
+  // Lock expired — clear it
+  await adminClient
+    .from('rate_limit_records')
+    .update({ locked_until: 0, lock_reason: null, updated_at: new Date().toISOString() })
+    .eq('key', key);
+
   return false;
 }
 
 /**
- * Get remaining lock time in seconds (0 if not locked)
+ * Get remaining lock time in seconds (0 if not locked).
  */
 export async function getLockRemaining(email: string): Promise<number> {
-  'use server';
-  const lockStore = globalThis.accountLockStore as Map<string, LockoutRecord> | undefined;
-  if (!lockStore) return 0;
 
-  const record = lockStore.get(email);
-  if (!record) return 0;
+  const key = `lock:${email.toLowerCase().trim()}`;
+  const { data } = await adminClient
+    .from('rate_limit_records')
+    .select('locked_until')
+    .eq('key', key)
+    .maybeSingle();
+
+  if (!data || !data.locked_until) return 0;
 
   const now = Date.now();
-  if (now >= record.lockedUntil) {
-    lockStore?.delete(email);
-    return 0;
-  }
-
-  return Math.ceil((record.lockedUntil - now) / 1000);
+  const remaining = Number(data.locked_until) - now;
+  return remaining > 0 ? Math.ceil(remaining / 1000) : 0;
 }
 
 /**
- * Record a failed login attempt
- * Returns: whether the account is now locked
+ * Record a failed login attempt. Locks the account after maxAttempts failures.
  */
-export async function recordFailedLogin(email: string, maxAttempts: number = 5, lockDurationMs: number = 60 * 60 * 1000): Promise<{
+export async function recordFailedLogin(
+  email: string,
+  maxAttempts: number = 5,
+  lockDurationMs: number = 60 * 60 * 1000
+): Promise<{
   locked: boolean;
   attempts: number;
   lockRemaining?: number;
 }> {
-  'use server';
 
-  const key = `failed_login:${email.toLowerCase().trim()}`;
-
-  let rateLimitStore = globalThis.rateLimitStore as Map<string, RateLimitRecord> | undefined;
-  if (!rateLimitStore) {
-    rateLimitStore = new Map();
-    globalThis.rateLimitStore = rateLimitStore;
-  }
-
+  const failKey = `failed_login:${email.toLowerCase().trim()}`;
+  const lockKey = `lock:${email.toLowerCase().trim()}`;
   const now = Date.now();
-  const record = rateLimitStore.get(key);
+  const windowMs = 60 * 60 * 1000; // 1 hour window
 
-  // If no record or expired, start fresh
-  if (!record || now > record.resetAt) {
-    rateLimitStore.set(key, {
-      count: 1,
-      resetAt: now + (60 * 60 * 1000), // 1 hour window for failures
-    });
-    return { locked: false, attempts: 1 };
+  // Fetch existing failure record
+  const { data: existing } = await adminClient
+    .from('rate_limit_records')
+    .select('count, reset_at')
+    .eq('key', failKey)
+    .maybeSingle();
+
+  let newCount: number;
+
+  if (!existing || now > Number(existing.reset_at)) {
+    newCount = 1;
+    await adminClient.from('rate_limit_records').upsert(
+      { key: failKey, count: 1, reset_at: now + windowMs, updated_at: new Date().toISOString() },
+      { onConflict: 'key' }
+    );
+  } else {
+    newCount = existing.count + 1;
+    await adminClient
+      .from('rate_limit_records')
+      .update({ count: newCount, updated_at: new Date().toISOString() })
+      .eq('key', failKey);
   }
 
-  // Increment failed count
-  record.count += 1;
-  rateLimitStore.set(key, record);
-
-  // Check if should lock
-  if (record.count >= maxAttempts) {
-    // Lock the account
-    let lockStore = globalThis.accountLockStore as Map<string, LockoutRecord> | undefined;
-    if (!lockStore) {
-      lockStore = new Map();
-      globalThis.accountLockStore = lockStore;
-    }
-
+  // Lock account if threshold reached
+  if (newCount >= maxAttempts) {
     const lockUntil = now + lockDurationMs;
-    lockStore.set(email, {
-      lockedUntil: lockUntil,
-      reason: `Too many failed login attempts (${record.count})`,
-    });
+    await adminClient.from('rate_limit_records').upsert(
+      {
+        key: lockKey,
+        count: newCount,
+        reset_at: lockUntil,
+        locked_until: lockUntil,
+        lock_reason: `Too many failed login attempts (${newCount})`,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'key' }
+    );
 
     return {
       locked: true,
-      attempts: record.count,
+      attempts: newCount,
       lockRemaining: lockDurationMs / 1000,
     };
   }
 
-  return { locked: false, attempts: record.count };
+  return { locked: false, attempts: newCount };
 }
 
 /**
- * Reset failed login counter on successful authentication
+ * Reset failed login counter and any account lock on successful authentication.
  */
 export async function resetFailedLogin(email: string): Promise<void> {
-  'use server';
-  const key = `failed_login:${email.toLowerCase().trim()}`;
-  const rateLimitStore = globalThis.rateLimitStore as Map<string, RateLimitRecord> | undefined;
-  if (rateLimitStore) {
-    rateLimitStore.delete(key);
-  }
 
-  // Also clear any existing lock
-  const lockStore = globalThis.accountLockStore as Map<string, LockoutRecord> | undefined;
-  if (lockStore) {
-    lockStore.delete(email);
-  }
+  const failKey = `failed_login:${email.toLowerCase().trim()}`;
+  const lockKey = `lock:${email.toLowerCase().trim()}`;
+
+  await Promise.all([
+    adminClient.from('rate_limit_records').delete().eq('key', failKey),
+    adminClient.from('rate_limit_records').delete().eq('key', lockKey),
+  ]);
 }

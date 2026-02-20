@@ -1,5 +1,5 @@
 import { jsPDF } from 'jspdf'
-import 'jspdf-autotable'
+import autoTable from 'jspdf-autotable'
 import type { ReportData } from '../../types/reports'
 import { formatCurrencyCLP, formatDateES } from './report-data-aggregator'
 import { parseISO } from 'date-fns'
@@ -213,7 +213,7 @@ function addOrdersTable(doc: jsPDF, data: ReportData, startY: number): number {
  ])
 
  // autoTable configuration
- ;(doc as any).autoTable({
+ autoTable(doc, {
    startY: startY,
    head: [headers],
    body: rows,
@@ -291,7 +291,7 @@ function addCostsTable(doc: jsPDF, data: ReportData, startY: number): number {
    ['TOTAL', formatCurrencyCLP(total), '100%'],
  ]
 
- ;(doc as any).autoTable({
+ autoTable(doc, {
    startY,
    head: [headers],
    body: body,
@@ -355,7 +355,7 @@ function addInventoryTable(doc: jsPDF, data: ReportData, startY: number): number
    formatCurrencyCLP(inv.totalValue),
  ])
 
- ;(doc as any).autoTable({
+ autoTable(doc, {
    startY,
    head: [headers],
    body: body,

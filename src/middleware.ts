@@ -1,10 +1,11 @@
+import { createServerClient } from '@supabase/ssr';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 /**
  * Security Headers Middleware
  *
- * Applies essential security headers to all pages (excluding static assets and API routes).
+ * Refreshes Supabase session cookies and applies security headers on every request.
  * Implements OWASP-recommended protections against:
  * - Clickjacking (X-Frame-Options)
  * - MIME-sniffing (X-Content-Type-Options)
@@ -12,44 +13,67 @@ import type { NextRequest } from 'next/server';
  * - Unnecessary browser features (Permissions-Policy)
  * - XSS (Content-Security-Policy)
  * - SSL stripping (Strict-Transport-Security in production)
- *
- * Reference: rules/CYBERSECURITY_MASTERY.md lines 716-784
  */
 
-export function middleware(request: NextRequest) {
-  const response = NextResponse.next();
+export async function middleware(request: NextRequest) {
+  let supabaseResponse = NextResponse.next({ request });
 
-  // 1. Clickjacking protection - prevent embedding in iframes
-  response.headers.set('X-Frame-Options', 'DENY');
+  // Session refresh: keeps HttpOnly session cookie alive on every request
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+          supabaseResponse = NextResponse.next({ request });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          );
+        },
+      },
+    }
+  );
 
-  // 2. MIME-sniffing protection - prevent browser from guessing content type
-  response.headers.set('X-Content-Type-Options', 'nosniff');
+  // IMPORTANT: Do not add logic between createServerClient and getUser()
+  await supabase.auth.getUser();
 
-  // 3. Referrer Policy - control referrer information sent to other sites
-  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseHost = supabaseUrl.replace('https://', '');
 
-  // 4. Permissions Policy - disable unused browser APIs (privacy/security)
-  response.headers.set(
+  // 1. Clickjacking protection
+  supabaseResponse.headers.set('X-Frame-Options', 'DENY');
+
+  // 2. MIME-sniffing protection
+  supabaseResponse.headers.set('X-Content-Type-Options', 'nosniff');
+
+  // 3. Referrer Policy
+  supabaseResponse.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+  // 4. Permissions Policy
+  supabaseResponse.headers.set(
     'Permissions-Policy',
     'geolocation=(), microphone=(), camera=(), battery=(), accelerometer=(), gyroscope=(), magnetometer=(), payment=(), usb=()'
   );
 
-  // 5. Content Security Policy - mitigate XSS (start permissive, tighten later)
-  // Allows self resources + inline styles (required for some UI libs)
-  response.headers.set(
-    "Content-Security-Policy",
-    "default-src 'self'; connect-src 'self' https://cwcxdhsajdmeaaiyocli.supabase.co wss://cwcxdhsajdmeaaiyocli.supabase.co; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:;"
+  // 5. Content Security Policy — no unsafe-eval; Tailwind/shadcn require unsafe-inline on styles only
+  supabaseResponse.headers.set(
+    'Content-Security-Policy',
+    `default-src 'self'; connect-src 'self' ${supabaseUrl} wss://${supabaseHost}; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:;`
   );
 
-  // 6. HSTS (HTTP Strict Transport Security) - enforce HTTPS in production only
+  // 6. HSTS — enforce HTTPS in production only
   if (process.env.NODE_ENV === 'production') {
-    response.headers.set(
+    supabaseResponse.headers.set(
       'Strict-Transport-Security',
       'max-age=31536000; includeSubDomains; preload'
     );
   }
 
-  return response;
+  return supabaseResponse;
 }
 
 /**

@@ -15,7 +15,6 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { useAuth } from '@/app/contexts/AuthContext';
 import { useInventoryMaterials } from '@/lib/hooks/useInventoryMaterials';
 import { useConcretePlants } from '@/lib/hooks/useConcretePlants';
 import { useEquipment } from '@/lib/hooks/useEquipment';
@@ -28,7 +27,7 @@ import {
 import { Plus, Trash2, Calculator } from 'lucide-react';
 
 const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('es-ES', {
+  return new Intl.NumberFormat('es-CL', {
     style: 'currency',
     currency: 'CLP',
     minimumFractionDigits: 0,
@@ -42,7 +41,7 @@ interface ProductionOrderFormProps {
 }
 
 export function ProductionOrderForm({ onSubmit, onCancel, initialData }: ProductionOrderFormProps) {
-  const { user } = useAuth();
+  
   const { materials } = useInventoryMaterials({ userRole: 'engineer' });
   const { plants } = useConcretePlants();
   const { equipment: allEquipment } = useEquipment();

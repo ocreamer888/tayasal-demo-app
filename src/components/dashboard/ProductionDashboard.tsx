@@ -4,7 +4,7 @@ import { useProductionOrders } from '@/lib/hooks/useProductionOrders';
 import { useInventoryMaterials } from '@/lib/hooks/useInventoryMaterials';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
+import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 import {
   Area,
   AreaChart,
@@ -20,7 +20,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from 'recharts';
-import { Package, TrendingUp, Clock, CheckCircle, AlertTriangle } from 'lucide-react';
+import { CheckCircle, AlertTriangle } from 'lucide-react';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -31,17 +31,15 @@ interface ProductionDashboardProps {
 }
 
 export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboardProps) {
-  const { user } = useAuth();
+  useAuth();
 
   const {
     orders,
     loading: ordersLoading,
-    allFilteredOrders,
   } = useProductionOrders({ userRole });
 
   const {
     materials: inventoryMaterials,
-    loading: inventoryLoading,
   } = useInventoryMaterials({ userRole });
 
   // Calculate KPIs
@@ -50,8 +48,6 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
   const avgCostPerOrder = totalOrders > 0
     ? orders.reduce((sum, order) => sum + order.total_cost, 0) / totalOrders
     : 0;
-  const pendingApprovals = orders.filter(o => o.status === 'submitted').length;
-  const approvedOrders = orders.filter(o => o.status === 'approved').length;
 
   // Data for charts
   const ordersByStatus = [
@@ -102,10 +98,8 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
     m => m.current_quantity <= m.min_stock_quantity && m.current_quantity > 0
   );
 
-  const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
-
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('es-ES', {
+    return new Intl.NumberFormat('es-CL', {
       style: 'currency',
       currency: 'CLP',
       minimumFractionDigits: 0,
@@ -136,13 +130,13 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
         )}
       </div>
 
-      <div className="grid grid-cols-1 gap-4 auto-rows-1fr">
+      <div className="grid grid-cols-1 gap-4 auto-rows-auto">
         {/* Production Trend */}
-        <Card className="flex flex-col min-h-0">
+        <Card className="flex flex-col">
           <CardHeader className="w-full flex-shrink-0">
             <CardTitle className="text-h3 text-neutral-900">Producción por Mes</CardTitle>
           </CardHeader>
-          <CardContent className="flex-1 w-full px-4 pb-0 min-h-0">
+          <CardContent className="flex flex-col w-full px-4 pb-0 min-h-[300px]">
             <ChartContainer
               config={{
                 cantidad: {
@@ -153,7 +147,7 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
             >
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={productionByMonth}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--neutral-200)" className="stroke-neutral-200" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--muted-foreground)" />
                   <XAxis
                     dataKey="month"
                     tick={{ fontSize: 12 }}
@@ -184,11 +178,11 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
         </Card>
 
         {/* Orders by Status */}
-        <Card className="flex flex-col min-h-0">
+        <Card className="flex flex-col">
           <CardHeader className="w-full flex-shrink-0">
             <CardTitle className="text-h3 text-neutral-900">Órdenes por Estado</CardTitle>
           </CardHeader>
-          <CardContent className="flex-1 w-full px-4 pb-0 min-h-0 flex items-center justify-center">
+          <CardContent className="flex flex-col w-full px-4 pb-0 min-h-[300px] flex items-center justify-center">
             <ChartContainer
               config={{
                 value: {
@@ -208,7 +202,7 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
                     outerRadius={80}
                     dataKey="value"
                   >
-                    {ordersByStatus.map((entry, index) => {
+                    {ordersByStatus.map((_entry, index) => {
                       const colors = ['var(--chart-1)', 'var(--chart-3)', 'var(--destructive)', 'var(--muted-foreground)'];
                       return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
                     })}
@@ -221,13 +215,13 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 auto-rows-1fr">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 auto-rows-auto">
         {/* Production by Block Type */}
-        <Card className="flex flex-col min-h-0 p-6">
+        <Card className="flex flex-col p-6">
           <CardHeader className="w-full flex-shrink-0">
             <CardTitle className="text-h3 text-neutral-900">Producción por Tipo de Bloque</CardTitle>
           </CardHeader>
-          <CardContent className="flex-1 w-full px-4 pb-0 min-h-0">
+          <CardContent className="flex flex-col w-full px-4 pb-0 min-h-[300px]">
             <ChartContainer
               config={{
                 value: {
@@ -238,7 +232,7 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
             >
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={productionByType}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--neutral-200)" className="stroke-neutral-200" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--muted-foreground)" />
                   <XAxis
                     dataKey="name"
                     tick={{ fontSize: 12 }}

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import {
  filterOrdersByDate,
  calculateSummary,
@@ -85,8 +85,6 @@ function createInventoryMaterial(
 // ============================================================================
 // Sample Test Data
 // ============================================================================
-
-const now = new Date()
 
 // Create orders on different dates
 const orders: ProductionOrder[] = [

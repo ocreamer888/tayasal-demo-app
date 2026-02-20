@@ -39,6 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (error) throw error;
       setProfile(data as Profile);
     } catch (error) {
+      console.error('Auth profile fetch failed:', error);
       setProfile(null);
     }
   }, [supabase]);
@@ -51,7 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (mounted) {
         setLoading(false);
       }
-    }, 5000);
+    }, 3000);
 
     supabase.auth.getUser()
       .then(({ data: { user } }) => {
@@ -60,17 +61,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(user);
           if (user) {
             fetchProfile(user.id);
-          } else {
           }
         }
       })
       .catch(err => {
         clearTimeout(getUserTimeout);
+        console.error('Auth init failed:', err);
       })
       .finally(() => {
         if (mounted) {
           setLoading(false);
-        } else {
         }
       });
 
@@ -78,8 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('🔧 AuthContext: onAuthStateChange fired:', event, session?.user?.email || 'no user');
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (!mounted) return;
 
       // Update user immediately
@@ -88,7 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (session?.user) {
         // Fetch profile in background without blocking loading state
         fetchProfile(session.user.id).catch(err => {
-          console.error('🔧 AuthContext: Profile fetch failed:', err);
+          console.error('Auth profile fetch failed:', err);
           setProfile(null);
         });
       } else {
@@ -101,7 +100,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     return () => {
-      console.log('🔧 AuthContext: Unmounting - setting mounted=false');
       mounted = false;
       subscription.unsubscribe();
     };

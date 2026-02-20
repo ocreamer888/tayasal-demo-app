@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -45,11 +44,8 @@ export default function LoginPage() {
         throw new Error(data.error || 'Error al iniciar sesión');
       }
 
-      // Set the session in Supabase client (stores in localStorage)
-      if (data.session) {
-        await supabase.auth.setSession(data.session);
-        // Navigation will happen automatically via useEffect when context updates
-      }
+      // Session is set via HttpOnly cookie by the server — onAuthStateChange in
+      // AuthContext will detect it and trigger navigation via the useEffect above.
     } catch (error: any) {
       console.warn('Login failed:', { email, message: error.message });
       toast.error(error.message || 'Error al iniciar sesión');

@@ -1,6 +1,5 @@
 "use client"
 
-import * as React from "react"
 import Link from "next/link"
 import { useAuth } from "@/app/contexts/AuthContext"
 import { Button } from "@/components/ui/button"

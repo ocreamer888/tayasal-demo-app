@@ -10,7 +10,7 @@ import { useInventoryMaterials } from '@/lib/hooks/useInventoryMaterials';
 import { useConcretePlants } from '@/lib/hooks/useConcretePlants';
 import { useEquipment } from '@/lib/hooks/useEquipment';
 import { useTeamMembers } from '@/lib/hooks/useTeamMembers';
-import { Plus, AlertTriangle, Package } from 'lucide-react';
+import { Plus, Package } from 'lucide-react';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { MaterialDialog } from './dialogs/MaterialDialog';
 import { PlantDialog } from './dialogs/PlantDialog';
@@ -28,36 +28,27 @@ export function InventoryPanel() {
   const [isTeamDialogOpen, setIsTeamDialogOpen] = useState(false);
 
   const {
-    materials: inventoryMaterials,
     filteredMaterials,
     loading: materialsLoading,
     addMaterial,
-    updateMaterial,
-    updateStock,
   } = useInventoryMaterials({ userRole: 'engineer' });
 
   const {
     plants,
     loading: plantsLoading,
     addPlant,
-    updatePlant,
-    deletePlant,
   } = useConcretePlants();
 
   const {
     equipment,
     loading: equipmentLoading,
     addEquipment,
-    updateEquipment,
-    deleteEquipment,
   } = useEquipment();
 
   const {
     members,
     loading: teamLoading,
     addMember,
-    updateMember,
-    deleteMember,
   } = useTeamMembers();
 
   const tabs = [

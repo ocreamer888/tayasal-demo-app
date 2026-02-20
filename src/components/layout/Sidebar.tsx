@@ -21,29 +21,6 @@ export function Sidebar({ className }: SidebarProps) {
     !item.roles || item.roles.includes(userRole)
   )
 
-  const { user } = useAuth()
-
-  const getInitials = (name?: string | null, email?: string | null) => {
-    const fullName = name || user?.user_metadata?.full_name || ""
-    if (fullName) {
-      return fullName
-        .split(" ")
-        .map((n: string) => n[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 2)
-    }
-    if (email) {
-      return email.charAt(0).toUpperCase()
-    }
-    return "U"
-  }
-
-  const displayName = profile?.company_name || user?.user_metadata?.full_name || user?.email || "Usuario"
-  const userRoleLabel = profile?.role === "engineer" || profile?.role === "admin"
-    ? "Ingeniero / Admin"
-    : "Operario"
-
   return (
     <div className={cn(
       "hidden md:flex flex-col h-screen w-64 backdrop-blur-md border-x border-r-white/20 rounded-2xl",

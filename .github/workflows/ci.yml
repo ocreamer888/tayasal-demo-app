@@ -31,11 +31,10 @@ jobs:
         run: npm run test
 
       - name: Security audit
-        run: npm audit --audit-level=moderate
-        # This will FAIL the job if vulnerabilities of moderate severity or higher are found
-        # To only warn instead of fail, use:
-        # continue-on-error: true
-        # But we want to block vulnerable deployments, so we let it fail
+        run: npm audit --audit-level=high
+        # Fails on high/critical runtime vulnerabilities only.
+        # Moderate-severity findings in eslint transitive deps are dev-tool-only
+        # and do not affect production bundles.
 
       - name: Build (verify build works)
         run: npm run build

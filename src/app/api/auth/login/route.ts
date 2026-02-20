@@ -1,22 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { z } from 'zod';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { checkRateLimit, generateAuthKey, isAccountLocked, getLockRemaining, recordFailedLogin, resetFailedLogin } from '@/lib/rate-limit';
-import { getClientErrorMessage } from '@/lib/error-handler';
+import { logAuditEvent } from '@/lib/audit-logger';
+
+const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1),
+});
 
 /**
  * POST /api/auth/login
- * Security: Rate limit (5 email/15min, 20 IP/15min) + Account lockout (5 fails → 1h)
+ * Security: Zod validation + Rate limit (20 IP/15min) + Account lockout (5 fails → 1h)
  */
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json();
-
-    if (!email || !password) {
-      return NextResponse.json(
-        { error: 'Email y contraseña requeridos' },
-        { status: 400 }
-      );
+    const body = await request.json();
+    const parsed = loginSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Datos de entrada inválidos' }, { status: 400 });
     }
+    const { email, password } = parsed.data;
 
     // Check account lockout first (before revealing account exists)
     const locked = await isAccountLocked(email);
@@ -38,24 +42,19 @@ export async function POST(request: NextRequest) {
     if (!ipLimit.allowed) {
       return NextResponse.json(
         { error: 'Demasiados intentos desde esta IP.', retryAfter: ipLimit.retryAfter || 900 },
-        { status: 429 }
+        { status: 429, headers: { 'Retry-After': String(ipLimit.retryAfter || 900) } }
       );
     }
 
-    // Auth with Supabase
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-
+    // Auth with Supabase (server-side — session written to HttpOnly cookie)
+    const supabase = await createSupabaseServerClient();
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
-      // Record failed attempt (may trigger lockout)
       const failResult = await recordFailedLogin(email);
-      console.error(`Login failed for ${email}: ${error.message} (attempts: ${failResult.attempts})`);
+      console.error('Login failed:', error.message, 'attempts:', failResult.attempts);
+      await logAuditEvent({ action: 'login_failed', ip, metadata: { attempts: failResult.attempts } });
 
-      // If account just got locked, return lockout message
       if (failResult.locked) {
         return NextResponse.json(
           {
@@ -73,15 +72,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Successful login: reset failed counter and any lock
+    // Successful login: reset failed counter and log the event
     await resetFailedLogin(email);
+    await logAuditEvent({ action: 'login', userId: data.user?.id, ip });
 
-    // Return session data
+    // Session is set via HttpOnly cookie by the server client — no raw session in response
     return NextResponse.json(
-      { user: data.user, session: data.session, message: 'Inicio de sesión exitoso' },
+      { user: data.user, message: 'Inicio de sesión exitoso' },
       { status: 200 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Login API error:', error);
     return NextResponse.json({ error: 'Error interno' }, { status: 500 });
   }

@@ -6,7 +6,7 @@
  * is leaked to clients in production mode.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { getClientErrorMessage, createErrorResponse } from '../error-handler';
 
 describe('getClientErrorMessage', () => {
@@ -151,10 +151,9 @@ describe('createErrorResponse', () => {
     it('should never include stack trace in response', async () => {
       vi.stubEnv('NODE_ENV', 'production');
       const error = new Error('test error');
-      // @ts-expect-error - adding stack manually for test
       error.stack = 'Error: test error\n    at Function.<anonymous>';
-      const response = createErrorResponse(error, 500);
-      const data = await response.json();
+      const _response = createErrorResponse(error, 500);
+      const data = await _response.json();
       expect(data.error).not.toContain('stack');
       expect(data.error).not.toContain('at Function');
     });
@@ -162,7 +161,7 @@ describe('createErrorResponse', () => {
     it('should log error to console in both modes', () => {
       vi.stubEnv('NODE_ENV', 'development');
       const error = new Error('test');
-      const response = createErrorResponse(error, 500);
+      createErrorResponse(error, 500);
       expect(console.error).toHaveBeenCalledWith(
         'Error 500:',
         error.message,
@@ -173,7 +172,7 @@ describe('createErrorResponse', () => {
     it('should log non-Error values appropriately', () => {
       vi.stubEnv('NODE_ENV', 'production');
       const unknownValue = { code: 'DB_ERROR', detail: 'connection failed' };
-      const response = createErrorResponse(unknownValue, 500);
+      createErrorResponse(unknownValue, 500);
       expect(console.error).toHaveBeenCalledWith('Error 500:', unknownValue);
     });
 
@@ -188,8 +187,8 @@ describe('createErrorResponse', () => {
     it('should sanitize error with SQL injection attempt', async () => {
       vi.stubEnv('NODE_ENV', 'production');
       const error = new Error("SQL: DROP TABLE users; --");
-      const response = createErrorResponse(error, 500);
-      const data = await response.json();
+      const _response = createErrorResponse(error, 500);
+      const data = await _response.json();
       expect(data.error).not.toContain('DROP');
       expect(data.error).not.toContain('users');
     });
@@ -208,8 +207,8 @@ describe('createErrorResponse', () => {
       const error = new Error(
         'Connection failed: postgresql://user:password123@localhost/db'
       );
-      const response = createErrorResponse(error, 500);
-      const data = await response.json();
+      const _response = createErrorResponse(error, 500);
+      const data = await _response.json();
       expect(data.error).not.toContain('password123');
       expect(data.error).not.toContain('postgresql://');
     });

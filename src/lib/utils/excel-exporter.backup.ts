@@ -268,11 +268,6 @@ function buildCostsSheet(workbook: XLSX.WorkBook, data: ReportData): void {
    const rowIdx = 4 + i + 1
    const cellA = ws[`A${rowIdx}`]
    const cellB = ws[`B${rowIdx}`]
-
-   // C column cells don't exist yet (categories only has 2 cols) — create them
-   const amount = cat[1] as number
-   const percentage = total > 0 ? amount / total : 0
-   ws[`C${rowIdx}`] = { v: percentage, t: 'n' }
    const cellC = ws[`C${rowIdx}`]
 
    cellA.s = { ...cellA?.s, border: BORDER_STYLE }
@@ -282,9 +277,16 @@ function buildCostsSheet(workbook: XLSX.WorkBook, data: ReportData): void {
      numFmt: '"$"#,##0', // CLP format approximation
    }
    cellC.s = {
+     ...cellC?.s,
      border: BORDER_STYLE,
      numFmt: '0.00%',
    }
+
+   // Add percentage
+   const amount = cat[1] as number
+   const percentage = total > 0 ? amount / total : 0
+   ws[`C${rowIdx}`].v = percentage
+   ws[`C${rowIdx}`].t = 'n'
  })
 
  // Total row
@@ -295,17 +297,17 @@ function buildCostsSheet(workbook: XLSX.WorkBook, data: ReportData): void {
  const totalCellC = ws[`C${totalRowIdx}`]
 
  totalCellA.s = {
-   border: TOTAL_ROW.border,
+   ...TOTAL_ROW.border,
    font: { bold: true },
    fill: { fgColor: { rgb: 'ecfccb' } },
  }
  totalCellB.s = {
-   border: TOTAL_ROW.border,
+   ...TOTAL_ROW.border,
    font: { bold: true },
    numFmt: '"$"#,##0',
  }
  totalCellC.s = {
-   border: TOTAL_ROW.border,
+   ...TOTAL_ROW.border,
    font: { bold: true },
    numFmt: '0.00%',
  }

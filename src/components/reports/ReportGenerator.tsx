@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { ReportForm } from './ReportForm'
@@ -34,7 +34,6 @@ export function ReportGenerator() {
  const [reportData, setReportData] = useState<ReportData | null>(null)
  const [previewConfig, setPreviewConfig] = useState<ReportConfig | null>(null)
  const [isGenerating, setIsGenerating] = useState(false)
- const [error, setError] = useState<string | null>(null)
 
  /**
   * Handle preview request: aggregate data and show modal.
@@ -50,10 +49,8 @@ export function ReportGenerator() {
      setReportData(data)
      setPreviewConfig(config)
      setShowPreview(true)
-     setError(null)
    } catch (err) {
      const message = err instanceof Error ? err.message : 'Error al generar reporte'
-     setError(message)
      toast.error(message)
    }
  }, [orders, inventoryMaterials, ordersLoading])
@@ -69,7 +66,6 @@ export function ReportGenerator() {
      }
 
      setIsGenerating(true)
-     setError(null)
 
      try {
        // 1. Aggregate data
@@ -93,7 +89,6 @@ export function ReportGenerator() {
        }
      } catch (err) {
        const message = err instanceof Error ? err.message : 'Error al exportar reporte'
-       setError(message)
        toast.error(message)
      } finally {
        setIsGenerating(false)

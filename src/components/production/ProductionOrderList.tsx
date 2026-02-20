@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { ProductionOrder } from '@/types/production-order';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -23,7 +22,6 @@ import {
   XCircle,
   Clock
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 interface ProductionOrderListProps {
   orders: ProductionOrder[];
@@ -44,7 +42,6 @@ export function ProductionOrderList({
   onUpdateStatus,
   userRole
 }: ProductionOrderListProps) {
-  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
 
   const getStatusBadge = (status: ProductionOrder['status']) => {
     const variant =
@@ -86,7 +83,7 @@ export function ProductionOrderList({
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('es-ES', {
+    return new Intl.NumberFormat('es-CL', {
       style: 'currency',
       currency: 'CLP',
       minimumFractionDigits: 0,

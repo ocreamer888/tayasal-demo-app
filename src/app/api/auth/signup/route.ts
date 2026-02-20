@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { z } from 'zod';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { checkRateLimit, generateAuthKey } from '@/lib/rate-limit';
 import { getClientErrorMessage } from '@/lib/error-handler';
+import { logAuditEvent } from '@/lib/audit-logger';
+
+const signupSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(12),
+  full_name: z.string().min(2).max(100),
+  role: z.enum(['operator', 'engineer', 'admin']),
+});
 
 /**
  * POST /api/auth/signup
@@ -9,21 +18,16 @@ import { getClientErrorMessage } from '@/lib/error-handler';
  */
 export async function POST(request: NextRequest) {
   try {
-    const { email, password, full_name, role } = await request.json();
-
-    if (!email || !password || !full_name || !role) {
-      return NextResponse.json(
-        { error: 'Todos los campos son requeridos' },
-        { status: 400 }
-      );
+    const body = await request.json();
+    const parsed = signupSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Datos de entrada inválidos' }, { status: 400 });
     }
+    const { email, password, full_name, role } = parsed.data;
 
-    if (!['operator', 'engineer', 'admin'].includes(role)) {
-      return NextResponse.json({ error: 'Rol inválido' }, { status: 400 });
-    }
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('cf-connecting-ip') || 'unknown';
 
     // Rate limiting
-    const ip = request.headers.get('x-forwarded-for') || request.headers.get('cf-connecting-ip') || 'unknown';
     const emailLimit = await checkRateLimit(generateAuthKey('signup', email), 3, 60 * 60 * 1000);
     if (!emailLimit.allowed) {
       return NextResponse.json(
@@ -40,12 +44,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Auth with Supabase (server-side)
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-
+    // Auth with Supabase (server-side — session written to HttpOnly cookie)
+    const supabase = await createSupabaseServerClient();
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -55,8 +55,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (error) {
-      console.error(`Signup failed for ${email}: ${error.message}`);
-      // Sanitize error message for production (prevent information leakage)
+      console.error('Signup failed:', error.message);
       const errorMessage = getClientErrorMessage(
         error,
         'No se pudo crear la cuenta. Por favor, verifica la información e inténtalo de nuevo.'
@@ -64,16 +63,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: errorMessage }, { status: 400 });
     }
 
-    // Return session data for client to set (if confirmed immediately)
+    await logAuditEvent({ action: 'signup', userId: data.user?.id, ip });
+
     return NextResponse.json(
       {
         user: data.user,
-        session: data.session,
         message: 'Cuenta creada exitosamente. Por favor verifica tu correo electrónico.'
       },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Signup API error:', error);
     return NextResponse.json({ error: 'Error interno' }, { status: 500 });
   }

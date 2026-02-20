@@ -1,11 +1,9 @@
 'use client'
 
-import React from 'react'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { ReportGenerator } from '@/components/reports/ReportGenerator'
 import { useAuth } from '@/app/contexts/AuthContext'
-import { Card, CardContent } from '@/components/ui/card'
 import { Loader2 } from 'lucide-react'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Header } from '@/components/layout/Header'

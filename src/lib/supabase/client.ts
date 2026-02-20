@@ -1,10 +1,7 @@
-import { createClient } from '@supabase/supabase-js';
+import { createBrowserClient } from '@supabase/ssr';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-// Create and export a configured Supabase client instance
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-// Also export createClient for flexibility if needed
-export { createClient };
+// Browser client — uses HttpOnly cookies for session (not localStorage)
+export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey);

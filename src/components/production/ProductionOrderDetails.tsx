@@ -6,11 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
   XCircle,
-  CheckCircle,
   Clock,
   Calendar,
-  Users,
-  Wrench
 } from 'lucide-react';
 import { useAuth } from '@/app/contexts/AuthContext';
 
@@ -21,7 +18,7 @@ interface ProductionOrderDetailsProps {
   onUpdateStatus?: (id: string, status: ProductionOrder['status']) => void;
 }
 
-export function ProductionOrderDetails({ order, onClose, onEdit, onUpdateStatus }: ProductionOrderDetailsProps) {
+export function ProductionOrderDetails({ order, onClose, onEdit }: ProductionOrderDetailsProps) {
   const { profile } = useAuth();
   const userRole = profile?.role || 'operator';
 
@@ -47,7 +44,7 @@ export function ProductionOrderDetails({ order, onClose, onEdit, onUpdateStatus 
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('es-ES', {
+    return new Intl.NumberFormat('es-CL', {
       style: 'currency',
       currency: 'CLP',
       minimumFractionDigits: 0,

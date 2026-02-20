@@ -8,7 +8,7 @@ import { ProductionOrderList } from '@/components/production/ProductionOrderList
 import { ProductionOrderForm } from '@/components/production/ProductionOrderForm';
 import { ProductionOrderDetails } from '@/components/production/ProductionOrderDetails';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Header } from '@/components/layout/Header';
@@ -18,7 +18,7 @@ import { ProductionOrder } from '@/types/production-order';
 import { Sidebar } from '@/components/layout/Sidebar';
 
 export default function OrdersPage() {
-  const { user, profile } = useAuth();
+  const { profile } = useAuth();
   const userRole = (profile?.role as 'operator' | 'engineer' | 'admin') || 'operator';
 
   const {
