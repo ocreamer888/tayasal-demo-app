@@ -91,8 +91,9 @@ export default function SignupPage() {
         alert('¡Cuenta creada exitosamente! Por favor verifica tu correo electrónico.');
         router.push('/login');
       }
-    } catch (error: any) {
-      setError(error.message || 'Error al crear la cuenta');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Error al crear la cuenta';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

@@ -61,6 +61,7 @@ export function ReportForm({ onSubmit, onPreview, isLoading = false }: ReportFor
      setStartDate(range.start)
      setEndDate(range.end)
    }
+   // eslint-disable-next-line react-hooks/exhaustive-deps
  }, [cycleType])
 
  // Handlers

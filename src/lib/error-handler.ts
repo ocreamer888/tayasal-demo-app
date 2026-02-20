@@ -51,8 +51,7 @@ export function createErrorResponse(
  * Wrapper for API route handlers that provides consistent error handling
  */
 export async function withErrorHandling<T>(
-  fn: () => Promise<T>,
-  _defaultMessage?: string
+  fn: () => Promise<T>
 ): Promise<T> {
   try {
     return await fn();

@@ -36,8 +36,8 @@ export default function OrdersPage() {
   } = useProductionOrders({ userRole });
 
   const [showForm, setShowForm] = useState(false);
-  const [editingOrder, setEditingOrder] = useState<any>(null);
-  const [viewingOrder, setViewingOrder] = useState<any>(null);
+  const [editingOrder, setEditingOrder] = useState<ProductionOrder | null>(null);
+  const [viewingOrder, setViewingOrder] = useState<ProductionOrder | null>(null);
 
   const handleDelete = async (id: string) => {
     if (window.confirm('¿Estás seguro de que deseas eliminar esta orden?')) {
@@ -71,12 +71,12 @@ export default function OrdersPage() {
     }
   };
 
-  const handleSubmit = async (orderData: any) => {
+  const handleSubmit = (orderData: Omit<ProductionOrder, 'id' | 'user_id' | 'created_by_name' | 'createdAt' | 'updatedAt'>) => {
     try {
       if (editingOrder) {
-        await updateOrder(editingOrder.id, orderData);
+        updateOrder(editingOrder.id, orderData);
       } else {
-        await addOrder(orderData);
+        addOrder(orderData);
       }
       toast.success(
         editingOrder ? 'Orden actualizada exitosamente' : 'Orden creada exitosamente'
@@ -90,12 +90,12 @@ export default function OrdersPage() {
     }
   };
 
-  const handleEdit = (order: any) => {
+  const handleEdit = (order: ProductionOrder) => {
     setEditingOrder(order);
     setShowForm(true);
   };
 
-  const handleView = (order: any) => {
+  const handleView = (order: ProductionOrder) => {
     setViewingOrder(order);
   };
 

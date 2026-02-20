@@ -98,7 +98,7 @@ export function ProductionOrderForm({ onSubmit, onCancel, initialData }: Product
     }
   }, [formData.start_time, formData.end_time]);
 
-  const handleChange = (field: keyof ProductionOrderFormData, value: any) => {
+  const handleChange = (field: keyof ProductionOrderFormData, value: unknown) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
     if (errors[field]) {
@@ -374,7 +374,7 @@ export function ProductionOrderForm({ onSubmit, onCancel, initialData }: Product
               </Label>
               <Select
                 value={formData.production_shift}
-                onValueChange={(value) => handleChange('production_shift', value as any)}
+                onValueChange={(value) => handleChange('production_shift', value)}
               >
                 <SelectTrigger id="production_shift" className={errors.production_shift ? 'border-red-500' : ''}>
                   <SelectValue placeholder="Seleccionar turno..." />

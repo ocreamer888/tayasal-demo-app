@@ -84,9 +84,10 @@ export function MaterialDialog({ open, onOpenChange, onSubmit }: MaterialDialogP
 
       reset();
       onOpenChange(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'No se pudo crear el material';
       toast.error('Error', {
-        description: error.message || 'No se pudo crear el material',
+        description: errorMessage,
       });
     } finally {
       setIsSubmitting(false);

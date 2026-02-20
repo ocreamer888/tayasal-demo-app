@@ -163,7 +163,7 @@ function buildOrdersSheet(workbook: XLSX.WorkBook, data: ReportData): void {
  })
 
  // Data rows
- const rows: any[][] = []
+ const rows: (string | number)[][] = []
  data.orders.forEach((order) => {
    rows.push([
      order.id,
@@ -364,7 +364,7 @@ function buildInventorySheet(workbook: XLSX.WorkBook, data: ReportData): void {
  })
 
  // Data rows
- const rows: any[][] = data.inventoryChanges!.map((inv) => [
+ const rows: (string | number)[][] = data.inventoryChanges!.map((inv) => [
    inv.materialName,
    inv.unit,
    inv.stockInitial,

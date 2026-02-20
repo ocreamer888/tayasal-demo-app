@@ -17,7 +17,6 @@ import { parseISO } from 'date-fns'
 
 const BRAND_GREEN = '#15803d' as const
 const DARK_GREEN = '#14532d' as const
-const LIGHT_GRAY = '#f9fafb'
 const CONFIDENTIAL_TEXT = 'CONFIDENCIAL'
 
 // ============================================================================
@@ -35,10 +34,8 @@ export function exportToPDF(data: ReportData): void {
    format: 'a4',
  })
 
- let yPosition = 0
-
  // 1. Cover Page
- yPosition = addCoverPage(doc, data)
+ let yPosition = addCoverPage(doc, data)
 
  // 2. Executive Summary
  yPosition = addExecutiveSummary(doc, data, yPosition)
@@ -51,7 +48,7 @@ export function exportToPDF(data: ReportData): void {
 
  // 5. Inventory Table (if present)
  if (data.inventoryChanges && data.inventoryChanges.length > 0) {
-   yPosition = addInventoryTable(doc, data, yPosition)
+   addInventoryTable(doc, data, yPosition)
  }
 
  // 6. Add footer to all pages
@@ -229,7 +226,7 @@ function addOrdersTable(doc: jsPDF, data: ReportData, startY: number): number {
      fontSize: 9,
    },
    alternateRowStyles: {
-     fillColor: LIGHT_GRAY as any,
+     fillColor: [249, 250, 251],
    },
    columnStyles: {
      // ID column
@@ -249,16 +246,17 @@ function addOrdersTable(doc: jsPDF, data: ReportData, startY: number): number {
      8: { cellWidth: 30 },
    },
    margin: { left: 20, right: 20 },
-   didParseCell: function (data: any) {
+   didParseCell: function (data: unknown) {
      // Bold total column
-     if (data.column.index === 7 && data.row.section === 'body') {
-       data.cell.styles.fontStyle = 'bold'
-       data.cell.styles.textColor = DARK_GREEN
+     const cellData = data as {column: {index: number}; row: {section: string}; cell: {styles: Record<string, unknown>}};
+     if (cellData.column.index === 7 && cellData.row.section === 'body') {
+       cellData.cell.styles.fontStyle = 'bold'
+       cellData.cell.styles.textColor = DARK_GREEN
      }
    },
  })
 
- const endY = (doc as any).lastAutoTable.finalY + 15
+ const endY = (doc as unknown as {lastAutoTable: {finalY: number}}).lastAutoTable.finalY + 15
  return endY
 }
 
@@ -306,25 +304,26 @@ function addCostsTable(doc: jsPDF, data: ReportData, startY: number): number {
      fontSize: 10,
    },
    alternateRowStyles: {
-     fillColor: LIGHT_GRAY as any,
+     fillColor: [249, 250, 251],
    },
    columnStyles: {
      0: { halign: 'left', cellWidth: 40 },
      1: { halign: 'right', cellWidth: 30 },
      2: { halign: 'center', cellWidth: 20 },
    },
-   didParseCell: function (data: any) {
+   didParseCell: function (data: unknown) {
      // Bold total row
-     if (data.row.index === body.length - 1) {
-       data.cell.styles.fontStyle = 'bold'
-       data.cell.styles.fillColor = BRAND_GREEN
-       data.cell.styles.textColor = [255, 255, 255]
+     const cellData = data as {row: {index: number}; cell: {styles: Record<string, unknown>}};
+     if (cellData.row.index === body.length - 1) {
+       cellData.cell.styles.fontStyle = 'bold'
+       cellData.cell.styles.fillColor = BRAND_GREEN
+       cellData.cell.styles.textColor = [255, 255, 255]
      }
    },
    margin: { left: 20, right: 20 },
  })
 
- const endY = (doc as any).lastAutoTable.finalY + 15
+ const endY = (doc as unknown as {lastAutoTable: {finalY: number}}).lastAutoTable.finalY + 15
  return endY
 }
 
@@ -370,7 +369,7 @@ function addInventoryTable(doc: jsPDF, data: ReportData, startY: number): number
      fontSize: 9,
    },
    alternateRowStyles: {
-     fillColor: LIGHT_GRAY as any,
+     fillColor: [249, 250, 251],
    },
    columnStyles: {
      0: { halign: 'left', cellWidth: 30 },
@@ -384,7 +383,7 @@ function addInventoryTable(doc: jsPDF, data: ReportData, startY: number): number
    margin: { left: 20, right: 20 },
  })
 
- const endY = (doc as any).lastAutoTable.finalY + 15
+ const endY = (doc as unknown as {lastAutoTable: {finalY: number}}).lastAutoTable.finalY + 15
  return endY
 }
 

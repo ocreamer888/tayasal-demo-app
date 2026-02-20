@@ -9,20 +9,20 @@ interface UseInventoryMaterialsProps {
 
 type SortBy = 'name' | 'category' | 'quantity' | 'price';
 
-function transformInventoryFromDB(dbMaterial: any): InventoryMaterial {
+function transformInventoryFromDB(dbMaterial: Record<string, unknown>): InventoryMaterial {
   return {
-    id: dbMaterial.id,
-    user_id: dbMaterial.user_id,
-    material_name: dbMaterial.material_name,
-    category: dbMaterial.category,
-    unit: dbMaterial.unit,
-    current_quantity: dbMaterial.current_quantity,
-    unit_cost: dbMaterial.unit_cost,
-    min_stock_quantity: dbMaterial.min_stock_quantity,
-    location: dbMaterial.location,
-    last_updated: dbMaterial.last_updated,
-    created_at: dbMaterial.created_at,
-    updated_at: dbMaterial.updated_at,
+    id: dbMaterial.id as string,
+    user_id: dbMaterial.user_id as string,
+    material_name: dbMaterial.material_name as string,
+    category: dbMaterial.category as 'cement' | 'sand' | 'aggregate' | 'additive' | 'other',
+    unit: dbMaterial.unit as string,
+    current_quantity: dbMaterial.current_quantity as number,
+    unit_cost: dbMaterial.unit_cost as number,
+    min_stock_quantity: dbMaterial.min_stock_quantity as number,
+    location: dbMaterial.location as string,
+    last_updated: (dbMaterial.last_updated as string) || new Date().toISOString(),
+    created_at: dbMaterial.created_at as string,
+    updated_at: dbMaterial.updated_at as string,
   };
 }
 
@@ -264,12 +264,12 @@ export function useInventoryMaterials({ userRole }: UseInventoryMaterialsProps) 
     );
 
     try {
-      const updateData: any = { updated_at: new Date().toISOString() };
+      const updateData: Record<string, unknown> = { updated_at: new Date().toISOString() };
 
       Object.keys(updates).forEach(key => {
         if (key === 'id' || key === 'user_id' || key === 'created_at' || key === 'last_updated') return;
         const dbKey = key.replace(/([A-Z])/g, '_$1').toLowerCase();
-        updateData[dbKey] = (updates as any)[key];
+        updateData[dbKey] = (updates as Record<string, unknown>)[key];
       });
 
       const { error: updateError } = await supabase

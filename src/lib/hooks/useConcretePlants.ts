@@ -3,16 +3,16 @@ import { ConcretePlant } from '@/types/inventory';
 import { supabase } from '@/lib/supabase/client';
 import { useAuth } from '@/app/contexts/AuthContext';
 
-function transformPlantFromDB(dbPlant: any): ConcretePlant {
+function transformPlantFromDB(dbPlant: Record<string, unknown>): ConcretePlant {
   return {
-    id: dbPlant.id,
-    user_id: dbPlant.user_id,
-    name: dbPlant.name,
-    location: dbPlant.location,
-    capacity_per_hour: dbPlant.capacity_per_hour,
-    is_active: dbPlant.is_active,
-    created_at: dbPlant.created_at,
-    updated_at: dbPlant.updated_at,
+    id: dbPlant.id as string,
+    user_id: dbPlant.user_id as string,
+    name: dbPlant.name as string,
+    location: dbPlant.location as string,
+    capacity_per_hour: dbPlant.capacity_per_hour as number,
+    is_active: dbPlant.is_active as boolean,
+    created_at: dbPlant.created_at as string,
+    updated_at: dbPlant.updated_at as string,
   };
 }
 
@@ -151,12 +151,12 @@ export function useConcretePlants() {
     if (!userId) return;
 
     try {
-      const updateData: any = { updated_at: new Date().toISOString() };
+      const updateData: Record<string, unknown> = { updated_at: new Date().toISOString() };
 
       Object.keys(updates).forEach(key => {
         if (key === 'id' || key === 'user_id' || key === 'created_at') return;
         const dbKey = key.replace(/([A-Z])/g, '_$1').toLowerCase();
-        updateData[dbKey] = (updates as any)[key];
+        updateData[dbKey] = (updates as Record<string, unknown>)[key];
       });
 
       const { error: updateError } = await supabase

@@ -46,9 +46,10 @@ export default function LoginPage() {
 
       // Session is set via HttpOnly cookie by the server — onAuthStateChange in
       // AuthContext will detect it and trigger navigation via the useEffect above.
-    } catch (error: any) {
-      console.warn('Login failed:', { email, message: error.message });
-      toast.error(error.message || 'Error al iniciar sesión');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Error al iniciar sesión';
+      console.warn('Login failed:', { email, message: errorMessage });
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

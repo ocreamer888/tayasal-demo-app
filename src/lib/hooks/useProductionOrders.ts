@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   ProductionOrder,
-
+  MaterialUsage,
+  EquipmentUsage,
+  TeamAssignment,
 } from '@/types/production-order';
 import { supabase } from '@/lib/supabase/client';
 import { useAuth } from '@/app/contexts/AuthContext';
@@ -13,46 +15,36 @@ interface UseProductionOrdersProps {
 type SortBy = 'date' | 'block_type' | 'quantity' | 'status' | 'created';
 
 // Transform database production_order (snake_case) to app (camelCase)
-function transformOrderFromDB(dbOrder: any): ProductionOrder {
-  return {
-    id: dbOrder.id,
-    user_id: dbOrder.user_id,
-    created_by_name: dbOrder.created_by_name,
-    engineer_id: dbOrder.engineer_id,
-
-    // Specs de producción
-    block_type: dbOrder.block_type,
-    block_size: dbOrder.block_size,
-    quantity_produced: dbOrder.quantity_produced,
-    production_date: dbOrder.production_date,
-    production_shift: dbOrder.production_shift,
-
-    // Tiempos
-    start_time: dbOrder.start_time,
-    end_time: dbOrder.end_time,
-    duration_minutes: dbOrder.duration_minutes,
-
-    // Recursos
-    concrete_plant_id: dbOrder.concrete_plant_id,
-    materials_used: dbOrder.materials_used || [],
-    equipment_used: dbOrder.equipment_used || [],
-    team_assigned: dbOrder.team_assigned || [],
-
-    // Costos
-    material_cost: dbOrder.material_cost || 0,
-    labor_cost: dbOrder.labor_cost || 0,
-    energy_cost: dbOrder.energy_cost || 0,
-    maintenance_cost: dbOrder.maintenance_cost || 0,
-    equipment_cost: dbOrder.equipment_cost || 0,
-    total_cost: dbOrder.total_cost || 0,
-
-    // Metadata
-    status: dbOrder.status,
-    notes: dbOrder.notes,
-
-    createdAt: dbOrder.created_at,
-    updatedAt: dbOrder.updated_at,
+function transformOrderFromDB(dbOrder: Record<string, unknown>): ProductionOrder {
+  const result: ProductionOrder = {
+    id: dbOrder.id as string,
+    user_id: dbOrder.user_id as string,
+    created_by_name: dbOrder.created_by_name as string,
+    block_type: dbOrder.block_type as string,
+    block_size: dbOrder.block_size as string,
+    quantity_produced: dbOrder.quantity_produced as number,
+    production_date: dbOrder.production_date as string,
+    production_shift: dbOrder.production_shift as 'morning' | 'afternoon' | 'night',
+    start_time: dbOrder.start_time as string,
+    end_time: dbOrder.end_time as string,
+    duration_minutes: dbOrder.duration_minutes as number,
+    concrete_plant_id: dbOrder.concrete_plant_id as string,
+    materials_used: (dbOrder.materials_used as MaterialUsage[]) || [],
+    equipment_used: (dbOrder.equipment_used as EquipmentUsage[]) || [],
+    team_assigned: (dbOrder.team_assigned as TeamAssignment[]) || [],
+    material_cost: (dbOrder.material_cost as number) || 0,
+    labor_cost: (dbOrder.labor_cost as number) || 0,
+    energy_cost: (dbOrder.energy_cost as number) || 0,
+    maintenance_cost: (dbOrder.maintenance_cost as number) || 0,
+    equipment_cost: (dbOrder.equipment_cost as number) || 0,
+    total_cost: (dbOrder.total_cost as number) || 0,
+    status: dbOrder.status as 'draft' | 'submitted' | 'approved' | 'rejected' | 'archived',
+    createdAt: dbOrder.created_at as string,
+    updatedAt: dbOrder.updated_at as string,
   };
+  if (dbOrder.engineer_id) result.engineer_id = dbOrder.engineer_id as string;
+  if (dbOrder.notes) result.notes = dbOrder.notes as string;
+  return result;
 }
 
 export function useProductionOrders({ userRole }: UseProductionOrdersProps) {
@@ -284,13 +276,13 @@ export function useProductionOrders({ userRole }: UseProductionOrdersProps) {
     );
 
     try {
-      const updateData: any = { updated_at: new Date().toISOString() };
+      const updateData: Record<string, unknown> = { updated_at: new Date().toISOString() };
 
       // Map camelCase to snake_case
       Object.keys(updates).forEach(key => {
         if (key === 'id' || key === 'user_id' || key === 'created_by_name' || key === 'createdAt') return;
         const dbKey = key.replace(/([A-Z])/g, '_$1').toLowerCase();
-        updateData[dbKey] = (updates as any)[key];
+        updateData[dbKey] = (updates as Record<string, unknown>)[key];
       });
 
       const { error: updateError } = await supabase

@@ -85,9 +85,10 @@ export function EquipmentDialog({ open, onOpenChange, onSubmit }: EquipmentDialo
 
       reset();
       onOpenChange(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'No se pudo crear el equipo';
       toast.error('Error', {
-        description: error.message || 'No se pudo crear el equipo',
+        description: errorMessage,
       });
     } finally {
       setIsSubmitting(false);

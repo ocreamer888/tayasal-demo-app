@@ -18,9 +18,10 @@
  * WARNING: This will modify test data in your database.
  *          Use a development/test database only.
  */
-
+/* eslint-disable @typescript-eslint/no-require-imports */
 require('dotenv').config({ path: '.env.local' });
 const { createClient } = require('@supabase/supabase-js');
+/* eslint-enable @typescript-eslint/no-require-imports */
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -58,7 +59,7 @@ function sleep(ms) {
 async function testFunctionExists() {
   log('Test 1: Checking if function exists...', 'test');
 
-  const { data, error } = await supabase.rpc('approve_order_with_inventory_deduction', {
+  const { error } = await supabase.rpc('approve_order_with_inventory_deduction', {
     p_order_id: TEST_IDS.orderId,
     p_approver_id: TEST_IDS.engineerId
   });
@@ -224,8 +225,7 @@ async function testSuccessfulApproval() {
   const afterInventory = await checkInventory();
   afterInventory.forEach(m => {
     const before = beforeInventory.find(b => b.id === m.id);
-    const expected = before.current_quantity - 100 - 50; // For both materials
-    // Actually each material has different deduction
+    // Each material has different deduction
     const deduction = m.id === TEST_IDS.material1Id ? 100 : 50;
     const expectedQty = before.current_quantity - deduction;
     if (m.current_quantity === expectedQty) {

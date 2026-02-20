@@ -3,18 +3,19 @@ import { TeamMember } from '@/types/inventory';
 import { supabase } from '@/lib/supabase/client';
 import { useAuth } from '@/app/contexts/AuthContext';
 
-function transformTeamMemberFromDB(dbMember: any): TeamMember {
-  return {
-    id: dbMember.id,
-    user_id: dbMember.user_id,
-    name: dbMember.name,
-    role: dbMember.role,
-    hourly_rate: dbMember.hourly_rate,
-    contact_phone: dbMember.contact_phone,
-    hire_date: dbMember.hire_date,
-    created_at: dbMember.created_at,
-    updated_at: dbMember.updated_at,
+function transformTeamMemberFromDB(dbMember: Record<string, unknown>): TeamMember {
+  const result: TeamMember = {
+    id: dbMember.id as string,
+    name: dbMember.name as string,
+    role: dbMember.role as string,
+    hourly_rate: dbMember.hourly_rate as number,
+    created_at: dbMember.created_at as string,
+    updated_at: dbMember.updated_at as string,
   };
+  if (dbMember.user_id) result.user_id = dbMember.user_id as string;
+  if (dbMember.contact_phone) result.contact_phone = dbMember.contact_phone as string;
+  if (dbMember.hire_date) result.hire_date = dbMember.hire_date as string;
+  return result;
 }
 
 export function useTeamMembers() {
@@ -151,12 +152,12 @@ export function useTeamMembers() {
     if (!userId) return;
 
     try {
-      const updateData: any = { updated_at: new Date().toISOString() };
+      const updateData: Record<string, unknown> = { updated_at: new Date().toISOString() };
 
       Object.keys(updates).forEach(key => {
         if (key === 'id' || key === 'user_id' || key === 'created_at') return;
         const dbKey = key.replace(/([A-Z])/g, '_$1').toLowerCase();
-        updateData[dbKey] = (updates as any)[key];
+        updateData[dbKey] = (updates as Record<string, unknown>)[key];
       });
 
       const { error: updateError } = await supabase

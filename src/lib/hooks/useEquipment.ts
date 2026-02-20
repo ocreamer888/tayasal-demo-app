@@ -3,21 +3,22 @@ import { Equipment } from '@/types/inventory';
 import { supabase } from '@/lib/supabase/client';
 import { useAuth } from '@/app/contexts/AuthContext';
 
-function transformEquipmentFromDB(dbEquipment: any): Equipment {
-  return {
-    id: dbEquipment.id,
-    user_id: dbEquipment.user_id,
-    name: dbEquipment.name,
-    model: dbEquipment.model,
-    serial_number: dbEquipment.serial_number,
-    purchase_date: dbEquipment.purchase_date,
-    maintenance_schedule: dbEquipment.maintenance_schedule,
-    hourly_cost: dbEquipment.hourly_cost,
-    fuel_consumption_rate: dbEquipment.fuel_consumption_rate,
-    status: dbEquipment.status,
-    created_at: dbEquipment.created_at,
-    updated_at: dbEquipment.updated_at,
+function transformEquipmentFromDB(dbEquipment: Record<string, unknown>): Equipment {
+  const result: Equipment = {
+    id: dbEquipment.id as string,
+    user_id: dbEquipment.user_id as string,
+    name: dbEquipment.name as string,
+    hourly_cost: dbEquipment.hourly_cost as number,
+    status: dbEquipment.status as 'active' | 'maintenance' | 'retired',
+    created_at: dbEquipment.created_at as string,
+    updated_at: dbEquipment.updated_at as string,
   };
+  if (dbEquipment.model) result.model = dbEquipment.model as string;
+  if (dbEquipment.serial_number) result.serial_number = dbEquipment.serial_number as string;
+  if (dbEquipment.purchase_date) result.purchase_date = dbEquipment.purchase_date as string;
+  if (dbEquipment.maintenance_schedule) result.maintenance_schedule = dbEquipment.maintenance_schedule as string;
+  if (dbEquipment.fuel_consumption_rate) result.fuel_consumption_rate = dbEquipment.fuel_consumption_rate as number;
+  return result;
 }
 
 export function useEquipment() {
@@ -154,12 +155,12 @@ export function useEquipment() {
     if (!userId) return;
 
     try {
-      const updateData: any = { updated_at: new Date().toISOString() };
+      const updateData: Record<string, unknown> = { updated_at: new Date().toISOString() };
 
       Object.keys(updates).forEach(key => {
         if (key === 'id' || key === 'user_id' || key === 'created_at') return;
         const dbKey = key.replace(/([A-Z])/g, '_$1').toLowerCase();
-        updateData[dbKey] = (updates as any)[key];
+        updateData[dbKey] = (updates as Record<string, unknown>)[key];
       });
 
       const { error: updateError } = await supabase

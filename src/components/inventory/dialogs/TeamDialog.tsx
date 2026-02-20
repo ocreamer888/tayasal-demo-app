@@ -68,9 +68,10 @@ export function TeamDialog({ open, onOpenChange, onSubmit }: TeamDialogProps) {
 
       reset();
       onOpenChange(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'No se pudo agregar el miembro';
       toast.error('Error', {
-        description: error.message || 'No se pudo agregar el miembro',
+        description: errorMessage,
       });
     } finally {
       setIsSubmitting(false);
