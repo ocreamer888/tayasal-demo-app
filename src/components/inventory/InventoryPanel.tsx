@@ -78,14 +78,14 @@ export function InventoryPanel() {
     <div className="space-y-6 w-full overflow-x-auto">
       {/* Tabs */}
       <Tabs defaultValue="materials" value={activeTab} onValueChange={(value) => setActiveTab(value as TabType)}>
-        <TabsList className="grid w-full grid-cols-4 bg-neutral-600/80 rounded-full">
+        <TabsList className="grid w-full grid-cols-4 bg-neutral-600/80 text-neutral-100 rounded-full">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
               <TabsTrigger
                 key={tab.id}
                 value={tab.id}
-                className="flex items-center justify-center rounded-full gap-2 data-[state=active]:bg-neutral-200 data-[state=active]:text-green-700 data-[state=active]:shadow-sm"
+                className="flex items-center justify-center rounded-full gap-2 data-[state=active]:bg-neutral-800! data-[state=inactive]:bg-neutral-800/30 data-[state=inactive]:text-neutral-400! data-[state=active]:shadow-sm"
               >
                 <Icon size={16} />
                 <span className="hidden sm:inline">{tab.label}</span>
@@ -99,7 +99,7 @@ export function InventoryPanel() {
           <Card className="p-4">
             <CardHeader className="w-full">
               <div className="flex items-center justify-between overflow-x-auto w-full">
-                <CardTitle className="text-h3 text-neutral-900">Inventario de Materiales</CardTitle>
+                <CardTitle className="text-h3 text-neutral-100">Inventario de Materiales</CardTitle>
                 <Dialog open={isMaterialDialogOpen} onOpenChange={setIsMaterialDialogOpen}>
                   <DialogTrigger asChild>
                     <Button size="sm">
@@ -149,7 +149,7 @@ export function InventoryPanel() {
                           <TableRow key={material.id}>
                             <TableCell className="whitespace-normal sm:whitespace-nowrap">
                               <div>
-                                <p className="font-semibold text-neutral-900">{material.material_name}</p>
+                                <p className="font-semibold text-neutral-200">{material.material_name}</p>
                                 <p className="text-sm text-neutral-500">{material.unit}</p>
                               </div>
                             </TableCell>
@@ -190,7 +190,7 @@ export function InventoryPanel() {
           <Card className="p-6">
             <CardHeader className="w-full">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-h3 text-neutral-900">Plantas de Concreto</CardTitle>
+                <CardTitle className="text-h3 text-neutral-200">Plantas de Concreto</CardTitle>
                 <Dialog open={isPlantDialogOpen} onOpenChange={setIsPlantDialogOpen}>
                   <DialogTrigger asChild>
                     <Button size="sm">
@@ -215,7 +215,7 @@ export function InventoryPanel() {
                   <LoadingSpinner size="md" />
                 </div>
               ) : plants.length === 0 ? (
-                <div className="py-12 text-center text-neutral-500">
+                <div className="py-12 text-center text-neutral-200">
                   No hay plantas registradas
                 </div>
               ) : (
@@ -223,11 +223,11 @@ export function InventoryPanel() {
                   {plants.map((plant) => (
                     <Card key={plant.id} className="p-4">
                       <div className="space-y-3">
-                        <h4 className="text-lg font-bold text-neutral-900">{plant.name}</h4>
+                        <h4 className="text-lg font-bold text-neutral-200">{plant.name}</h4>
                         <p className="text-sm text-neutral-500">{plant.location}</p>
                         <div className="flex items-center gap-2">
                           <Package size={16} className="text-neutral-400" />
-                          <p className="text-sm text-neutral-700">
+                          <p className="text-sm text-neutral-400">
                             Capacidad: <span className="font-semibold">{plant.capacity_per_hour}</span> m³/h
                           </p>
                         </div>
@@ -248,7 +248,7 @@ export function InventoryPanel() {
           <Card className="p-6">
             <CardHeader className="w-full">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-h3 text-neutral-900">Equipos</CardTitle>
+                <CardTitle className="text-h3 text-neutral-200">Equipos</CardTitle>
                 <Dialog open={isEquipmentDialogOpen} onOpenChange={setIsEquipmentDialogOpen}>
                   <DialogTrigger asChild>
                     <Button size="sm">
@@ -316,7 +316,7 @@ export function InventoryPanel() {
           <Card className="p-6">
             <CardHeader className="w-full">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-h3 text-neutral-900">Equipo de Trabajo</CardTitle>
+                <CardTitle className="text-h3 text-neutral-200">Equipo de Trabajo</CardTitle>
                 <Dialog open={isTeamDialogOpen} onOpenChange={setIsTeamDialogOpen}>
                   <DialogTrigger asChild>
                     <Button size="sm">
