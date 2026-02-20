@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/app/contexts/AuthContext';
+import { supabase } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import type { FormEvent } from 'react';
 
@@ -44,8 +45,10 @@ export default function LoginPage() {
         throw new Error(data.error || 'Error al iniciar sesión');
       }
 
-      // Session is set via HttpOnly cookie by the server — onAuthStateChange in
-      // AuthContext will detect it and trigger navigation via the useEffect above.
+      // Session is set via HttpOnly cookie by the server. Call refreshSession()
+      // to sync the cookie with the browser client and trigger onAuthStateChange
+      // in AuthContext, which will then trigger navigation via the useEffect above.
+      await supabase.auth.refreshSession();
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Error al iniciar sesión';
       console.warn('Login failed:', { email, message: errorMessage });
@@ -56,8 +59,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-t from-green-900 to-green-800 px-4 py-12 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md">
+    <div className="flex flex-row min-h-screen items-center justify-center bg-gradient-to-t from-green-900 to-green-800 px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-xl aspect-square flex flex-col justify-center items-center">
         <CardHeader className="text-center w-full">
           <CardTitle className="text-2xl font-bold text-neutral-100">
             Sistema de Producción
