@@ -59,7 +59,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-t from-green-900 to-green-800 px-4 py-12 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center w-full">
-          <CardTitle className="text-2xl font-bold text-neutral-900">
+          <CardTitle className="text-2xl font-bold text-neutral-100">
             Sistema de Producción
           </CardTitle>
           <p className="mt-2 text-sm text-neutral-500">
@@ -106,7 +106,7 @@ export default function LoginPage() {
           <div className="mt-6 text-center">
             <p className="text-sm text-neutral-200">
               ¿No tienes cuenta?{' '}
-              <a href="/signup" className="font-medium text-green-900 hover:text-green-600">
+              <a href="/signup" className="font-medium text-green-500 hover:text-green-600">
                 Regístrate aquí
               </a>
             </p>

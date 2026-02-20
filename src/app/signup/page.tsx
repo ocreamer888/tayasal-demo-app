@@ -103,7 +103,7 @@ export default function SignupPage() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-t from-green-900 to-green-800 px-4 py-12 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center w-full">
-          <CardTitle className="text-2xl font-bold text-neutral-900">
+          <CardTitle className="text-2xl font-bold text-neutral-100">
             Crear Cuenta
           </CardTitle>
           <p className="mt-2 text-sm text-neutral-500">
@@ -119,7 +119,7 @@ export default function SignupPage() {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="fullName" className="text-sm font-medium text-neutral-700">
+              <Label htmlFor="fullName" className="text-sm font-medium text-neutral-600">
                 Nombre Completo <span className="text-red-900">*</span>
               </Label>
               <Input
@@ -133,7 +133,7 @@ export default function SignupPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium text-neutral-700">
+              <Label htmlFor="email" className="text-sm font-medium text-neutral-600">
                 Correo electrónico <span className="text-red-900">*</span>
               </Label>
               <Input
@@ -148,7 +148,7 @@ export default function SignupPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="role" className="text-sm font-medium text-neutral-700">
+              <Label htmlFor="role" className="text-sm font-medium text-neutral-600">
                 Rol en el Sistema <span className="text-red-900">*</span>
               </Label>
               <Select value={role} onValueChange={(value) => setRole(value as 'operator' | 'engineer')}>
@@ -168,7 +168,7 @@ export default function SignupPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium text-neutral-700">
+              <Label htmlFor="password" className="text-sm font-medium text-neutral-600">
                 Contraseña <span className="text-red-900">*</span>
               </Label>
               <Input
@@ -259,7 +259,7 @@ export default function SignupPage() {
           <div className="mt-6 text-center">
             <p className="text-sm text-neutral-200">
               ¿Ya tienes cuenta?{' '}
-              <a href="/login" className="font-medium text-green-900 hover:text-green-600">
+              <a href="/login" className="font-medium text-green-500 hover:text-green-600">
                 Inicia sesión aquí
               </a>
             </p>
