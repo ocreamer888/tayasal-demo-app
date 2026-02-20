@@ -132,6 +132,11 @@ function ChartTooltipContent({
     indicator?: "line" | "dot" | "dashed"
     nameKey?: string
     labelKey?: string
+    label?: string | React.ReactNode
+    labelFormatter?: (value: unknown, payload: unknown) => React.ReactNode
+    labelClassName?: string
+    formatter?: (value: unknown) => React.ReactNode
+    color?: string
   } & {
     active?: boolean
     payload?: Array<{ dataKey?: string; name?: string; value?: string | number }>
