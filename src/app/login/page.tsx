@@ -60,7 +60,7 @@ export default function LoginPage() {
 
   return (
     <div className="flex flex-row min-h-screen items-center justify-center bg-gradient-to-t from-green-900 to-green-800 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-xl aspect-square flex flex-col justify-center items-center">
+      <Card className="w-full max-w-xl aspect-square flex flex-col justify-center items-center py-12">
         <CardHeader className="text-center w-full">
           <CardTitle className="text-2xl font-bold text-neutral-100">
             Sistema de Producción
