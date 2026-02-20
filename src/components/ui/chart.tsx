@@ -139,7 +139,15 @@ function ChartTooltipContent({
     color?: string
   } & {
     active?: boolean
-    payload?: Array<{ dataKey?: string; name?: string; value?: string | number }>
+    payload?: Array<{
+      dataKey?: string
+      name?: string
+      value?: string | number
+      type?: string
+      color?: string
+      fill?: string
+      payload?: Record<string, unknown>
+    }>
   }) {
   const { config } = useChart()
 
