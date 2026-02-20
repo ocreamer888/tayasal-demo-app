@@ -207,7 +207,7 @@ function ChartTooltipContent({
           .map((item, index) => {
             const key = `${nameKey || item.name || item.dataKey || "value"}`
             const itemConfig = getPayloadConfigFromPayload(config, item, key)
-            const indicatorColor = color || item.payload.fill || item.color
+            const indicatorColor = color || item.payload?.fill || item.color
 
             return (
               <div
@@ -218,7 +218,8 @@ function ChartTooltipContent({
                 )}
               >
                 {formatter && item?.value !== undefined && item.name ? (
-                  formatter(item.value, item.name, item, index, item.payload)
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  formatter(item.value, item.name, item as any, index, item.payload as any)
                 ) : (
                   <>
                     {itemConfig?.icon ? (
@@ -281,8 +282,10 @@ function ChartLegendContent({
   payload,
   verticalAlign = "bottom",
   nameKey,
-}: React.ComponentProps<"div"> &
-  Pick<RechartsPrimitive.LegendProps, "payload" | "verticalAlign"> & {
+}: React.ComponentProps<"div"> & {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    payload?: Array<any>
+    verticalAlign?: "top" | "bottom" | "middle"
     hideIcon?: boolean
     nameKey?: string
   }) {
