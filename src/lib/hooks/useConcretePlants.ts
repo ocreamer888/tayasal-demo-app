@@ -3,10 +3,6 @@ import { ConcretePlant } from '@/types/inventory';
 import { supabase } from '@/lib/supabase/client';
 import { useAuth } from '@/app/contexts/AuthContext';
 
-interface UseConcreteplantsProps {
-  userRole: 'operator' | 'engineer' | 'admin' | null;
-}
-
 function transformPlantFromDB(dbPlant: Record<string, unknown>): ConcretePlant {
   return {
     id: dbPlant.id as string,
@@ -20,7 +16,7 @@ function transformPlantFromDB(dbPlant: Record<string, unknown>): ConcretePlant {
   };
 }
 
-export function useConcretePlants({ userRole }: UseConcreteplantsProps) {
+export function useConcretePlants() {
   const [plants, setPlants] = useState<ConcretePlant[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -40,19 +36,11 @@ export function useConcretePlants({ userRole }: UseConcreteplantsProps) {
       setLoading(true);
       setError(null);
 
-      // Build query based on user role
-      let query = supabase
+      // ALL users see all plants (data is shared)
+      const { data, error: fetchError } = await supabase
         .from('concrete_plants')
         .select('*')
         .order('name', { ascending: true });
-
-      // Filter by user_id if operator (only see their own plants)
-      if (userRole === 'operator') {
-        query = query.eq('user_id', userId);
-      }
-      // Engineers and admins see all plants (via RLS policy)
-
-      const { data, error: fetchError } = await query;
 
       if (fetchError) throw fetchError;
 
@@ -64,28 +52,24 @@ export function useConcretePlants({ userRole }: UseConcreteplantsProps) {
     } finally {
       setLoading(false);
     }
-  }, [userId, userRole, supabase]);
+  }, [userId, supabase]);
 
   useEffect(() => {
     fetchPlants();
   }, [fetchPlants]);
 
-  // Real-time subscription
+  // Real-time subscription - ALL users see all changes
   useEffect(() => {
     if (!userId) return;
 
-    // Build filter based on user role
-    const filter = userRole === 'operator' ? `user_id=eq.${userId}` : undefined;
-
     const channel = supabase
-      .channel(`plants-${userRole || 'all'}-${userId}`)
+      .channel(`plants-all-${userId}`)
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
           table: 'concrete_plants',
-          filter: filter,
         },
         (payload) => {
           console.log('Concrete plant change received:', payload);
@@ -114,7 +98,7 @@ export function useConcretePlants({ userRole }: UseConcreteplantsProps) {
     return () => {
       supabaseInstance.removeChannel(channel);
     };
-  }, [userId, userRole, supabase]);
+  }, [userId, supabase]);
 
   const addPlant = useCallback(async (plant: Omit<ConcretePlant, 'id' | 'created_at' | 'updated_at' | 'user_id'>) => {
     if (!userId) {
@@ -180,47 +164,35 @@ export function useConcretePlants({ userRole }: UseConcreteplantsProps) {
         updateData[dbKey] = (updates as Record<string, unknown>)[key];
       });
 
-      let query = supabase
+      // RLS policy handles access control (operators can only update own, engineers/admins can update all)
+      const { error: updateError } = await supabase
         .from('concrete_plants')
         .update(updateData)
         .eq('id', id);
-
-      // Only add user_id filter for operators
-      if (userRole === 'operator') {
-        query = query.eq('user_id', userId);
-      }
-
-      const { error: updateError } = await query;
 
       if (updateError) throw updateError;
     } catch (err) {
       console.error('Error updating concrete plant:', err);
       throw err;
     }
-  }, [userId, userRole, supabase]);
+  }, [userId, supabase]);
 
   const deletePlant = useCallback(async (id: string) => {
     if (!userId) return;
 
     try {
-      let query = supabase
+      // RLS policy handles access control (operators can only delete own, engineers/admins can delete all)
+      const { error: deleteError } = await supabase
         .from('concrete_plants')
         .delete()
         .eq('id', id);
-
-      // Only add user_id filter for operators
-      if (userRole === 'operator') {
-        query = query.eq('user_id', userId);
-      }
-
-      const { error: deleteError } = await query;
 
       if (deleteError) throw deleteError;
     } catch (err) {
       console.error('Error deleting concrete plant:', err);
       throw err;
     }
-  }, [userId, userRole, supabase]);
+  }, [userId, supabase]);
 
   return {
     plants,

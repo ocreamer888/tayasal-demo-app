@@ -1,17 +1,19 @@
 -- =====================================================
--- FIX DATA SHARING - RLS POLICIES UPDATE
+-- FIX DATA SHARING - RLS POLICIES UPDATE (CORRECTED)
 -- =====================================================
 -- PURPOSE:
---   Enable engineers and admins to see all production plants
---   and materials, while operators see only their own
+--   Enable ALL users (operators, engineers, admins) to see all
+--   production plants and materials with shared inventory data
+--
+-- ACCESS CONTROL:
+--   - ALL users can VIEW all plants and materials
+--   - Column-level security handled on UI side (hide prices from operators)
+--   - Only owners can INSERT/UPDATE/DELETE their own records
+--   - Engineers/Admins can UPDATE/DELETE any record
 --
 -- ISSUE FIXED:
---   - concrete_plants: was `auth.uid() = user_id` (operators only)
---   - inventory_materials: was `auth.uid() = user_id` (operators only)
---
---   Now uses role-based access like production_orders:
---   - Operators can see/update/delete only their own records
---   - Engineers/Admins can see/update/delete ALL records
+--   - concrete_plants: Now allows all to SELECT, but restrict INSERT/UPDATE/DELETE
+--   - inventory_materials: Now allows all to SELECT, but restrict INSERT/UPDATE/DELETE
 --
 -- EXECUTION:
 --   1. Copy all statements
@@ -23,22 +25,23 @@
 -- ------------------------------------------------
 -- Drop old restrictive policies
 DROP POLICY IF EXISTS "Users can view own concrete plants" ON concrete_plants;
+DROP POLICY IF EXISTS "Users can view concrete plants by role" ON concrete_plants;
 DROP POLICY IF EXISTS "Users can update own concrete plants" ON concrete_plants;
+DROP POLICY IF EXISTS "Users can update concrete plants by role" ON concrete_plants;
 DROP POLICY IF EXISTS "Users can delete own concrete plants" ON concrete_plants;
+DROP POLICY IF EXISTS "Users can delete concrete plants by role" ON concrete_plants;
 
--- Create new role-based SELECT policy
-CREATE POLICY "Users can view concrete plants by role"
+-- Create new SELECT policy: ALL users can see ALL plants
+CREATE POLICY "All users can view all concrete plants"
 ON concrete_plants FOR SELECT
-USING (
-  auth.uid() = user_id
-  OR EXISTS (
-    SELECT 1 FROM profiles
-    WHERE profiles.id = auth.uid()
-    AND profiles.role IN ('engineer', 'admin')
-  )
-);
+USING (true);
 
--- Create new role-based UPDATE policy
+-- Create new INSERT policy: Users can only insert their own
+CREATE POLICY "Users can insert own concrete plants"
+ON concrete_plants FOR INSERT
+WITH CHECK (auth.uid() = user_id);
+
+-- Create new UPDATE policy: Owners can update own, engineers/admins can update all
 CREATE POLICY "Users can update concrete plants by role"
 ON concrete_plants FOR UPDATE
 USING (
@@ -50,7 +53,7 @@ USING (
   )
 );
 
--- Create new role-based DELETE policy
+-- Create new DELETE policy: Owners can delete own, engineers/admins can delete all
 CREATE POLICY "Users can delete concrete plants by role"
 ON concrete_plants FOR DELETE
 USING (
@@ -62,30 +65,28 @@ USING (
   )
 );
 
--- INSERT policy remains the same (users can only insert their own)
--- No changes needed for "Users can insert own concrete plants"
-
 
 -- Table: inventory_materials
 -- ------------------------------------------------
 -- Drop old restrictive policies
 DROP POLICY IF EXISTS "Users can view own inventory materials" ON inventory_materials;
+DROP POLICY IF EXISTS "Users can view inventory materials by role" ON inventory_materials;
 DROP POLICY IF EXISTS "Users can update own inventory materials" ON inventory_materials;
+DROP POLICY IF EXISTS "Users can update inventory materials by role" ON inventory_materials;
 DROP POLICY IF EXISTS "Users can delete own inventory materials" ON inventory_materials;
+DROP POLICY IF EXISTS "Users can delete inventory materials by role" ON inventory_materials;
 
--- Create new role-based SELECT policy
-CREATE POLICY "Users can view inventory materials by role"
+-- Create new SELECT policy: ALL users can see ALL materials
+CREATE POLICY "All users can view all inventory materials"
 ON inventory_materials FOR SELECT
-USING (
-  auth.uid() = user_id
-  OR EXISTS (
-    SELECT 1 FROM profiles
-    WHERE profiles.id = auth.uid()
-    AND profiles.role IN ('engineer', 'admin')
-  )
-);
+USING (true);
 
--- Create new role-based UPDATE policy
+-- Create new INSERT policy: Users can only insert their own
+CREATE POLICY "Users can insert own inventory materials"
+ON inventory_materials FOR INSERT
+WITH CHECK (auth.uid() = user_id);
+
+-- Create new UPDATE policy: Owners can update own, engineers/admins can update all
 CREATE POLICY "Users can update inventory materials by role"
 ON inventory_materials FOR UPDATE
 USING (
@@ -97,7 +98,7 @@ USING (
   )
 );
 
--- Create new role-based DELETE policy
+-- Create new DELETE policy: Owners can delete own, engineers/admins can delete all
 CREATE POLICY "Users can delete inventory materials by role"
 ON inventory_materials FOR DELETE
 USING (
@@ -109,34 +110,49 @@ USING (
   )
 );
 
--- INSERT policy remains the same (users can only insert their own)
--- No changes needed for "Users can insert own inventory materials"
-
 
 -- =====================================================
 -- VERIFICATION QUERIES
 -- =====================================================
 -- After applying, run these to verify:
 
--- 1. Check updated policies for concrete_plants:
+-- 1. Check concrete_plants policies (should see 4 policies):
 SELECT schemaname, tablename, policyname, qual
 FROM pg_policies
 WHERE schemaname = 'public' AND tablename = 'concrete_plants'
 ORDER BY policyname;
 
--- 2. Check updated policies for inventory_materials:
+-- 2. Check inventory_materials policies (should see 4 policies):
 SELECT schemaname, tablename, policyname, qual
 FROM pg_policies
 WHERE schemaname = 'public' AND tablename = 'inventory_materials'
 ORDER BY policyname;
 
--- 3. Verify all policies are present (should be 4 for each table):
+-- 3. Verify all policies are present:
 SELECT tablename, COUNT(*) as policy_count
 FROM pg_policies
 WHERE schemaname = 'public'
 AND tablename IN ('concrete_plants', 'inventory_materials')
 GROUP BY tablename;
 
+-- Expected: concrete_plants = 4, inventory_materials = 4
+
 -- =====================================================
--- END OF MIGRATION
+-- ACCESS CONTROL AFTER THIS FIX
+-- =====================================================
+--
+-- concrete_plants table:
+--   SELECT (View): ✅ ALL users (true = no row filter)
+--   INSERT:       ✅ Only own records (auth.uid() = user_id)
+--   UPDATE:       ✅ Own + engineers/admins
+--   DELETE:       ✅ Own + engineers/admins
+--
+-- inventory_materials table:
+--   SELECT (View): ✅ ALL users (true = no row filter)
+--   INSERT:       ✅ Only own records (auth.uid() = user_id)
+--   UPDATE:       ✅ Own + engineers/admins
+--   DELETE:       ✅ Own + engineers/admins
+--
+-- Sensitive data (prices, costs) filtered on React UI side based on user role
+--
 -- =====================================================

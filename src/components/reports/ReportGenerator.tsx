@@ -27,7 +27,7 @@ export function ReportGenerator() {
  // Data fetching hooks
  const { orders = [], loading: ordersLoading } = useProductionOrders({ userRole })
  const { materials: inventoryMaterials = [], loading: inventoryLoading } =
-   useInventoryMaterials({ userRole })
+   useInventoryMaterials()
 
  // UI state
  const [showPreview, setShowPreview] = useState(false)

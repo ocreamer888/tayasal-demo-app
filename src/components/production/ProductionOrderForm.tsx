@@ -19,7 +19,6 @@ import { useInventoryMaterials } from '@/lib/hooks/useInventoryMaterials';
 import { useConcretePlants } from '@/lib/hooks/useConcretePlants';
 import { useEquipment } from '@/lib/hooks/useEquipment';
 import { useTeamMembers } from '@/lib/hooks/useTeamMembers';
-import { useAuth } from '@/app/contexts/AuthContext';
 import {
   SHIFT_OPTIONS,
   BLOCK_TYPES,
@@ -42,11 +41,8 @@ interface ProductionOrderFormProps {
 }
 
 export function ProductionOrderForm({ onSubmit, onCancel, initialData }: ProductionOrderFormProps) {
-  const { profile } = useAuth();
-  const userRole = (profile?.role as 'operator' | 'engineer' | 'admin') || 'operator';
-
-  const { materials } = useInventoryMaterials({ userRole });
-  const { plants } = useConcretePlants({ userRole });
+  const { materials } = useInventoryMaterials();
+  const { plants } = useConcretePlants();
   const { equipment: allEquipment } = useEquipment();
   const { members } = useTeamMembers();
 

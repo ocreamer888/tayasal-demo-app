@@ -3,10 +3,6 @@ import { InventoryMaterial } from '@/types/inventory';
 import { supabase } from '@/lib/supabase/client';
 import { useAuth } from '@/app/contexts/AuthContext';
 
-interface UseInventoryMaterialsProps {
-  userRole: 'operator' | 'engineer' | 'admin' | null;
-}
-
 type SortBy = 'name' | 'category' | 'quantity' | 'price';
 
 function transformInventoryFromDB(dbMaterial: Record<string, unknown>): InventoryMaterial {
@@ -26,7 +22,7 @@ function transformInventoryFromDB(dbMaterial: Record<string, unknown>): Inventor
   };
 }
 
-export function useInventoryMaterials({ userRole }: UseInventoryMaterialsProps) {
+export function useInventoryMaterials() {
   const [materials, setMaterials] = useState<InventoryMaterial[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
@@ -53,19 +49,11 @@ export function useInventoryMaterials({ userRole }: UseInventoryMaterialsProps) 
       setLoading(true);
       setError(null);
 
-      // Build query based on user role
-      let query = supabase
+      // ALL users see all inventory materials (data is shared)
+      const { data, error: fetchError } = await supabase
         .from('inventory_materials')
         .select('*')
         .order('material_name', { ascending: true });
-
-      // Filter by user_id if operator (only see their own inventory)
-      if (userRole === 'operator') {
-        query = query.eq('user_id', user.id);
-      }
-      // Engineers and admins see all inventory
-
-      const { data, error: fetchError } = await query;
 
       if (fetchError) throw fetchError;
 
@@ -77,28 +65,24 @@ export function useInventoryMaterials({ userRole }: UseInventoryMaterialsProps) 
     } finally {
       setLoading(false);
     }
-  }, [user, userRole, supabase]);
+  }, [user, supabase]);
 
   useEffect(() => {
     fetchMaterials();
   }, [fetchMaterials]);
 
-  // Real-time subscription
+  // Real-time subscription - ALL users see all changes
   useEffect(() => {
     if (!user) return;
 
-    // Build filter based on user role
-    const filter = userRole === 'operator' ? `user_id=eq.${user.id}` : undefined;
-
     const channel = supabase
-      .channel(`inventory-${userRole || 'all'}-${user.id}`)
+      .channel(`inventory-all-${user.id}`)
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
           table: 'inventory_materials',
-          filter: filter,
         },
         (payload) => {
           console.log('Inventory material change received:', payload);

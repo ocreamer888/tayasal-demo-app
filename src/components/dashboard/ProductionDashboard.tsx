@@ -40,7 +40,7 @@ export function ProductionDashboard({ userRole = 'operator' }: ProductionDashboa
 
   const {
     materials: inventoryMaterials,
-  } = useInventoryMaterials({ userRole });
+  } = useInventoryMaterials();
 
   // Calculate KPIs
   const totalOrders = orders.length;

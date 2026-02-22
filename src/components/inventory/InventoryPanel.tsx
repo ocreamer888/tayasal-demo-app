@@ -10,7 +10,6 @@ import { useInventoryMaterials } from '@/lib/hooks/useInventoryMaterials';
 import { useConcretePlants } from '@/lib/hooks/useConcretePlants';
 import { useEquipment } from '@/lib/hooks/useEquipment';
 import { useTeamMembers } from '@/lib/hooks/useTeamMembers';
-import { useAuth } from '@/app/contexts/AuthContext';
 import { Plus, Package } from 'lucide-react';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { MaterialDialog } from './dialogs/MaterialDialog';
@@ -28,20 +27,17 @@ export function InventoryPanel() {
   const [isEquipmentDialogOpen, setIsEquipmentDialogOpen] = useState(false);
   const [isTeamDialogOpen, setIsTeamDialogOpen] = useState(false);
 
-  const { profile } = useAuth();
-  const userRole = (profile?.role as 'operator' | 'engineer' | 'admin') || 'operator';
-
   const {
     filteredMaterials,
     loading: materialsLoading,
     addMaterial,
-  } = useInventoryMaterials({ userRole });
+  } = useInventoryMaterials();
 
   const {
     plants,
     loading: plantsLoading,
     addPlant,
-  } = useConcretePlants({ userRole });
+  } = useConcretePlants();
 
   const {
     equipment,
